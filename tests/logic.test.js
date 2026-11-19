@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {seedData,recommend,rankTasks,scoreTask,dueMeta,reasonFor,dateKey,htmlEscape,stats} from '../js/logic.js';
+const fixed=new Date('2026-11-19T12:00:00');
+test('primeira recomendação é publicar anúncio SOUNDLINE',()=>{const d=seedData(fixed);assert.equal(recommend(d,fixed).id,'t-mercadolivre');});
+test('tarefas concluídas saem da recomendação',()=>{const d=seedData(fixed);d.tasks[0].status='done';assert.equal(recommend(d,fixed).id,'t-estoque');});
+test('adiadas não reaparecem até o dia seguinte',()=>{const d=seedData(fixed);d.skipped={date:dateKey(fixed),taskIds:['t-mercadolivre']};assert.equal(recommend(d,fixed).id,'t-estoque');assert.equal(recommend(d,new Date('2026-11-20T12:00:00')).id,'t-mercadolivre');});
+test('prazos vencidos ganham peso, sem horário UTC deslocado',()=>{assert.equal(dueMeta('2026-11-18',fixed).kind,'late');assert.equal(dueMeta('2026-11-19',fixed).kind,'today');assert.equal(dueMeta('2026-11-20',fixed).kind,'soon');});
+test('pontuação aumenta com impacto e com urgência',()=>{const d=seedData(fixed),b=d.businesses[0],a={...d.tasks[0]},base=scoreTask(a,b,fixed);a.impact=1;assert.ok(scoreTask(a,b,fixed)<base);});
+test('explicação humana e estatísticas são geradas',()=>{const d=seedData(fixed);assert.match(reasonFor(recommend(d,fixed),d.businesses[0],fixed),/impacto/i);assert.equal(stats(d,fixed).open,2);});
+test('dados exibidos são escapados contra HTML injetado',()=>{assert.equal(htmlEscape('<img src=x onerror="x">'),'&lt;img src=x onerror=&quot;x&quot;&gt;');});
