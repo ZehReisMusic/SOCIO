@@ -6,7 +6,8 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "db": "wrangler d1 execute socio-push --remote --file=./schema.sql",
-    "vapid": "node ./generate-keys.mjs"
+    "vapid": "node ./generate-keys.mjs",
+    "setup": "node ./setup.mjs"
   },
   "dependencies": {
     "@block65/webcrypto-web-push": "2.0.0"
