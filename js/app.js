@@ -73,7 +73,7 @@ function dashboard(){
     ${focusCard(top)}
     <section class="home-day-card panel" aria-label="Progresso de tarefas">
      <div class="home-card-kicker">${svg('check',16)} EXECUÇÃO DO DIA</div>
-     <div class="home-day-heading"><h2>Um passo de cada vez.</h2><span>${available.length} disponível${available.length===1?'':'is'}</span></div>
+     <div class="home-day-heading"><h2>Um passo de cada vez.</h2><span>${available.length===1?'1 disponível':available.length+' disponíveis'}</span></div>
      <div class="home-day-content">
       <div class="home-progress-ring" style="--progress:${progress}%"><span><strong>${done}/${total}</strong><small>no total</small></span></div>
       <div class="home-day-tasks">${actionRows||'<p class="home-day-empty">Nenhuma tarefa disponível hoje.</p>'}</div>
