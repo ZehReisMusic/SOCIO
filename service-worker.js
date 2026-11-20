@@ -1,5 +1,5 @@
 // Cache de arquivos estáticos da V002. Não armazena dados pessoais no cache.
-const CACHE_NAME = 'socio-v002-20261119';
+const CACHE_NAME = 'socio-v0021-20261120';
 const ASSETS = ['./', './index.html', './css/style.css', './js/app.js', './js/store.js', './js/logic.js', './js/agenda.js', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
