@@ -25,6 +25,7 @@
 html{background:var(--bg);scroll-behavior:smooth}
 body{background:radial-gradient(ellipse 700px 380px at 91% 0%,#28647725,transparent 70%),linear-gradient(145deg,#0b1012,#0d1416 65%,#0b1012);color:var(--txt);font-family:var(--font);letter-spacing:-.006em}
 h1,h2,h3,.brand-copy strong,.panel-title,.task-title,.focus-title,.station-song-name{font-family:var(--font-display)}
+.mobile-brand{display:none}
 .app-shell{grid-template-columns:258px minmax(0,1fr)}
 .sidebar{background:linear-gradient(175deg,#101719,#0d1416 78%);border-right:1px solid #29373b;padding:33px 17px 22px}
 .brand{gap:12px;padding:3px 11px 38px}
