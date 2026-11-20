@@ -7,6 +7,7 @@ on:
       - feature/visual-v0032
       - feature/visual-v0033-faithful
       - feature/icone01-paleta-azul
+      - feature/icone01-publicacao
   pull_request:
     branches:
       - main
