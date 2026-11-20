@@ -1,3 +1,9 @@
+## V003 — MEU SÓCIO · notificações push (20/11/2026)
+
+Código da interface e do serviço Web Push preparado, **mas a função de entrega ainda não está ativa** até implantar a pasta `push-worker/` no Cloudflare. A aba **Ajustes → Notificações** permite ativar voluntariamente após configurar o URL HTTPS privado e a chave de ativação. O app pode programar aviso para o dia seguinte quando uma tarefa é adiada. Concluir a tarefa cancela o aviso se a sincronização funcionar. O app nunca solicita permissão antes do toque do usuário. A notificação, quando enviada, abrirá **Executar**. Horário padrão 10:00 local, ajustável. Não são enviados lembretes anteriores cuja hora já passou. Nenhuma alteração no layout geral foi feita.
+
+**Implantação técnica:** [push-worker/README.md](push-worker/README.md). Não compartilhe chaves privadas ou códigos de ativação. **Atenção:** GitHub Pages sozinho não envia Web Push; o serviço Cloudflare precisa de D1, cron e segredos, com consentimento explícito do usuário.
+
 # SÓCIO — Versão 002
 
 **Atualização V002.2 (20/11/2026):** gerenciamento de atualizações da PWA. A aba Ajustes mostra a versão instalada e oferece o botão **Verificar e atualizar**, que busca um manifesto `version.json` sem cache e recarrega a página. O aplicativo verifica novas versões ao abrir e ao voltar para primeiro plano com conexão à internet. Se um formulário estiver aberto, o recarregamento fica pendente até ele ser fechado. A atualização do código não apaga o `localStorage`. O service worker prioriza a rede e mantém o cache somente para uso offline; a cada nova versão, atualizar `js/updater.js` (APP_VERSION), `index.html`, `service-worker.js` (CACHE_NAME) e `version.json` (por último). Em iOS, a reabertura ou a volta ao primeiro plano pode ser necessária para detectar a atualização. NÃO desinstale o atalho para forçar atualização — os dados são locais.
