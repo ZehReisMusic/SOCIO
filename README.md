@@ -1,3 +1,21 @@
+## Preparação V003.1 — REIZZOR STATION (ramificação, ainda não publicada)
+
+Adiciona **REIZZOR STATION** a **Meus Negócios**, com uma central criativa pessoal para cadastrar músicas, compor letras, adicionar BPM/tom/afinação, anotações e guardar **links HTTPS** para áudios-guia. Não há upload de arquivos nessa versão. A estação preserva o foco financeiro da SOUNDLINE e não cria tarefas automáticas.
+
+- Compatível com backups anteriores: na primeira leitura dos dados antigos, a estação é inserida sem apagar tarefas e histórico. Letras e músicas passam a integrar o backup JSON.
+- Dados permanecem exclusivamente no armazenamento local do dispositivo. O Mac e o iPhone **não** sincronizam automaticamente. Faça backup antes de atualizar.
+- O aplicativo coletivo **REIZZOR HUB** será futuro e separado, com compartilhamento seletivo. Nada da estação pessoal é enviado aos integrantes.
+- Atualização da interface Web Push não é parte desta entrega. Não implantar a V003.1 até validar o lembrete automático da V003 em 21/11/2026.
+
+### Roteiro de teste antes de mesclar
+
+1. Testar lembrete automático agendado na V003 no iPhone em 21/11; confirmar recebimento, horário e comportamento ao concluir a tarefa.
+2. Na ramificação V003.1, abrir Negócios → REIZZOR STATION → Abrir estação.
+3. Criar música, editar letra e dados musicais, adicionar link HTTPS de guia e remover referência.
+4. Exportar backup e reimportá-lo; conferir que músicas, tarefas e histórico continuam intactos.
+5. Verificar que Início, Execução, Agenda, Ajustes e Web Push continuam funcionando.
+6. Depois, planejar o refinamento de layout sem adicionar recursos complexos.
+
 ## V003 — MEU SÓCIO · notificações push (20/11/2026)
 
 Código da interface e do serviço Web Push preparado, **mas a função de entrega ainda não está ativa** até implantar a pasta `push-worker/` no Cloudflare. A aba **Ajustes → Notificações** permite ativar voluntariamente após configurar o URL HTTPS privado e a chave de ativação. O app pode programar aviso para o dia seguinte quando uma tarefa é adiada. Concluir a tarefa cancela o aviso se a sincronização funcionar. O app nunca solicita permissão antes do toque do usuário. A notificação, quando enviada, abrirá **Executar**. Horário padrão 10:00 local, ajustável. Não são enviados lembretes anteriores cuja hora já passou. Nenhuma alteração no layout geral foi feita.
