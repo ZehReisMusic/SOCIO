@@ -1,0 +1,152 @@
+/* MEU SÓCIO V003.3 — composição visual fiel ao conceito aprovado.
+   Ondas vetoriais próprias; âmbar mantido; azul-teal contido.
+   CSS de apresentação: não modifica dados, lógica ou inscrições Web Push. */
+.home-dashboard{display:grid;gap:17px}
+.home-hero{position:relative;isolation:isolate;overflow:hidden;min-height:218px;border:1px solid #35505a;border-radius:19px;background:radial-gradient(ellipse at 90% 0%,#1b53603a,transparent 60%),linear-gradient(125deg,#111d22,#0e171b 68%);padding:29px 33px 23px;box-shadow:0 24px 70px #00000025,inset 0 1px #a6d0d013}
+.home-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#101a1ef5 0%,#101b1dd2 31%,#10202630 73%,transparent 100%);pointer-events:none}
+.home-hero-art{position:absolute;z-index:-2;top:-19%;bottom:-12%;right:-5%;width:80%;background:url("../assets/socio-waves.svg") center right/cover no-repeat;pointer-events:none;opacity:1;filter:saturate(1.1)}
+.home-hero-content{position:relative;z-index:1;max-width:480px}
+.home-hero-eyebrow{display:flex;align-items:center;gap:10px;color:#f0b979;font-size:10px;font-weight:800;letter-spacing:.21em}
+.home-hero-eyebrow span{width:19px;height:1px;background:#e8ad68}
+.home-hero h1{margin:25px 0 10px;color:#f8faf9;font-family:var(--font-display);font-weight:780;letter-spacing:-.055em;font-size:clamp(39px,4.7vw,58px);line-height:1.04;text-shadow:0 2px 15px #0003}
+.home-hero p{margin:0;max-width:345px;color:#bdccce;font-size:14px;line-height:1.6}
+.home-hero-date{position:relative;z-index:1;display:inline-flex;margin-top:25px;color:#9cbdc6;text-transform:capitalize;font-size:11px;letter-spacing:.02em}
+.home-metrics{margin:0!important;gap:11px!important}
+.home-metrics .metric{min-height:113px;display:grid;align-content:center;padding:17px 20px;background:linear-gradient(150deg,#1b2a2d,#111c20);border-color:#344c54;border-radius:15px;box-shadow:0 8px 28px #0002}
+.home-metrics .metric:after{right:-50px;top:-55px;width:150px;height:150px;background:radial-gradient(circle,#317e8c1f,transparent 65%)}
+.home-metrics .metric-heading{font-size:11px;letter-spacing:.015em;color:#c9d4d4;gap:10px}
+.home-metrics .metric-heading svg{color:#edb46c;display:block;width:18px;height:18px}
+.home-metrics .metric-number{font-size:34px;margin:9px 0 0;line-height:1}
+.home-metrics .metric-foot{margin-top:5px;color:#9eb3b8;font-size:10px}
+.home-primary-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,1fr);gap:14px;align-items:stretch}
+.home-dashboard .focus-panel{display:flex;flex-direction:column;min-height:282px;margin:0;padding:23px 25px;background:radial-gradient(ellipse at 100% 0%,#2d69762c,transparent 61%),linear-gradient(146deg,#19292d,#132023 80%);border:1px solid #4a727d;border-radius:16px;box-shadow:inset 0 1px #75b8c41a}
+.home-dashboard .focus-label{font-size:10px;letter-spacing:.16em}
+.home-dashboard .focus-label::before{box-shadow:0 0 0 4px #ecb46a15}
+.home-dashboard .focus-title{font-size:clamp(21px,2.25vw,28px);line-height:1.23;margin:15px 0 8px;letter-spacing:-.037em}
+.home-dashboard .focus-text{font-size:12px;line-height:1.5;color:#bdcacc;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.home-dashboard .focus-split{margin:14px 0 16px;gap:8px}
+.home-dashboard .focus-buttons{margin-top:auto;display:flex;gap:8px}
+.home-dashboard .focus-buttons .btn-primary{font-size:12px;min-height:43px;padding:11px 15px;flex:1}
+.home-dashboard .focus-buttons .btn-outline{font-size:11px;min-height:43px;padding:10px 13px}
+.home-dashboard .focus-footer{border-color:#426069;margin-top:16px;padding-top:12px}
+.home-dashboard .focus-footer b{font-size:10px}
+.home-dashboard .focus-footer p{font-size:11px;line-height:1.45;margin:6px 0 0;color:#aebfc1}
+.home-day-card{display:flex;flex-direction:column;gap:13px;min-width:0;padding:22px 23px;background:linear-gradient(145deg,#172327,#111c1f);border-color:#39545c;border-radius:16px}
+.home-day-card .home-card-kicker{display:flex;align-items:center;gap:8px;color:#edb56d;letter-spacing:.14em;font-size:10px;font-weight:800}
+.home-card-kicker svg{color:#edb56d}
+.home-day-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.home-day-heading h2{font-family:var(--font-display);font-size:17px;letter-spacing:-.025em;margin:0;font-weight:740}
+.home-day-heading span{font-size:10px;color:#a6bdc1;white-space:nowrap}
+.home-day-content{display:flex;align-items:center;gap:18px;flex:1}
+.home-progress-ring{width:101px;height:101px;flex:0 0 101px;border-radius:50%;background:conic-gradient(#f1b86c var(--progress),#31454a var(--progress) 100%);display:grid;place-items:center;position:relative;box-shadow:0 0 25px #edb56a0c}
+.home-progress-ring:before{position:absolute;content:"";inset:10px;border-radius:50%;background:#162226}
+.home-progress-ring span{z-index:1;display:grid;justify-items:center;gap:3px}
+.home-progress-ring strong{font-size:19px;font-family:var(--font-display);font-weight:770}
+.home-progress-ring small{font-size:9px;color:#aab8b9}
+.home-day-tasks{display:grid;gap:7px;flex:1;min-width:0}
+.home-task-item{display:flex;align-items:center;gap:9px;min-width:0;border-bottom:1px solid #304349;padding:6px 0}
+.home-task-item:last-child{border:0}
+.home-task-check{width:20px;height:20px;min-width:20px;border:1px solid #68828a;border-radius:5px;color:transparent;background:#131e22;display:grid;place-items:center;padding:0}
+.home-task-check:hover,.home-task-check:focus-visible{background:#eab46d;color:#1d1a16;border-color:#eab46d}
+.home-task-check svg{width:13px;height:13px}
+.home-task-name{font-size:11px;line-height:1.35;color:#d3dfdf;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.home-day-empty{font-size:12px;color:#adc0c2}
+.home-day-link{align-self:flex-end;border:0;background:none;color:#eab36b;font-size:11px;font-weight:700;padding:5px 0;display:flex;align-items:center;gap:5px}
+.home-surface-section{margin-top:2px}
+.home-section-heading{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:6px 1px 12px}
+.home-section-heading h2{font-size:11px;font-family:var(--font);font-weight:780;letter-spacing:.17em;color:#edb66e;margin:0}
+.home-business-list,.home-history-content{display:grid;gap:8px}
+.home-business-list .business-row{background:linear-gradient(100deg,#1a2b2e,#131f22);border:1px solid #3c565e;padding:12px 15px;min-height:69px;border-radius:12px}
+.home-business-list .business-row .b-title{font-size:13px}
+.home-business-list .business-row .b-description{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px}
+.home-business-list .b-icon{width:37px;height:37px;flex-basis:37px}
+.home-business-list .business-row .b-tag{border-color:#41555a;color:#aebfc1}
+.home-shortcut-section .dashboard-shortcuts{margin-top:0}
+.home-shortcut-section .dashboard-shortcut{background:linear-gradient(155deg,#1b2a2d,#111a1d);border-color:#385159;min-height:78px;align-items:center;text-align:center;padding:12px 7px;gap:9px}
+.home-shortcut-section .dashboard-shortcut svg{color:#efb56a;width:21px;height:21px}
+.home-shortcut-section .dashboard-shortcut[data-action="open-station"] svg{color:#83b5c1}
+.home-history-content{background:#141e22;border:1px solid #30464e;border-radius:15px;padding:5px 17px}
+.home-history-content .activity-row{margin:0}
+.home-history-section{margin-bottom:28px}
+/* O mesmo sistema de design em todas as abas, sem imagens da REIZZOR. */
+body:not([data-page="inicio"]) .view-header{position:relative;isolation:isolate;overflow:hidden;min-height:127px;margin-top:15px;padding:24px 27px;background:linear-gradient(92deg,#151f22f7 0%,#132127e2 45%,#1328307b 100%),url("../assets/socio-waves.svg") 100% 40%/auto 175% no-repeat;border:1px solid #3c5862;border-radius:17px;align-items:center}
+body:not([data-page="inicio"]) .view-header h1{color:#f6f8f7;font-size:clamp(30px,3.5vw,42px)}
+body:not([data-page="inicio"]) .view-header p{color:#b4c7cb;max-width:560px}
+body:not([data-page="inicio"]) #view>.eyebrow{font-weight:800;letter-spacing:.17em}
+.business-card{position:relative;overflow:hidden;border-color:#3d5660;background:linear-gradient(155deg,#1b2a2e,#131e22 77%);box-shadow:0 12px 32px #00000020}
+.business-card::before{content:"";position:absolute;top:0;left:24px;right:24px;height:2px;background:linear-gradient(90deg,#e8ab64,#538c99 50%,transparent);opacity:.72}
+.task-row{background:linear-gradient(120deg,#192629,#111b1f);border-color:#40565d}
+.task-row:hover{border-color:#527987}
+.task-row .task-title{color:#f1f5f3}
+.setting-card{border-color:#3a5660;background:linear-gradient(140deg,#1b282d,#131e22)}
+.setting-card svg{color:#eab56f}
+.agenda-panel{background:linear-gradient(140deg,#1a282b,#111b1e)}
+.execution-card{border-color:#557681;box-shadow:inset 0 1px #85b8bf1c,0 24px 55px #0002}
+.station-intro{background:linear-gradient(92deg,#162529f7 0%,#14232bc7 55%,#18384367 100%),url("../assets/socio-waves.svg") right center/auto 150% no-repeat}
+.station-song{box-shadow:0 6px 20px #00000017}
+.topbar{border-bottom-color:#35515a;box-shadow:0 6px 22px #0002}
+.mobile-nav{border-top-color:#47646b}
+@media(max-width:1050px){
+ .home-primary-grid{grid-template-columns:1fr}
+ .home-day-content{gap:15px}
+}
+@media(max-width:740px){
+ #view{padding-top:16px}
+ .topbar{min-height:62px}
+ .topbar-left #topbar-current{display:none!important}
+ .topbar .mobile-brand{font-size:15px!important}
+ .home-dashboard{gap:12px}
+ .home-hero{min-height:185px;padding:20px 20px 17px;border-radius:15px}
+ .home-hero-art{right:-31%;top:-35%;bottom:-20%;width:140%;background-position:center right;background-size:cover;opacity:.95}
+ .home-hero::before{background:linear-gradient(90deg,#101a1efb 0%,#111d20d9 42%,#10283034 82%,transparent 100%)}
+ .home-hero-eyebrow{font-size:9px;letter-spacing:.16em;gap:7px}
+ .home-hero h1{font-size:clamp(34px,8.4vw,43px);margin:24px 0 9px}
+ .home-hero p{font-size:12px;line-height:1.5;max-width:220px}
+ .home-hero-date{margin-top:18px;font-size:10px}
+ .home-metrics{gap:7px!important;margin:0!important}
+ .home-metrics .metric{min-height:89px;padding:12px 10px;border-radius:12px}
+ .home-metrics .metric-heading{font-size:9px;gap:5px;line-height:1.25}
+ .home-metrics .metric-heading svg{width:13px;height:13px;display:none}
+ .home-metrics .metric-number{font-size:28px;margin-top:9px}
+ .home-metrics .metric-foot{font-size:9px;line-height:1.2}
+ .home-primary-grid{gap:12px}
+ .home-dashboard .focus-panel{min-height:unset;padding:20px;border-radius:14px}
+ .home-dashboard .focus-title{font-size:22px;margin:14px 0 8px}
+ .home-dashboard .focus-text{font-size:11px;-webkit-line-clamp:2}
+ .home-dashboard .focus-split{margin:12px 0}
+ .home-dashboard .focus-buttons{gap:7px;flex-direction:row;flex-wrap:nowrap}
+ .home-dashboard .focus-buttons .btn-primary{font-size:11px;min-width:0;min-height:42px;padding:9px 11px}
+ .home-dashboard .focus-buttons .btn-outline{font-size:11px;min-height:42px;padding:9px 11px}
+ .home-dashboard .focus-footer{margin-top:14px}
+ .home-dashboard .focus-footer p{font-size:10px}
+ .home-day-card{padding:19px 18px;gap:12px}
+ .home-day-heading h2{font-size:17px}
+ .home-day-content{gap:14px}
+ .home-progress-ring{width:81px;height:81px;flex-basis:81px}
+ .home-progress-ring:before{inset:8px}
+ .home-progress-ring strong{font-size:17px}
+ .home-task-name{font-size:11px}
+ .home-surface-section{margin-top:3px}
+ .home-section-heading{margin-bottom:10px}
+ .home-business-list{gap:7px}
+ .home-business-list .business-row{padding:10px 11px;min-height:61px}
+ .home-business-list .business-row .b-description{max-width:245px}
+ .home-shortcut-section .dashboard-shortcuts{gap:7px}
+ .home-shortcut-section .dashboard-shortcut{min-height:75px;padding:10px 4px;font-size:10px}
+ body:not([data-page="inicio"]) .view-header{min-height:118px;padding:19px 17px;background-size:auto 130%;align-items:flex-start}
+ body:not([data-page="inicio"]) .view-header h1{font-size:30px}
+ body:not([data-page="inicio"]) .view-header p{font-size:12px}
+ body:not([data-page="inicio"]) .view-header .view-actions{margin-top:3px;width:100%}
+ .station-intro{background-size:auto 145%}
+}
+@media(max-width:375px){
+ .home-hero-art{right:-44%}
+ .home-metrics .metric{padding:10px 8px}
+ .home-metrics .metric-heading{font-size:8px}
+ .home-metrics .metric-number{font-size:26px}
+ .home-metrics .metric-foot{font-size:8px}
+ .home-dashboard .focus-buttons .btn-primary{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .home-hero-art{animation:none}
+}
