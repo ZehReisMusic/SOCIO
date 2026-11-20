@@ -1,5 +1,7 @@
 # SÓCIO — Versão 002
 
+**Atualização V002.2 (20/11/2026):** gerenciamento de atualizações da PWA. A aba Ajustes mostra a versão instalada e oferece o botão **Verificar e atualizar**, que busca um manifesto `version.json` sem cache e recarrega a página. O aplicativo verifica novas versões ao abrir e ao voltar para primeiro plano com conexão à internet. Se um formulário estiver aberto, o recarregamento fica pendente até ele ser fechado. A atualização do código não apaga o `localStorage`. O service worker prioriza a rede e mantém o cache somente para uso offline; a cada nova versão, atualizar `js/updater.js` (APP_VERSION), `index.html`, `service-worker.js` (CACHE_NAME) e `version.json` (por último). Em iOS, a reabertura ou a volta ao primeiro plano pode ser necessária para detectar a atualização. NÃO desinstale o atalho para forçar atualização — os dados são locais.
+
 **Atualização V002.1 (20/11/2026):** O botão “Não agora, outra ação” mantém a tarefa pendente, a adia apenas nas recomendações do dia e registra o adiamento no Histórico como decisão (sem contabilizá-lo como tarefa concluída). O layout permanece o mesmo. Os adiamentos anteriores à atualização não são recriados retroativamente.
 
 **Menos planos. Mais avanço.** Aplicativo pessoal de negócios, execução de tarefas e compromissos com entrada por voz. PWA gratuito, sem servidor nem dependências externas.
