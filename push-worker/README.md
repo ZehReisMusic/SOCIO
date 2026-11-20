@@ -4,6 +4,29 @@
 
 O aplicativo continua hospedado no GitHub Pages. Este Worker envia mensagens Web Push para o atalho instalado no iPhone. O banco D1 guarda inscrições criptográficas e, após consentimento, apenas os títulos e os horários das tarefas adiadas. Não recebe os demais negócios, agenda ou histórico.
 
+## Caminho recomendado: instalador assistido no Mac
+
+Pré-requisito: **Node.js LTS** instalado no Mac (https://nodejs.org). A conta Cloudflare já pode estar criada.
+
+Use o Terminal e execute:
+
+```sh
+cd ~/Downloads
+curl -fL https://github.com/ZehReisMusic/SOCIO/archive/refs/heads/main.zip -o meu-socio.zip
+unzip -oq meu-socio.zip
+cd SOCIO-main/push-worker
+npm install
+npm run setup
+```
+
+O assistente abrirá o navegador para autorizar o Cloudflare e pedirá um e-mail de contato técnico. Ele cuida da criação do banco D1, atualização de `wrangler.jsonc` **somente na cópia local**, preparação das tabelas, publicação do Worker e gravação das chaves VAPID como Cloudflare Secrets. Não imprime a chave privada VAPID nem envia credenciais ao GitHub. O assistente exibirá **apenas no próprio Mac** o URL do Worker e um código secreto de ativação para copiar ao iPhone. Nunca compartilhe esse código em chats/capturas.
+
+**Não execute o instalador de novo após ativar o serviço**, pois recriará segredos e poderá invalidar inscrições anteriores. Para novas versões, use `npx wrangler deploy` preservando o mesmo banco e as mesmas chaves.
+
+Se o `curl`, o `npm install` ou a autenticação falhar, interrompa o processo e procure a mensagem de erro; não substitua valores por tentativa. Os passos manuais abaixo são uma alternativa, não são necessários após o sucesso do instalador.
+
+### Alternativa: configuração manual
+
 ## Passos únicos no Mac
 
 1. Crie ou acesse sua conta gratuita em https://dash.cloudflare.com/ .
