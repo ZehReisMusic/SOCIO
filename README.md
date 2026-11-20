@@ -1,5 +1,7 @@
 # SÓCIO — Versão 002
 
+**Atualização V002.1 (20/11/2026):** O botão “Não agora, outra ação” mantém a tarefa pendente, a adia apenas nas recomendações do dia e registra o adiamento no Histórico como decisão (sem contabilizá-lo como tarefa concluída). O layout permanece o mesmo. Os adiamentos anteriores à atualização não são recriados retroativamente.
+
 **Menos planos. Mais avanço.** Aplicativo pessoal de negócios, execução de tarefas e compromissos com entrada por voz. PWA gratuito, sem servidor nem dependências externas.
 
 ## Funcionalidades
