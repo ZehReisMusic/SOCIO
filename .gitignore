@@ -1,0 +1,17 @@
+# Dependências e arquivos locais
+node_modules/
+push-worker/node_modules/
+.wrangler/
+push-worker/.wrangler/
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+push-worker/.env
+push-worker/.dev.vars
+*.pem
+*.key
+private-keys.json
+vapid-keys.json
+push-worker/package-lock.json
+.DS_Store
