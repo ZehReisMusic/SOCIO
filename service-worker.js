@@ -1,7 +1,7 @@
-// MEU SÓCIO V003.1 — PWA offline, atualização e Web Push.
-const CACHE_NAME = 'socio-v0031-20261120';
+// MEU SÓCIO V003.2 — Design system, PWA offline, atualização e Web Push (handlers preservados).
+const CACHE_NAME = 'socio-v0032-20261120';
 const ASSETS = [
-  './', './index.html', './css/style.css',
+  './', './index.html', './css/style.css', './css/theme-v0032.css',
   './js/app.js', './js/updater.js', './js/push.js', './js/store.js',
   './js/logic.js', './js/reizzor-station.js', './js/agenda.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png',
