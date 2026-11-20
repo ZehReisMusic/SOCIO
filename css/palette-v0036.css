@@ -1,0 +1,62 @@
+/* MEU SÓCIO V003.6 — mesma paleta azul-grafite em todas as abas.
+   A tela Início aprovada permanece intacta. Apenas aparência: Web Push e dados intocados. */
+:root{--socio-blue-900:#102330;--socio-blue-850:#152b39;--socio-blue-800:#1b3343;--socio-blue-edge:#315e77;--socio-blue-edge-strong:#437b96;--socio-cyan:#48b8d5}
+body:not([data-page="inicio"]) .business-card,
+body:not([data-page="inicio"]) .setting-card,
+body:not([data-page="inicio"]) .panel,
+body:not([data-page="inicio"]) .execution-card,
+body:not([data-page="inicio"]) .station-song,
+body:not([data-page="inicio"]) .station-detail,
+body:not([data-page="inicio"]) .station-intro{
+ background:linear-gradient(153deg,#1b3445 0%,#142b39 47%,#10212c 100%);
+ border-color:var(--socio-blue-edge);box-shadow:inset 0 1px 0 #86bcd015,0 10px 30px #0000001c;
+}
+body:not([data-page="inicio"]) .business-card::before{
+ background:linear-gradient(90deg,var(--amber) 0%,#4ba6c2 48%,transparent 100%);
+}
+body:not([data-page="inicio"]) .business-card:hover,
+body:not([data-page="inicio"]) .station-song:hover,
+body:not([data-page="inicio"]) .task-row:hover{border-color:var(--socio-blue-edge-strong)}
+body:not([data-page="inicio"]) .business-card .b-icon,
+body:not([data-page="inicio"]) .business-card .b-tag,
+body:not([data-page="inicio"]) .b-icon,
+body:not([data-page="inicio"]) .b-tag{border-color:#426478}
+body:not([data-page="inicio"]) .business-card .b-tag,
+body:not([data-page="inicio"]) .b-tag,
+body:not([data-page="inicio"]) .soft-pill{background:#223e4e;color:#cbdee6}
+body:not([data-page="inicio"]) .business-meta,
+body:not([data-page="inicio"]) .task-subrow,
+body:not([data-page="inicio"]) .station-song-meta{color:#b6cbd3}
+body:not([data-page="inicio"]) .business-bottom,
+body:not([data-page="inicio"]) .station-facts,
+body:not([data-page="inicio"]) .agenda-item,
+body:not([data-page="inicio"]) .activity-row{border-color:#35576b}
+body:not([data-page="inicio"]) .task-row,
+body:not([data-page="inicio"]) .business-row,
+body:not([data-page="inicio"]) .agenda-date,
+body:not([data-page="inicio"]) .station-guide,
+body:not([data-page="inicio"]) .station-copy,
+body:not([data-page="inicio"]) .filter-btn,
+body:not([data-page="inicio"]) .icon-btn{
+ background:linear-gradient(120deg,#203a49,#132936);border-color:#365b71;
+}
+body:not([data-page="inicio"]) .filter-btn.active{background:var(--amber);border-color:#f2c487;color:#231c14}
+body:not([data-page="inicio"]) .activity-dot{background:#234251;border-color:#426d7e;color:#9bdae9}
+body:not([data-page="inicio"]) .activity-dot.ink{background:#342c24;border-color:#765a38;color:var(--amber)}
+body:not([data-page="inicio"]) .station-song.selected{border-color:#78bfd3;box-shadow:inset 3px 0 0 var(--socio-cyan)}
+body:not([data-page="inicio"]) .station-detail-grid h3,
+body:not([data-page="inicio"]) .station-guide a{color:#a1dced}
+body:not([data-page="inicio"]) .agenda-voice-mark,
+body:not([data-page="inicio"]) .agenda-date{border-color:#416b7b}
+body:not([data-page="inicio"]) .agenda-voice-mark{background:#263c4a;color:var(--amber)}
+.modal{background:linear-gradient(155deg,#213947,#152a37 78%);border-color:#4b7489}
+.form-field input,.form-field textarea,.form-field select{background:#111f2b;border-color:#436679}
+.form-field input:focus,.form-field textarea:focus,.form-field select:focus{border-color:var(--amber)}
+.btn-outline,.icon-btn{background-color:#172d3a;border-color:#41667c}
+.btn-outline:hover,.icon-btn:hover{background-color:#244458}
+@media(max-width:740px){
+ body:not([data-page="inicio"]) .business-card,
+ body:not([data-page="inicio"]) .setting-card,
+ body:not([data-page="inicio"]) .station-song,
+ body:not([data-page="inicio"]) .task-row{border-color:#356078}
+}
