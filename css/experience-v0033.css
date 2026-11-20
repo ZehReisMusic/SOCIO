@@ -150,3 +150,19 @@ body:not([data-page="inicio"]) #view>.eyebrow{font-weight:800;letter-spacing:.17
 @media(prefers-reduced-motion:reduce){
  .home-hero-art{animation:none}
 }
+
+/* V003.4 — azul/ciano do ícone 01, sem alterar o layout nem o âmbar. */
+:root{--teal:#48b8d5;--teal-deep:#217d9e;--teal-faint:#153949}
+.home-hero{background:radial-gradient(ellipse at 90% 0%,#167bab58,transparent 64%),linear-gradient(125deg,#101b24,#0b1720 68%);border-color:#326480}
+.home-hero-art{filter:saturate(1.25) brightness(1.12)}
+.home-hero::before{background:linear-gradient(90deg,#0e1920f6 0%,#0d1c24d7 31%,#0c344d33 73%,transparent 100%)}
+.home-metrics .metric{background:linear-gradient(150deg,#172936,#101b24);border-color:#315267}
+.home-metrics .metric::after{background:radial-gradient(circle,#16a9d73a,transparent 65%)}
+.home-dashboard .focus-panel{background:radial-gradient(ellipse at 100% 0%,#167fa54f,transparent 62%),linear-gradient(145deg,#152a34,#111e26 80%);border-color:#366a81}
+.home-day-card{background:linear-gradient(145deg,#162832,#111e27);border-color:#31576b}
+.home-business-list .business-row{background:linear-gradient(110deg,#152a32,#101e26);border-color:#365a70}
+.home-shortcut-section .dashboard-shortcut{background:linear-gradient(155deg,#182d37,#101c25);border-color:#365b70}
+.home-shortcut-section .dashboard-shortcut[data-action="open-station"] svg{color:#47bddd}
+body:not([data-page="inicio"]) .view-header{background:linear-gradient(92deg,#101b24f7 0%,#112430e2 48%,#103c577b 100%),url("../assets/socio-waves.svg") 100% 40%/auto 175% no-repeat;border-color:#32637c}
+.station-intro{background:linear-gradient(90deg,#132731f7 0%,#102632d2 55%,#13517160 100%),url("../assets/socio-waves.svg") right center/auto 150% no-repeat}
+@media(max-width:740px){.home-hero::before{background:linear-gradient(90deg,#0e1920fa 0%,#101f28dc 42%,#10436238 82%,transparent 100%)}body:not([data-page="inicio"]) .view-header{background-size:auto 130%}}
