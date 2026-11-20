@@ -36,19 +36,25 @@ self.addEventListener('fetch', event => {
     return;
   }
   event.respondWith((async () => {
-    const cache = await caches.open(CACHE_NAME);
     const isNavigation = request.mode === 'navigate';
     const key = isNavigation ? INDEX_URL : request;
     try {
-      // Prioriza código atualizado. Mantém offline apenas como fallback.
+      // Prioriza código atualizado; uma falha no cache não bloqueia a página online.
       const response = await fetch(request, {cache: 'no-store'});
       if (response.ok && (isNavigation || APP_PATHS.has(url.pathname))) {
-        await cache.put(key, response.clone());
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(key, response.clone());
+        } catch (cacheErr) { console.warn('SÓCIO: cache indisponível.', cacheErr); }
       }
       return response;
     } catch (err) {
-      const cached = await cache.match(key);
-      return cached || Response.error();
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(key);
+        if (cached) return cached;
+      } catch (_) { /* Sem cache offline. */ }
+      return Response.error();
     }
   })());
 });
