@@ -8,6 +8,7 @@ on:
       - feature/visual-v0033-faithful
       - feature/icone01-paleta-azul
       - feature/icone01-publicacao
+      - fix/paleta-unificada-v0036
   pull_request:
     branches:
       - main
@@ -40,8 +41,10 @@ jobs:
         run: |
           test -f css/theme-v0032.css
           test -f css/experience-v0033.css
+          test -f css/palette-v0036.css
           test -f assets/socio-waves.svg
           grep -q 'theme-v0032.css' index.html
           grep -q 'theme-v0032.css' service-worker.js
           grep -q 'experience-v0033.css' service-worker.js
+          grep -q 'palette-v0036.css' service-worker.js
           grep -q 'socio-waves.svg' service-worker.js
