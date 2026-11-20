@@ -1,0 +1,17 @@
+{
+  "name": "meu-socio-push",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "db": "wrangler d1 execute socio-push --remote --file=./schema.sql",
+    "vapid": "node ./generate-keys.mjs"
+  },
+  "dependencies": {
+    "@block65/webcrypto-web-push": "2.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
