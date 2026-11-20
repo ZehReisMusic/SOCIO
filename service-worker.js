@@ -1,8 +1,8 @@
-// SÓCIO V002.2 — PWA offline e atualização segura do código.
-const CACHE_NAME = 'socio-v0022-20261120';
+// MEU SÓCIO V003 — PWA offline, atualização e Web Push.
+const CACHE_NAME = 'socio-v003-20261120';
 const ASSETS = [
   './', './index.html', './css/style.css',
-  './js/app.js', './js/updater.js', './js/store.js',
+  './js/app.js', './js/updater.js', './js/push.js', './js/store.js',
   './js/logic.js', './js/agenda.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png',
   './icons/apple-touch-icon.png'
@@ -56,5 +56,34 @@ self.addEventListener('fetch', event => {
       } catch (_) { /* Sem cache offline. */ }
       return Response.error();
     }
+  })());
+});
+
+// Exige uma notificação visível por evento push, inclusive se o app estiver fechado.
+self.addEventListener('push', event => {
+  let data={};
+  try {data=event.data?.json()||{};} catch {data={};}
+  const title='MEU SÓCIO';
+  const body=String(data.body||'Você tem um lembrete pendente.').slice(0,180);
+  event.waitUntil(self.registration.showNotification(title,{
+    body,
+    icon:'./icons/icon-192.png',
+    badge:'./icons/icon-192.png',
+    tag:typeof data.tag==='string'&&data.tag==='socio-test'?'socio-test':'socio-priority',
+    data:{url:new URL('./#executar',self.registration.scope).href}
+  }));
+});
+self.addEventListener('notificationclick',event=>{
+  event.notification.close();
+  event.waitUntil((async()=>{
+    const target=new URL('./#executar',self.registration.scope).href;
+    const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    for(const client of windows){
+      if(new URL(client.url).origin===self.location.origin&&new URL(client.url).pathname.startsWith(new URL(self.registration.scope).pathname)){
+        await client.navigate(target);
+        return client.focus();
+      }
+    }
+    return self.clients.openWindow(target);
   })());
 });
