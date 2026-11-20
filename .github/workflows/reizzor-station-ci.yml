@@ -1,9 +1,10 @@
-name: REIZZOR STATION V003.1 - testes
+name: MEU SÓCIO - testes funcionais e regressão visual
 
 on:
   push:
     branches:
       - feature/reizzor-station
+      - feature/visual-v0032
   pull_request:
     branches:
       - main
@@ -32,3 +33,8 @@ jobs:
           node --check js/push.js
           node --check js/updater.js
           node --check service-worker.js
+      - name: Validar arquivos de tema
+        run: |
+          test -f css/theme-v0032.css
+          grep -q 'theme-v0032.css' index.html
+          grep -q 'theme-v0032.css' service-worker.js
