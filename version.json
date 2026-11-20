@@ -1,5 +1,5 @@
 {
-  "version": "V002.2",
+  "version": "V003",
   "releasedAt": "2026-11-20",
-  "description": "Atualização automática do PWA e botão manual em Ajustes."
+  "description": "MEU SÓCIO: infraestrutura e interface de notificações Web Push preparadas. Ativação requer implantação do serviço Cloudflare."
 }
