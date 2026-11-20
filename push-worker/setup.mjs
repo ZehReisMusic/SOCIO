@@ -78,8 +78,7 @@ async function main(){
   const confirm=(await rl.question('Continuar? [s/N] ')).trim().toLowerCase();
   if(!['s','sim','y','yes'].includes(confirm)){print('Operação cancelada.');return;}
   print('\n1/5 — Conectar ao Cloudflare (pode abrir o navegador)...');
-  try{await command(['whoami'],{capture:true});}
-  catch{await command(['login']);}
+  await command(['login']); // Garante autorização explícita neste Mac.
   print('\n2/5 — Preparar D1...');
   const dbId=await selectDatabase();
   await setDbId(dbId);
