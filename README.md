@@ -5,16 +5,17 @@ Adiciona **REIZZOR STATION** a **Meus Negócios**, com uma central criativa pess
 - Compatível com backups anteriores: na primeira leitura dos dados antigos, a estação é inserida sem apagar tarefas e histórico. Letras e músicas passam a integrar o backup JSON.
 - Dados permanecem exclusivamente no armazenamento local do dispositivo. O Mac e o iPhone **não** sincronizam automaticamente. Faça backup antes de atualizar.
 - O aplicativo coletivo **REIZZOR HUB** será futuro e separado, com compartilhamento seletivo. Nada da estação pessoal é enviado aos integrantes.
-- Atualização da interface Web Push não é parte desta entrega. Não implantar a V003.1 até validar o lembrete automático da V003 em 21/11/2026.
+- Atualização da interface Web Push não é parte desta entrega. O teste de envio automático da V003 em **21/11/2026** será feito de forma independente e **não impede** a integração da STATION: o código de notificação e a inscrição do iPhone devem permanecer preservados.
 
-### Roteiro de teste antes de mesclar
+### Roteiro de validação da V003.1
 
-1. Testar lembrete automático agendado na V003 no iPhone em 21/11; confirmar recebimento, horário e comportamento ao concluir a tarefa.
-2. Na ramificação V003.1, abrir Negócios → REIZZOR STATION → Abrir estação.
-3. Criar música, editar letra e dados musicais, adicionar link HTTPS de guia e remover referência.
-4. Exportar backup e reimportá-lo; conferir que músicas, tarefas e histórico continuam intactos.
-5. Verificar que Início, Execução, Agenda, Ajustes e Web Push continuam funcionando.
-6. Depois, planejar o refinamento de layout sem adicionar recursos complexos.
+1. Verificação automatizada de regressão da STATION e do Web Push no GitHub Actions (concluída com sucesso).
+2. Publicar a V003.1 sem mudar o código de notificações Cloudflare nem as assinaturas do iPhone.
+3. No MEU SÓCIO instalado, abrir Negócios → REIZZOR STATION → Abrir estação; criar música, editar letra e dados, adicionar/remover referência HTTPS.
+4. Exportar backup e reimportar uma cópia após conferir os dados; validar músicas, tarefas e histórico. Fazer backup preventivo antes da atualização.
+5. Confirmar que Início, Execução, Agenda, Ajustes e o status Conectado · Web Push permanecem operacionais.
+6. Em **21/11/2026**, confirmar recebimento do lembrete agendado — **teste independente da STATION**, não bloqueador do layout.
+7. Iniciar refinamento visual após a validação prática das funções, sem acrescentar complexidade desnecessária.
 
 ## V003 — MEU SÓCIO · notificações push (20/11/2026)
 
