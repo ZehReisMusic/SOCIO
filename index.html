@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#101719" />
+  <meta name="theme-color" content="#0b1012" />
   <meta name="description" content="SÓCIO — Seu assessor de execução para negócios. Menos planejamento, mais avanço real." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -12,7 +12,11 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/theme-v0032.css" />
   <title>MEU SÓCIO — Menos planos. Mais avanço.</title>
 </head>
 <body>
@@ -20,19 +24,19 @@
     <aside class="sidebar" aria-label="Navegação principal">
       <a href="#inicio" class="brand" id="brand-link" aria-label="SÓCIO, página inicial">
         <span class="brand-mark" aria-hidden="true"><span></span></span>
-        <span class="brand-copy"><strong>SÓCIO<span class="brand-dot">.</span></strong><small>Seu próximo movimento</small></span>
+        <span class="brand-copy"><strong>MEU SÓCIO</strong><small>Gestão · Projetos · Execução</small></span>
       </a>
       <div class="sidebar-label">ÁREA DE TRABALHO</div>
       <nav id="main-nav" class="main-nav" aria-label="Seções"></nav>
       <div class="sidebar-bottom">
         <div class="aside-note"><span class="aside-note-icon">✦</span><p>Não precisa fazer tudo.<br><strong>Só a próxima coisa certa.</strong></p></div>
         <button type="button" class="sidebar-settings" data-nav="ajustes">⚙ <span>Dados e configurações</span></button>
-        <div class="version">MEU SÓCIO · V003.1</div>
+        <div class="version">MEU SÓCIO · V003.2</div>
       </div>
     </aside>
     <div class="main-area">
       <header class="topbar">
-        <div class="topbar-left"><span class="topbar-path">SEU ESPAÇO</span><span class="topbar-slash">/</span><strong id="topbar-current">Visão geral</strong></div>
+        <div class="topbar-left"><span class="mobile-brand" aria-label="MEU SÓCIO"><span class="mobile-brand-mark" aria-hidden="true"></span>MEU SÓCIO</span><span class="topbar-path">SEU ESPAÇO</span><span class="topbar-slash">/</span><strong id="topbar-current">Visão geral</strong></div>
         <div class="topbar-right"><span class="local-indicator"><span class="status-dot"></span> Dados neste dispositivo</span><button class="topbar-action" data-action="new-task"><span class="plus">＋</span><span>Nova tarefa</span></button></div>
       </header>
       <main id="view" tabindex="-1" aria-live="polite"></main>
