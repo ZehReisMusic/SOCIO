@@ -22,3 +22,37 @@
 .agenda-voice-copy{flex:1;min-width:0}.agenda-voice-copy h2{font-size:18px;margin:0 0 6px}.agenda-voice-copy p{font-size:12px;color:var(--muted);line-height:1.5;margin:5px 0}.agenda-voice-panel button{flex-shrink:0}
 .agenda-panel{margin-bottom:3px}.agenda-list{display:flex;flex-direction:column;gap:0}.agenda-item{display:flex;align-items:center;gap:15px;padding:15px 0;border-top:1px solid #3c4946}.agenda-date{width:52px;min-width:52px;background:#303938;border:1px solid #56615c;border-radius:11px;text-align:center;padding:9px 4px;color:var(--amber);display:flex;flex-direction:column;gap:2px}.agenda-date strong{font-size:20px;line-height:1}.agenda-date span{font-size:11px;color:var(--muted);text-transform:capitalize}.agenda-details{flex:1;min-width:0}.agenda-time{font-size:11px;color:var(--amber);display:flex;align-items:center;gap:5px}.agenda-title{font-size:15px;font-weight:700;line-height:1.4;margin:4px 0}.agenda-details p{color:var(--muted);font-size:11px;margin:2px 0}.agenda-actions{display:flex;align-items:center;gap:3px}.agenda-finished{opacity:.64}.agenda-empty{padding:23px 8px;color:var(--muted);font-size:13px;line-height:1.5}.voice-review{display:flex;flex-direction:column;gap:10px;padding:15px;border:1px solid #5f5540;background:#2a2b25;border-radius:12px}.voice-review p{font-size:12px;color:var(--muted);line-height:1.5;margin:0}.voice-review textarea{min-height:85px;background:#1d2627;color:var(--txt);padding:10px;border:1px solid #56635d;border-radius:8px;resize:vertical}.voice-review button{align-self:flex-start}
 @media(max-width:740px){.mobile-nav{overflow-x:auto;justify-content:space-between;scrollbar-width:none}.mobile-nav::-webkit-scrollbar{display:none}.mobile-nav button{min-width:0;flex:1 1 0;white-space:nowrap;font-size:8px;padding:7px 1px}.mobile-nav svg{width:18px;height:18px}.agenda-voice-panel{flex-wrap:wrap;gap:11px}.agenda-voice-panel button{width:100%;justify-content:center}.agenda-actions{gap:0}.agenda-actions .icon-btn{padding:7px}.agenda-item{gap:9px}.agenda-date{min-width:44px;width:44px}.agenda-title{font-size:13px}}
+
+
+/* REIZZOR STATION — composição funcional; refinamento visual em fase posterior. */
+.station-workspace{display:grid;gap:20px;margin-top:18px}
+.station-intro{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px}
+.station-intro h2{margin:8px 0 8px;font-size:22px}
+.station-intro p{margin:0;color:var(--muted);max-width:680px;line-height:1.6}
+.station-intro>div:last-child{white-space:nowrap;text-align:right;color:var(--muted)}
+.station-intro>div:last-child strong{display:block;font-size:28px;color:var(--teal)}
+.station-bar,.station-detail-top,.station-guides-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.station-bar h2,.station-guides-head h3{margin:0}
+.station-list{display:grid;gap:10px}
+.station-song{display:flex;align-items:center;justify-content:space-between;gap:18px;border:1px solid var(--border);border-radius:14px;padding:17px 18px;background:var(--panel)}
+.station-song.selected{border-color:var(--teal)}
+.station-song-name{font-weight:700;font-size:16px}
+.station-song-meta{font-size:12px;color:var(--muted);margin-top:5px}
+.station-empty{padding:28px}
+.station-empty h2{margin:0 0 8px}
+.station-empty p,.station-detail-top p{color:var(--muted)}
+.station-detail{padding:24px}
+.station-detail-top h2{margin:9px 0 5px}
+.station-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.station-facts{display:flex;flex-wrap:wrap;gap:14px;padding:17px 0;margin:18px 0;border-block:1px solid var(--border);color:var(--muted)}
+.station-facts strong{color:var(--txt)}
+.station-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.station-detail-grid section{min-width:0}
+.station-detail-grid h3{font-size:13px;margin:0 0 10px;color:var(--teal)}
+.station-copy{border:1px solid var(--border);background:var(--panel-2);padding:17px;border-radius:12px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;min-height:100px}
+.station-guides-head{margin-top:22px}
+.station-hint{font-size:12px;color:var(--muted);line-height:1.6}
+.station-guide-list{display:grid;gap:8px}
+.station-guide{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:12px}
+.station-guide a{color:var(--teal);text-decoration:underline;overflow-wrap:anywhere}
+@media (max-width:700px){.station-intro,.station-detail-top,.station-guides-head{align-items:flex-start;flex-direction:column}.station-intro>div:last-child{text-align:left}.station-detail-grid{grid-template-columns:1fr}.station-detail{padding:17px}.station-bar h2{font-size:16px}}

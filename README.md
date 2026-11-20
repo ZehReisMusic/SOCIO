@@ -1,3 +1,22 @@
+## Preparação V003.1 — REIZZOR STATION (ramificação, ainda não publicada)
+
+Adiciona **REIZZOR STATION** a **Meus Negócios**, com uma central criativa pessoal para cadastrar músicas, compor letras, adicionar BPM/tom/afinação, anotações e guardar **links HTTPS** para áudios-guia. Não há upload de arquivos nessa versão. A estação preserva o foco financeiro da SOUNDLINE e não cria tarefas automáticas.
+
+- Compatível com backups anteriores: na primeira leitura dos dados antigos, a estação é inserida sem apagar tarefas e histórico. Letras e músicas passam a integrar o backup JSON.
+- Dados permanecem exclusivamente no armazenamento local do dispositivo. O Mac e o iPhone **não** sincronizam automaticamente. Faça backup antes de atualizar.
+- O aplicativo coletivo **REIZZOR HUB** será futuro e separado, com compartilhamento seletivo. Nada da estação pessoal é enviado aos integrantes.
+- Atualização da interface Web Push não é parte desta entrega. O teste de envio automático da V003 em **21/11/2026** será feito de forma independente e **não impede** a integração da STATION: o código de notificação e a inscrição do iPhone devem permanecer preservados.
+
+### Roteiro de validação da V003.1
+
+1. Verificação automatizada de regressão da STATION e do Web Push no GitHub Actions (concluída com sucesso).
+2. Publicar a V003.1 sem mudar o código de notificações Cloudflare nem as assinaturas do iPhone.
+3. No MEU SÓCIO instalado, abrir Negócios → REIZZOR STATION → Abrir estação; criar música, editar letra e dados, adicionar/remover referência HTTPS.
+4. Exportar backup e reimportar uma cópia após conferir os dados; validar músicas, tarefas e histórico. Fazer backup preventivo antes da atualização.
+5. Confirmar que Início, Execução, Agenda, Ajustes e o status Conectado · Web Push permanecem operacionais.
+6. Em **21/11/2026**, confirmar recebimento do lembrete agendado — **teste independente da STATION**, não bloqueador do layout.
+7. Iniciar refinamento visual após a validação prática das funções, sem acrescentar complexidade desnecessária.
+
 ## V003 — MEU SÓCIO · notificações push (20/11/2026)
 
 Código da interface e do serviço Web Push preparado, **mas a função de entrega ainda não está ativa** até implantar a pasta `push-worker/` no Cloudflare. A aba **Ajustes → Notificações** permite ativar voluntariamente após configurar o URL HTTPS privado e a chave de ativação. O app pode programar aviso para o dia seguinte quando uma tarefa é adiada. Concluir a tarefa cancela o aviso se a sincronização funcionar. O app nunca solicita permissão antes do toque do usuário. A notificação, quando enviada, abrirá **Executar**. Horário padrão 10:00 local, ajustável. Não são enviados lembretes anteriores cuja hora já passou. Nenhuma alteração no layout geral foi feita.

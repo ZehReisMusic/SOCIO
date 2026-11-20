@@ -1,0 +1,34 @@
+name: REIZZOR STATION V003.1 - testes
+
+on:
+  push:
+    branches:
+      - feature/reizzor-station
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Executar a suíte de testes
+        run: npm test
+      - name: Verificar sintaxe da interface e do PWA
+        run: |
+          node --check js/app.js
+          node --check js/reizzor-station.js
+          node --check js/store.js
+          node --check js/logic.js
+          node --check js/push.js
+          node --check js/updater.js
+          node --check service-worker.js

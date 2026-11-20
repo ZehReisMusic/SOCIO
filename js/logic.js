@@ -60,9 +60,11 @@ export function seedData(now=new Date()) {
       {id:'b-voz',name:'VOZ PRONTA',status:'desenvolvimento',focus:2,color:BUSINESS_COLORS[1],objective:'Validar um aplicativo de aquecimento vocal simples e eficaz.',situation:'Projeto de médio prazo; evoluir por versões funcionais.',createdAt:stamp},
       {id:'b-estudio',name:'Estúdio',status:'manutencao',focus:2,color:BUSINESS_COLORS[2],objective:'Manter a operação estável sem depender de intervenção diária excessiva.',situation:'Operação existente; acompanhar apenas o essencial.',createdAt:stamp},
       {id:'b-locacao',name:'Locação de som',status:'espera',focus:1,color:BUSINESS_COLORS[3],objective:'Analisar a viabilidade técnica e financeira antes de iniciar.',situation:'Aguardar condições técnicas e financeiras adequadas.',createdAt:stamp},
-      {id:'b-oportunidades',name:'Novas oportunidades',status:'exploracao',focus:1,color:BUSINESS_COLORS[4],objective:'Testar ideias de receita com pouco investimento e baixa demanda de tempo.',situation:'Banco de oportunidades a avaliar sem desviar do foco comercial atual.',createdAt:stamp}
+      {id:'b-oportunidades',name:'Novas oportunidades',status:'exploracao',focus:1,color:BUSINESS_COLORS[4],objective:'Testar ideias de receita com pouco investimento e baixa demanda de tempo.',situation:'Banco de oportunidades a avaliar sem desviar do foco comercial atual.',createdAt:stamp},
+      {id:'b-reizzor',name:'REIZZOR STATION',status:'manutencao',focus:1,color:BUSINESS_COLORS[2],objective:'Guardar composições, letras, repertório e áudios-guia em uma estação criativa privada.',situation:'Organização criativa pessoal. Não assumir tarefas coletivas da banda.',createdAt:stamp}
     ],
     appointments:[],
+    station:{songs:[]},
     tasks:[
       {id:'t-mercadolivre',businessId:'b-soundline',title:'Publicar o primeiro anúncio no Mercado Livre',notes:'Escolha um cabo pronto, faça fotos reais e suficientes. Publique a primeira versão sem esperar a apresentação perfeita.',status:'open',impact:5,urgency:5,effort:2,minutes:30,due:'',createdAt:stamp,completedAt:null},
       {id:'t-estoque',businessId:'b-soundline',title:'Conferir preço e estoque do primeiro modelo',notes:'Use os dados que já tem. Não transforme a tarefa em uma pesquisa interminável.',status:'open',impact:3,urgency:3,effort:1,minutes:15,due:'',createdAt:stamp,completedAt:null}
