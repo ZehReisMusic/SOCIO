@@ -1,7 +1,7 @@
-// MEU SÓCIO V003.2 — Design system, PWA offline, atualização e Web Push (handlers preservados).
-const CACHE_NAME = 'socio-v0032-20261120';
+// MEU SÓCIO V003.3 — Painel com ondas e design system, PWA offline, atualização e Web Push (handlers preservados).
+const CACHE_NAME = 'socio-v0033-20261120';
 const ASSETS = [
-  './', './index.html', './css/style.css', './css/theme-v0032.css',
+  './', './index.html', './css/style.css', './css/theme-v0032.css', './css/experience-v0033.css', './assets/socio-waves.svg',
   './js/app.js', './js/updater.js', './js/push.js', './js/store.js',
   './js/logic.js', './js/reizzor-station.js', './js/agenda.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png',
