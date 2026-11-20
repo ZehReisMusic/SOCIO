@@ -70,6 +70,7 @@ h1,h2,h3,.brand-copy strong,.panel-title,.task-title,.focus-title,.station-song-
 .panel-head{gap:12px}
 .panel-title{font-size:18px;font-weight:730}
 .metrics{gap:13px;margin-bottom:20px}
+.dashboard-grid{gap:21px}
 .metric{border-radius:14px;padding:20px}
 .metric::after{background:radial-gradient(circle,#397d8621,transparent 70%)}
 .metric-heading{color:#b4c4c5;font-size:12px}
