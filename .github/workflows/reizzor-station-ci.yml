@@ -6,6 +6,7 @@ on:
       - feature/reizzor-station
       - feature/visual-v0032
       - feature/visual-v0033-faithful
+      - feature/icone01-paleta-azul
   pull_request:
     branches:
       - main
