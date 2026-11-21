@@ -1,0 +1,31 @@
+/* V003.8 — recortes Hoje e Semana, sem mudar a paleta aprovada. */
+body[data-page="agenda"] .agenda-overview{display:grid;gap:16px}
+.agenda-switch{display:flex;gap:7px;border:1px solid #365b71;background:#132a38;padding:5px;border-radius:13px;max-width:340px}
+.agenda-switch button{flex:1;background:transparent;color:#b8d1dc;border:0;padding:11px 14px;font-weight:750;font-size:13px;border-radius:9px;cursor:pointer}
+.agenda-switch button.active{background:#28495c;color:#f0f8fb;box-shadow:inset 0 0 0 1px #578ba4}
+.agenda-overview .agenda-panel{margin:0}
+.agenda-overview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.agenda-overview-head h2{font-size:17px;margin:0 0 6px}
+.agenda-overview-head p{font-size:12px;line-height:1.5;color:#adc8d4;margin:0}
+.agenda-overview-caption{font-size:11px;color:#b8d0d8;padding:10px 0 2px;letter-spacing:.04em;font-weight:800}
+.agenda-overview-caption.overdue{color:#f0b48d}
+.agenda-brief{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-top:1px solid #35576b}
+.agenda-brief-time{font-size:11px;min-width:52px;color:var(--amber);font-weight:700;padding-top:3px}
+.agenda-brief-body{flex:1;min-width:0}
+.agenda-brief-body button{border:0;background:none;padding:0;text-align:left;font:inherit;font-size:13px;line-height:1.4;font-weight:700;color:#e4f1f6;cursor:pointer}
+.agenda-brief-body button:hover,.agenda-detail-link:hover{text-decoration:underline}
+.agenda-brief-body small{display:block;font-size:11px;color:#adc8d4;margin-top:4px}
+.agenda-brief .agenda-brief-kind{font-size:10px;color:#95cfe2;border:1px solid #44788e;border-radius:20px;padding:3px 7px;white-space:nowrap}
+.agenda-week-list{display:grid;gap:10px;margin-top:14px}
+.agenda-week-day{padding:12px 13px;border:1px solid #355b71;background:#172f3e;border-radius:12px}
+.agenda-week-day.today{border-color:#6595aa}
+.agenda-week-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.agenda-week-head strong{font-size:13px;color:#ebf4f7}
+.agenda-week-head span{font-size:11px;color:#a8c4cf}
+.agenda-week-empty,.agenda-overview-empty,.agenda-more{font-size:12px;line-height:1.5;color:#a7c1cd;padding:10px 0 0}
+.agenda-overview .agenda-week-day .agenda-brief:last-child{padding-bottom:3px}
+.agenda-detail-link{background:none;border:0;color:#b7dfec;cursor:pointer;font:inherit;text-align:left;padding:0}
+.agenda-detail-copy{font-size:13px;line-height:1.6;color:#d1e4eb;margin:0}
+.agenda-detail-task{font-size:12px;color:#acccda}
+.agenda-all-toggle{margin:14px 0 0}
+@media(max-width:740px){.agenda-overview-head{flex-direction:column}.agenda-switch{max-width:none;width:100%}.agenda-week-day{padding:10px}.agenda-brief{gap:7px}.agenda-brief-kind{display:none}}
