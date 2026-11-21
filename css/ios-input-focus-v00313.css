@@ -1,0 +1,23 @@
+/* MEU SÓCIO V003.13 — Safari/iOS: evita zoom automático ao focar campos.
+   iOS amplia o viewport se input/select/textarea tiver texto menor que 16px.
+   Não altera o meta viewport, nem bloqueia a ampliação manual do usuário. */
+@media (max-width:740px) {
+  .modal input:not([type="checkbox"]):not([type="radio"]),
+  .modal select,
+  .modal textarea,
+  #view .form-field input:not([type="checkbox"]):not([type="radio"]),
+  #view .form-field select,
+  #view .form-field textarea {
+    font-size:16px;
+  }
+
+  /* Restringe o tamanho mínimo intrínseco do seletor de data/hora:
+     os dois campos devem caber dentro do modal, sem empurrar a largura. */
+  .modal .form-grid > .form-field {
+    min-width:0;
+  }
+  .modal .form-grid .form-field input {
+    min-width:0;
+    max-width:100%;
+  }
+}
