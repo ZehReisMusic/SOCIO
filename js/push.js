@@ -137,14 +137,15 @@ export async function syncPush(data,force=false){
     const sub=await reg.pushManager.getSubscription();
     if(!sub)return false;
     const reminders=smartReminders(data,c);
-    await api(c.url,'/sync',{subscription:sub.toJSON(),reminders},c.token);
+    const receipt=await api(c.url,'/sync',{subscription:sub.toJSON(),reminders},c.token);
+    const acknowledged=receipt.count===reminders.length;
     // Só afirmamos "sincronizado" depois da confirmação da API, nunca só por salvar localmente.
     const current=get();
     if(current.url===c.url&&current.token===c.token){
-      put({...current,lastSync:{at:Date.now(),reminders:reminders.map(({id,dueAt})=>({id,dueAt}))}});
+      put({...current,lastSync:{at:Date.now(),reminders:acknowledged?reminders.map(({id,dueAt})=>({id,dueAt})):[]}});
       document.dispatchEvent(new Event('socio:push-synced'));
     }
-    return true;
+    return acknowledged;
   }catch(err){console.warn('SÓCIO: sincronização de lembretes pendente',err);return false;}
 }
 export async function updatePushTime(){
