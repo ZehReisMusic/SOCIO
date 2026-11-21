@@ -1,5 +1,5 @@
 {
-  "version": "V003.17",
+  "version": "V003.18",
   "releasedAt": "2026-11-21",
-  "description": "Corrige bordas de Data/Horário cortadas no iPhone com moldura responsiva independente para os seletores nativos, sem alterar agendamentos, áudio, lembretes, ícone ou Web Push."
+  "description": "Correção isolada da largura do campo Horário dos lembretes em Ajustes no iPhone, com moldura estável e seletor nativo preservado. Sem alterações nas assinaturas Web Push, lembretes, dados, ícone ou Agenda."
 }
