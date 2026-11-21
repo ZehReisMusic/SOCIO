@@ -1,0 +1,27 @@
+/* V003.12 · Agenda Inteligente: conflitos e sugestões, em harmonia com a paleta aprovada */
+.agenda-availability-panel{margin-top:18px;background:linear-gradient(145deg,#162d37,#13232d);border-color:#35596b;padding:16px 18px}
+.agenda-availability-toggle{width:100%;border:0;background:none;color:#eaf2f6;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;text-align:left;font-size:14px;font-weight:700;cursor:pointer}
+.agenda-availability-toggle>span:first-child{display:inline-flex;align-items:center;gap:10px}
+.agenda-availability-toggle svg{color:#e9b66d}
+.agenda-availability-toggle>span:last-child{font-weight:600;color:#abc8d5;font-size:12px}
+.agenda-availability-controls{display:grid;gap:13px;border-top:1px solid #335260;margin-top:13px;padding-top:14px}
+.agenda-availability-controls>p{font-size:12px;line-height:1.6;color:#bdd0dc;margin:0}
+.agenda-availability-controls>.btn-primary{justify-self:start}
+.agenda-availability-controls .form-field select,.agenda-availability-controls .form-field input{color:#edf4f7;background:#142631;border:1px solid #4a6878}
+.agenda-availability-hint{font-size:11px!important;line-height:1.55;color:#a9bec9!important}
+.agenda-slot-results{display:grid;gap:8px;border-top:1px solid #335260;padding-top:12px}
+.agenda-slot-results>strong{font-size:12px;color:#e9b66d}
+.agenda-slot-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border:1px solid #375a69;background:#18333f;border-radius:10px}
+.agenda-slot-row>span{font-size:13px;color:#edf5f8;font-weight:700}
+.agenda-slot-row button{font-size:11px;padding:8px 11px}
+.agenda-no-slots{padding:10px;border:1px solid #405a64;border-radius:10px}
+.agenda-duration-note,.agenda-conflict-note{display:block;font-size:11px;line-height:1.5;margin:5px 0 0}
+.agenda-duration-note{color:#b1c9d7}
+.agenda-duration-note svg{vertical-align:-2px}
+.agenda-conflict-note{color:#f2ca8a;font-weight:650;overflow-wrap:anywhere}
+@media(max-width:740px){
+ .agenda-availability-panel{padding:13px 15px}
+ .agenda-availability-controls>.btn-primary{width:100%;justify-self:stretch}
+ .agenda-slot-row{gap:7px}
+ .agenda-slot-row button{min-width:110px}
+}
