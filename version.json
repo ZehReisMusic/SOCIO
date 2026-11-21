@@ -1,5 +1,5 @@
 {
-  "version": "V003.13",
+  "version": "V003.14",
   "releasedAt": "2026-11-21",
-  "description": "Correção isolada do zoom automático ao focar campos do iPhone: 16px em inputs, selects e textareas de formulários, preservando zoom manual, dados, Agenda, ícone e Web Push."
+  "description": "Correção do zoom involuntário ao abrir formulários no iPhone: remove foco automático em telas de toque, preservando-o no desktop. Não muda dados, Agenda, Web Push, ícone ou aparência."
 }
