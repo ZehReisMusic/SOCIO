@@ -1,0 +1,58 @@
+/* V003.18 — Contenção exclusiva do horário de notificações em Ajustes.
+   O input type=time é preservado; a borda visível fica numa moldura estável. */
+@media (max-width:740px) {
+  .setting-card .push-time-field {
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
+  .setting-card .push-time-field .push-time-shell {
+    box-sizing:border-box;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    min-height:46px;
+    border:1px solid #436679;
+    border-radius:11px;
+    background:#111f2b;
+  }
+  .setting-card .push-time-field .push-time-shell:focus-within {
+    border-color:var(--amber);
+    box-shadow:0 0 0 2px #d9a56722;
+  }
+  .setting-card .push-time-field .push-time-shell > #push-time {
+    box-sizing:border-box;
+    display:block;
+    flex:1 1 0%;
+    width:100%;
+    inline-size:100%;
+    max-width:100%;
+    max-inline-size:100%;
+    min-width:0;
+    min-inline-size:0;
+    min-height:46px;
+    padding:12px 10px;
+    margin:0;
+    border:0;
+    border-radius:0;
+    outline:none;
+    box-shadow:none;
+    background:transparent;
+    color:#f3f5f3;
+    font-size:16px;
+    text-align:center;
+  }
+  .push-time-shell #push-time::-webkit-date-and-time-value {
+    min-width:0;
+    max-width:100%;
+    text-align:center;
+  }
+  .push-time-shell #push-time::-webkit-datetime-edit {
+    min-width:0;
+    max-width:100%;
+  }
+}
