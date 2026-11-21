@@ -33,10 +33,10 @@ test('versionamento consistente V003.9 sem apagar dados nem alterar subscrição
   const html=read('index.html'),app=read('js/app.js'),updater=read('js/updater.js');
   const worker=read('service-worker.js');
   assert.equal(version.version,'V003.9');
-  assert.match(html,/MEU SÓCIO · V003\.8/);
+  assert.match(html,/MEU SÓCIO · V003\.9/);
   assert.match(html,/agenda-v0038\.css/);
   assert.match(worker,/agenda-overview\.js/);
-  assert.match(updater,/APP_VERSION = 'V003\.8'/);
+  assert.match(updater,/APP_VERSION = 'V003\.9'/);
   assert.match(worker,/socio-v0039-20261121/);
   assert.match(worker,/self\.addEventListener\('push'/);
   assert.match(worker,/self\.addEventListener\('notificationclick'/);
