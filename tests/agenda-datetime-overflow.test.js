@@ -34,12 +34,13 @@ test('desktop mantém grade original: nenhuma regra de colunas fora do media que
 
 test('versão, cache e tema preservam todas as funções validadas do MEU SÓCIO',()=>{
  const html=read('index.html'),sw=read('service-worker.js');
- assert.equal(JSON.parse(read('version.json')).version,'V003.15');
- assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.15'/);
- assert.match(sw,/socio-v00315-20261121/);
+ assert.equal(JSON.parse(read('version.json')).version,'V003.16');
+ assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.16'/);
+ assert.match(sw,/socio-v00316-20261121/);
  assert.match(sw,/'\.\/css\/agenda-datetime-v00315\.css'/);
  const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(x=>x[1]);
- assert.equal(links.at(-1),'./css/agenda-datetime-v00315.css');
+ assert.ok(links.indexOf('./css/agenda-datetime-v00315.css')>links.indexOf('./css/ios-input-focus-v00313.css'));
+ assert.equal(links.at(-1),'./css/ios-modal-width-v00316.css');
  assert.match(html,/width=device-width,initial-scale=1,viewport-fit=cover/);
  assert.doesNotMatch(html,/user-scalable=no|maximum-scale=1/);
  assert.match(sw,/self\.addEventListener\('push'/);

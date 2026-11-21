@@ -87,11 +87,11 @@ test('captura de voz, seleção manual, alerta e botão de uso de horário estã
  assert.match(app,/function startAgendaVoice\(\)/);
  assert.match(app,/recognition\.lang='pt-BR'/);
 });
-test('PWA V003.15 preserva iPhone, aviso inferior branco, Web Push e ícone',()=>{
+test('PWA V003.16 preserva iPhone, aviso inferior branco, Web Push e ícone',()=>{
  const html=read('index.html'),worker=read('service-worker.js');
- assert.equal(JSON.parse(read('version.json')).version,'V003.15');
- assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.15'/);
- assert.match(worker,/socio-v00315-20261121/);
+ assert.equal(JSON.parse(read('version.json')).version,'V003.16');
+ assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.16'/);
+ assert.match(worker,/socio-v00316-20261121/);
  assert.match(worker,/'\.\/js\/agenda-scheduling\.js'/);
  assert.match(worker,/'\.\/css\/agenda-scheduling-v00312\.css'/);
  assert.match(html,/href="\.\/css\/agenda-scheduling-v00312\.css"/);
