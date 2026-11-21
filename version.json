@@ -1,5 +1,5 @@
 {
-  "version": "V003.16",
+  "version": "V003.17",
   "releasedAt": "2026-11-21",
-  "description": "Correção isolada do deslizamento horizontal dentro dos formulários no iPhone: o grid do modal respeita a largura da tela, mantendo rolagem vertical e zoom manual. Preservados Agenda, dados, Web Push, ícone e cores."
+  "description": "Corrige bordas de Data/Horário cortadas no iPhone com moldura responsiva independente para os seletores nativos, sem alterar agendamentos, áudio, lembretes, ícone ou Web Push."
 }
