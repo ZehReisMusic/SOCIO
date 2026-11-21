@@ -1,5 +1,5 @@
 {
-  "version": "V003.10",
+  "version": "V003.11",
   "releasedAt": "2026-11-21",
-  "description": "Ajuste exclusivo de contraste no texto da notificação inferior (toast): texto branco sobre o fundo grafite existente. Mantidos Agenda, Web Push, dados, ícone e paleta."
+  "description": "Ajuste responsivo do iPhone: cabeçalho MEU SÓCIO e botão + respeitam barra de status; margem de rolagem inferior evita encobrimento do último conteúdo. Preservados dados, Agenda, ícone, paleta, Web Push e toast branco."
 }

@@ -1,0 +1,19 @@
+/* MEU SÓCIO V003.11 · Corrige safe areas do iPhone, sem mudar telas ou paleta.
+   No PWA com black-translucent, a barra de status cobre o topo do viewport.
+   A altura extra fica apenas na área segura, deixando marca e botão + visíveis. */
+@media (max-width:740px) {
+  .topbar {
+    box-sizing:border-box;
+    min-height:calc(62px + env(safe-area-inset-top, 0px));
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-left:max(19px, env(safe-area-inset-left, 0px));
+    padding-right:max(19px, env(safe-area-inset-right, 0px));
+    top:0;
+  }
+  .topbar-left {min-width:0}
+  .topbar .mobile-brand {min-width:0;overflow:visible}
+  .topbar-action {flex-shrink:0}
+  /* Espaço rolável suficiente depois do último cartão, além da barra fixa. */
+  #view {padding-bottom:calc(148px + env(safe-area-inset-bottom, 0px))}
+  html {scroll-padding-bottom:calc(118px + env(safe-area-inset-bottom, 0px))}
+}
