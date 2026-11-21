@@ -1,5 +1,5 @@
 {
-  "version": "V003.15",
+  "version": "V003.16",
   "releasedAt": "2026-11-21",
-  "description": "Corrige transbordamento lateral ao editar compromissos no iPhone: campos Data e Horário são empilhados com largura integral apenas no formulário, preservando seletores nativos, zoom manual, Agenda, dados e Web Push."
+  "description": "Correção isolada do deslizamento horizontal dentro dos formulários no iPhone: o grid do modal respeita a largura da tela, mantendo rolagem vertical e zoom manual. Preservados Agenda, dados, Web Push, ícone e cores."
 }
