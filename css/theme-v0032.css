@@ -169,7 +169,7 @@ h1,h2,h3,.brand-copy strong,.panel-title,.task-title,.focus-title,.station-song-
 .station-guide{border-color:#3d535a;background:#152125}
 .station-guide a{color:#9bd3df;text-decoration:underline;text-underline-offset:3px}
 .station-guide a:hover{color:#d7f5f9}
-.toast{background:#24363d;border:1px solid #58737a;box-shadow:0 14px 36px #0007}
+.toast{background:#24363d;color:#fff;border:1px solid #58737a;box-shadow:0 14px 36px #0007}
 ::selection{background:#dba35e66;color:#fff}
 @media(max-width:1050px){
  .app-shell{grid-template-columns:228px minmax(0,1fr)}
