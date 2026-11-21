@@ -23,12 +23,12 @@ test('ajuste CSS isolado preserva dados, ícone, Web Push e toast branco aprovad
  const theme=read('css/theme-v0032.css');
  const sw=read('service-worker.js');
  assert.match(theme,/\.toast\{background:#24363d;color:#fff/);
- assert.match(sw,/socio-v00312-20261121/);
+ assert.match(sw,/socio-v00313-20261121/);
  assert.match(sw,/'\.\/css\/iphone-safe-area-v00311\.css'/);
  assert.match(sw,/self\.addEventListener\('push'/);
  assert.match(sw,/self\.addEventListener\('notificationclick'/);
  assert.match(read('js/store.js'),/socio\.v001\.data/);
  assert.match(read('js/push.js'),/socio\.v003\.push/);
  assert.match(read('index.html'),/apple-touch-icon\.png\?v=0035/);
- assert.equal(JSON.parse(read('version.json')).version,'V003.12');
+ assert.equal(JSON.parse(read('version.json')).version,'V003.13');
 });
