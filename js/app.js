@@ -146,6 +146,8 @@ function agendaDetails(id){
 }
 function agendaSlotsPanel(){
  const a=agendaAvailability;
+ // Atualiza as sugestões com os compromissos mais recentes antes de renderizar.
+ const slots=slots===null?null:suggestAgendaSlots(data.appointments||[],{date:a.date,from:a.from,to:a.to,durationMinutes:a.durationMinutes,limit:4},new Date());
  const controls=a.open?`<div class="agenda-availability-controls">
    <p>Escolha o dia e a faixa que deseja consultar. Só consideramos compromissos registrados aqui.</p>
    ${field('Data','findDate',a.date,'date','required')}
@@ -153,7 +155,7 @@ function agendaSlotsPanel(){
    ${selectField('Tempo necessário','findMinutes',a.durationMinutes,[[30,'30 minutos'],[60,'1 hora'],[90,'1h30'],[120,'2 horas']])}
    ${btn('Buscar horários livres','agenda-search-slots','primary')}
    <p class="agenda-availability-hint">Sugestões, não reservas. Compromissos sem duração definida permitem identificar apenas o horário de início.</p>
-   ${a.results===null?'':a.results.length?`<div class="agenda-slot-results"><strong>Opções encontradas</strong>${a.results.map(slot=>`<div class="agenda-slot-row"><span>${esc(slot.time)} – ${esc(slot.endsAt)}</span><button type="button" class="btn-outline" data-action="agenda-use-slot" data-date="${esc(slot.date)}" data-time="${esc(slot.time)}" data-duration="${slot.durationMinutes}">Usar horário</button></div>`).join('')}</div>`:'<p class="agenda-no-slots">Não encontrei horários livres nessa faixa. Experimente ampliar o intervalo ou diminuir a duração.</p>'}
+   ${a.results===null?'':slots.length?`<div class="agenda-slot-results"><strong>Opções encontradas</strong>${slots.map(slot=>`<div class="agenda-slot-row"><span>${esc(slot.time)} – ${esc(slot.endsAt)}</span><button type="button" class="btn-outline" data-action="agenda-use-slot" data-date="${esc(slot.date)}" data-time="${esc(slot.time)}" data-duration="${slot.durationMinutes}">Usar horário</button></div>`).join('')}</div>`:'<p class="agenda-no-slots">Não encontrei horários livres nessa faixa. Experimente ampliar o intervalo ou diminuir a duração.</p>'}
  </div>`:'';
  return `<section class="panel agenda-availability-panel"><button type="button" data-action="agenda-find-toggle" class="agenda-availability-toggle" aria-expanded="${a.open}"><span>${svg('clock',20)} Encontrar horário livre</span><span>${a.open?'Fechar':'Consultar'}</span></button>${controls}</section>`;
 }
