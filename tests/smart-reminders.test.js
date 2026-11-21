@@ -48,7 +48,8 @@ test('UI contém botão para teste e só ativa agenda/prazo quando o usuário op
  assert.match(push,/id="push-agenda-alerts"/);
  assert.match(push,/id="push-deadline-alerts"/);
  assert.match(push,/agendaAlerts:false,deadlineAlerts:false/);
- assert.match(push,/reminders:smartReminders\(data,c\)/);
+ assert.match(push,/const reminders=smartReminders\(data,c\)/);
+ assert.match(push,/subscription:sub\.toJSON\(\),reminders/);
  assert.match(app,/case 'push-scheduled-test':void schedulePushDiagnostic\(\)/);
  assert.match(app,/case 'push-save-preferences':void savePushPreferences\(\)/);
  assert.match(worker,/"\*\/5 \* \* \* \*"/);
