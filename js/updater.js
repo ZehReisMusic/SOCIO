@@ -1,5 +1,5 @@
 // Atualizador da PWA: não altera ou remove dados do usuário.
-export const APP_VERSION = 'V003.12';
+export const APP_VERSION = 'V003.13';
 const VERSION_FILE = new URL('../version.json', import.meta.url);
 const WORKER_FILE = new URL('../service-worker.js', import.meta.url);
 const RELOAD_GUARD_KEY = 'socio.reload.guard';
