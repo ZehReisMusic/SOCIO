@@ -74,21 +74,21 @@ test('formulário por áudio e manual, detalhes e indicadores usam a mesma escol
  assert.match(app,/selectField\('Lembrete \(opcional\)','reminderMinutes'/);
  assert.match(app,/selectField\('Avisar antes deste compromisso','reminderMinutes'/);
  assert.match(app,/reminderMinutes,source,status:'open'/);
- assert.match(app,/Object.assign\(appointment,\{title,date,time,notes,reminderMinutes\}\)/);
+ assert.match(app,/Object.assign\(appointment,\{title,date,time,notes,reminderMinutes,taskId:/);
  assert.match(app,/agendaReminderStatus\(a\)/);
  assert.match(push,/document\.dispatchEvent\(new Event\('socio:push-synced'\)\)/);
  assert.match(push,/lastSync:\{at:Date\.now\(\),reminders/);
  assert.match(push,/Compromissos da agenda \(avisos individuais:/);
 });
-test('V003.18 preserva Web Push, a identidade visual, a chave local e o ícone original',()=>{
+test('V003.19 preserva Web Push, a identidade visual, a chave local e o ícone original',()=>{
  const worker=read('service-worker.js'),html=read('index.html'),updater=read('js/updater.js');
- assert.match(worker,/socio-v00318-20261121/);
+ assert.match(worker,/socio-v00319-20261121/);
  assert.match(worker,/appointment-reminders\.js/);
  assert.match(worker,/self\.addEventListener\('push'/);
  assert.match(worker,/self\.addEventListener\('notificationclick'/);
  assert.match(html,/reminders-v0039\.css/);
  assert.match(html,/apple-touch-icon\.png\?v=0035/);
- assert.match(updater,/APP_VERSION = 'V003\.18'/);
+ assert.match(updater,/APP_VERSION = 'V003\.19'/);
  assert.match(read('js/store.js'),/socio\.v001\.data/);
 });
 
