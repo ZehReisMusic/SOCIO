@@ -1,0 +1,71 @@
+/* Etapa 04 (V003.19): vínculos opcionais de tarefas na Agenda. */
+.agenda-task-fieldset {
+  box-sizing:border-box;
+  min-width:0;
+  max-width:100%;
+  width:100%;
+  margin:10px 0 4px;
+  padding:12px;
+  border:1px solid #416275;
+  border-radius:12px;
+  background:#102632;
+}
+.agenda-task-fieldset legend {padding:0 5px;font-weight:700;font-size:13px;color:#e5eef3}
+.agenda-task-fieldset > p {font-size:12px;line-height:1.5;color:#abc3cd;margin:0 0 9px}
+.agenda-task-options {
+  box-sizing:border-box;
+  display:grid;
+  gap:7px;
+  min-width:0;
+  width:100%;
+  max-width:100%;
+  max-height:220px;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+.agenda-task-option {
+  box-sizing:border-box;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  min-width:0;
+  width:100%;
+  padding:10px;
+  border:1px solid #345466;
+  border-radius:9px;
+  background:#173342;
+  color:#e5eff3;
+  font-size:13px;
+  line-height:1.4;
+  cursor:pointer;
+}
+.agenda-task-option > span {display:block;min-width:0;overflow-wrap:anywhere}
+.agenda-task-option input[type="checkbox"] {
+  flex:0 0 19px;
+  width:19px;
+  height:19px;
+  min-width:19px;
+  min-height:19px;
+  margin:0;
+  accent-color:#42b6d4;
+}
+.agenda-task-option small {display:block;color:#b2c4cc;font-size:11px;margin-top:3px}
+.agenda-task-summary,.task-preparation-note {
+  display:block;
+  box-sizing:border-box;
+  max-width:100%;
+  min-width:0;
+  color:#b4dbe1;
+  font-size:12px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+  margin-top:6px;
+}
+.agenda-task-summary svg,.task-preparation-note svg {vertical-align:-2px;margin-right:4px}
+.task-preparation-note {color:#ebc58a}
+@media (max-width:740px) {
+  .modal .agenda-task-fieldset,.modal .agenda-task-options,.modal .agenda-task-option {min-width:0;max-width:100%}
+  .agenda-task-fieldset {padding:10px}
+  .agenda-task-option {font-size:13px;padding:10px 9px}
+}
