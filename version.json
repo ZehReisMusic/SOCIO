@@ -1,5 +1,5 @@
 {
-  "version": "V003.8",
+  "version": "V003.9",
   "releasedAt": "2026-11-21",
-  "description": "Agenda Inteligente, bloco 1: visões Hoje e próximos sete dias com compromissos e tarefas por prazo, pendências vencidas, detalhes e vínculo opcional a tarefas. Preserva dados, paleta, ícone e Web Push da V003.7."
+  "description": "Agenda Inteligente: lembretes individuais 10, 30 ou 60 minutos antes (ou desligado), revisão por áudio, status distinguindo confirmação do Cloudflare de configuração local. Web Push, dados, ícone e paleta preservados."
 }

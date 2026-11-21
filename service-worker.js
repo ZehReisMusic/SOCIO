@@ -1,9 +1,9 @@
-// MEU SÓCIO V003.8 — Painel com ondas e design system, PWA offline, atualização e Web Push (handlers preservados).
-const CACHE_NAME = 'socio-v0038-20261121';
+// MEU SÓCIO V003.9 — Painel com ondas e design system, PWA offline, atualização e Web Push (entrega preservada; clique contextual na Agenda).
+const CACHE_NAME = 'socio-v0039-20261121';
 const ASSETS = [
-  './', './index.html', './css/style.css', './css/theme-v0032.css', './css/experience-v0033.css', './css/palette-v0036.css', './css/agenda-v0038.css', './assets/socio-waves.svg',
+  './', './index.html', './css/style.css', './css/theme-v0032.css', './css/experience-v0033.css', './css/palette-v0036.css', './css/agenda-v0038.css', './css/reminders-v0039.css', './assets/socio-waves.svg',
   './js/app.js', './js/updater.js', './js/push.js', './js/store.js',
-  './js/logic.js', './js/reizzor-station.js', './js/agenda.js', './js/agenda-overview.js', './manifest.webmanifest',
+  './js/logic.js', './js/reizzor-station.js', './js/agenda.js', './js/agenda-overview.js', './js/appointment-reminders.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png',
   './icons/apple-touch-icon.png'
 ];
@@ -64,19 +64,21 @@ self.addEventListener('push', event => {
   let data={};
   try {data=event.data?.json()||{};} catch {data={};}
   const title='MEU SÓCIO';
-  const body=String(data.body||'Você tem um lembrete pendente.').slice(0,180);
+  const rawBody=String(data.body||'Você tem um lembrete pendente.').slice(0,180);
+  const isAgenda=rawBody.startsWith('Uma prioridade ficou pendente: Compromisso em ');
+  const body=isAgenda?rawBody.slice('Uma prioridade ficou pendente: '.length):rawBody;
   event.waitUntil(self.registration.showNotification(title,{
     body,
     icon:'./icons/icon-192.png',
     badge:'./icons/icon-192.png',
-    tag:typeof data.tag==='string'&&data.tag==='socio-test'?'socio-test':'socio-priority',
-    data:{url:new URL('./#executar',self.registration.scope).href}
+    tag:isAgenda?'socio-agenda':(typeof data.tag==='string'&&data.tag==='socio-test'?'socio-test':'socio-priority'),
+    data:{target:isAgenda?'agenda':'executar'}
   }));
 });
 self.addEventListener('notificationclick',event=>{
   event.notification.close();
   event.waitUntil((async()=>{
-    const target=new URL('./#executar',self.registration.scope).href;
+    const target=new URL(event.notification.data?.target==='agenda'?'./#agenda':'./#executar',self.registration.scope).href;
     const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
     for(const client of windows){
       if(new URL(client.url).origin===self.location.origin&&new URL(client.url).pathname.startsWith(new URL(self.registration.scope).pathname)){

@@ -1,0 +1,17 @@
+/* MEU SÓCIO V003.9 · lembretes individuais da Agenda Inteligente */
+.agenda-reminder-status{
+ display:block;font-size:11px;line-height:1.55;color:#c2d8e1;
+ margin:6px 0 0;white-space:normal;overflow-wrap:anywhere
+}
+.agenda-reminder-status svg{vertical-align:-2px;margin-right:3px}
+.agenda-reminder-status.synced{color:#80d8df}
+.agenda-reminder-status.pending,.agenda-reminder-status.later{color:#efd19a}
+.agenda-reminder-status.disabled,.agenda-reminder-status.off,.agenda-reminder-status.expired{color:#a9bac8}
+.agenda-reminder-help{font-size:12px;line-height:1.6;color:#bdd3df;background:#153543;
+ padding:11px 13px;border-radius:10px;border:1px solid #356077;margin:3px 0}
+.agenda-brief-body>.agenda-reminder-status{font-size:10px}
+.agenda-details-summary{display:grid;gap:6px}
+@media(max-width:740px){
+ .agenda-reminder-status{font-size:11px}
+ .agenda-reminder-help{font-size:11px}
+}
