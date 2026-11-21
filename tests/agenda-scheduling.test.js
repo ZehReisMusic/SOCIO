@@ -111,3 +111,10 @@ test('arquivos JavaScript principais passam na verificação de sintaxe do Node'
    assert.equal(run.status,0,file+': '+run.stderr);
  }
 });
+
+test('consulta recalcula resultados conforme a agenda atualiza, sem referências circulares',()=>{
+ const app=read('js/app.js');
+ assert.match(app,/const slots=a\.results===null\?null:suggestAgendaSlots/);
+ assert.doesNotMatch(app,/const slots=slots===null/);
+ assert.match(app,/\$\{slots===null\?/);
+});
