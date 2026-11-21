@@ -225,6 +225,16 @@ function handleClick(event){const target=event.target.closest('[data-action],[da
  case 'agenda-period':agendaPeriod=target.dataset.period==='semana'?'semana':'hoje';render();break;
  case 'toggle-agenda-list':agendaAllOpen=!agendaAllOpen;render();break;
  case 'agenda-details':agendaDetails(id);break;
+  case 'agenda-find-toggle':agendaAvailability.open=!agendaAvailability.open;render();break;
+  case 'agenda-search-slots':{
+    const date=$('f-findDate')?.value||'',from=$('f-findFrom')?.value||'',to=$('f-findTo')?.value||'';
+    const durationMinutes=Number($('f-findMinutes')?.value||60);
+    if(!date||!from||!to||from>=to){toast('Confira a data e a faixa de horários.');break;}
+    const results=suggestAgendaSlots(data.appointments||[],{date,from,to,durationMinutes,limit:4},new Date());
+    agendaAvailability={open:true,date,from,to,durationMinutes,results};
+    render();break;
+  }
+  case 'agenda-use-slot':agendaForm('',false,'','',{date:target.dataset.date,time:target.dataset.time,durationMinutes:Number(target.dataset.duration)});break;
  case 'edit-agenda':agendaForm(id);break;
  case 'voice-start':startAgendaVoice();break;
  case 'voice-stop':stopAgendaVoice();break;
@@ -269,7 +279,7 @@ function handleSubmit(event){if(event.target?.id!=='entry-form')return;event.pre
    if((song.guides||[]).length>=12){toast('Limite de 12 referências por música.');return;}
    song.guides.push({id:newId('guide'),label,url:parsed.href});song.updatedAt=now;stationSongId=id;message='Áudio-guia vinculado.';
  }
- else if(mode==='create-agenda'||mode==='edit-agenda'){const title=String(f.get('title')||'').trim(),date=String(f.get('date')||''),time=String(f.get('time')||''),notes=String(f.get('notes')||'').trim(),reminderMinutes=normalizeReminderMinutes(f.get('reminderMinutes'));const [y,m,d]=date.split('-').map(Number),check=new Date(y,m-1,d);if(!title||check.getFullYear()!==y||check.getMonth()!==m-1||check.getDate()!==d||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)){toast('Confira título, data e horário.');return;}if(mode==='create-agenda'){const source=Boolean($('voice-transcript'))?'voz':'manual';data.appointments.push({id:newId('a'),title,date,time,notes,reminderMinutes,source,status:'open',createdAt:now});addEvent('agenda',`Compromisso agendado: ${title}`,null,null,`${niceDate(date)} às ${time}`);message='Compromisso salvo na agenda.';}else{const appointment=data.appointments.find(a=>a.id===id);if(!appointment)return;Object.assign(appointment,{title,date,time,notes,reminderMinutes});message='Compromisso atualizado.';}}
+ else if(mode==='create-agenda'||mode==='edit-agenda'){const title=String(f.get('title')||'').trim(),date=String(f.get('date')||''),time=String(f.get('time')||''),notes=String(f.get('notes')||'').trim(),reminderMinutes=normalizeReminderMinutes(f.get('reminderMinutes')),durationMinutes=normalizeAgendaDuration(f.get('durationMinutes'));const [y,m,d]=date.split('-').map(Number),check=new Date(y,m-1,d);if(!title||check.getFullYear()!==y||check.getMonth()!==m-1||check.getDate()!==d||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)){toast('Confira título, data e horário.');return;}const current=mode==='edit-agenda'?data.appointments.find(a=>a.id===id):null;const conflicts=agendaConflicts({id,date,time,durationMinutes,status:current?.status||'open'},data.appointments||[],id);if(conflicts.length&&!confirm('Possível conflito de horário com '+conflicts.slice(0,2).map(a=>a.title).join(', ')+'. Deseja salvar mesmo assim?'))return;if(mode==='create-agenda'){const source=Boolean($('voice-transcript'))?'voz':'manual';data.appointments.push({id:newId('a'),title,date,time,notes,reminderMinutes,source,status:'open',createdAt:now,durationMinutes});addEvent('agenda',`Compromisso agendado: ${title}`,null,null,`${niceDate(date)} às ${time}`);message='Compromisso salvo na agenda.';}else{const appointment=data.appointments.find(a=>a.id===id);if(!appointment)return;Object.assign(appointment,{title,date,time,notes,reminderMinutes});appointment.durationMinutes=durationMinutes;message='Compromisso atualizado.';}}
  else if(mode==='link-agenda-task'){const a=data.appointments.find(x=>x.id===id);if(!a)return;const taskId=String(f.get('taskId')||'');if(taskId&&!data.tasks.some(t=>t.id===taskId)){toast('A tarefa selecionada não existe mais.');return;}a.taskId=taskId;a.reminderMinutes=normalizeReminderMinutes(f.get('reminderMinutes'));message='Preferências do compromisso salvas.';}
  else if(mode==='create-entry'){const title=String(f.get('title')||'').trim();if(!title){toast('Descreva o que aconteceu.');return;}const businessId=String(f.get('businessId')||'')||null;addEvent(String(f.get('type'))==='decisao'?'decisao':'avanco',title,businessId,null,String(f.get('note')||'').trim());message='Movimento registrado.';}
  else return;closeModal();save();toast(message);
