@@ -1,5 +1,5 @@
 {
-  "version": "V003.12",
+  "version": "V003.13",
   "releasedAt": "2026-11-21",
-  "description": "Agenda Inteligente: detectar conflitos e sugerir horários livres na faixa escolhida, duração opcional; nenhum ajuste automático de compromissos. Voz, dados, Web Push, ícone e tema preservados."
+  "description": "Correção isolada do zoom automático ao focar campos do iPhone: 16px em inputs, selects e textareas de formulários, preservando zoom manual, dados, Agenda, ícone e Web Push."
 }
