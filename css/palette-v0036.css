@@ -60,3 +60,15 @@ body:not([data-page="inicio"]) .agenda-voice-mark{background:#263c4a;color:var(-
  body:not([data-page="inicio"]) .station-song,
  body:not([data-page="inicio"]) .task-row{border-color:#356078}
 }
+
+/* V003.7 · Diagnóstico de disparo real e preferências de notificações */
+.push-preferences{margin-top:19px;padding-top:16px;border-top:1px solid #36586b;display:grid;gap:10px}
+.push-preferences>strong{color:#dcebf0;font-size:13px}
+.push-preferences>p,.push-diagnostic-note{font-size:11px;line-height:1.55;color:#a6c5d0;margin:5px 0}
+.push-check{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:#16303e;border:1px solid #34596b;border-radius:10px;font-size:12px;line-height:1.5;color:#d6e7e9;cursor:pointer}
+.push-check input{width:17px;height:17px;min-width:17px;accent-color:#48b8d5;margin:0;cursor:pointer}
+.push-preferences button{justify-self:start}
+.push-diagnostic-note{padding:10px 12px;border-radius:10px;border:1px solid #34627a;background:#123343}
+.setting-card button[data-action="push-scheduled-test"]{display:inline-flex;align-items:center;margin-top:8px;padding:10px 12px;border:1px solid #4a839b;border-radius:9px;color:#bfeaf3;background:#17384a;font-weight:700}
+.setting-card button[data-action="push-scheduled-test"]:hover{background:#214e65}
+@media(max-width:740px){.push-preferences button{width:100%}.setting-card button[data-action="push-scheduled-test"]{width:100%;justify-content:center}}

@@ -1,7 +1,7 @@
 // MEU SÓCIO — push apenas com consentimento e serviço configurado.
 const KEY='socio.v003.push';
 let notify=()=>{},readData=()=>null;
-const get=()=>{try{return {url:'',token:'',hour:'10:00',...JSON.parse(localStorage.getItem(KEY)||'{}')};}catch{return {url:'',token:'',hour:'10:00'};}};
+const get=()=>{try{return {url:'',token:'',hour:'10:00',agendaAlerts:false,deadlineAlerts:false,diagnostic:null,...JSON.parse(localStorage.getItem(KEY)||'{}')};}catch{return {url:'',token:'',hour:'10:00',agendaAlerts:false,deadlineAlerts:false,diagnostic:null};}};
 const put=c=>localStorage.setItem(KEY,JSON.stringify(c));
 const element=id=>document.getElementById(id);
 const supported=()=>('Notification' in window)&&('PushManager' in window)&&('serviceWorker' in navigator);
@@ -30,6 +30,47 @@ export function pendingReminders(data,hour='10:00'){
   }
   return [...found].slice(0,20).map(([id,due])=>({id,title:String(open.get(id).title).slice(0,110),dueAt:new Date(due).toISOString()}));
 }
+
+// Lembretes de agenda e prazo só entram no servidor quando o usuário ativa cada categoria.
+// O teste agendado usa a MESMA rota /sync e o MESMO cron Cloudflare dos avisos reais.
+const validWindow=(due,now)=>Number.isFinite(due)&&due>=now-600000&&due<=now+14*86400000;
+const serverId=(prefix,id)=>{
+  const suffix=String(id||'').replace(/[^\w-]/g,'').slice(0,80);
+  return suffix?prefix+'-'+suffix:'';
+};
+export function smartReminders(data,settings={},now=new Date()){
+  if(!data)return [];
+  const c={hour:'10:00',agendaAlerts:false,deadlineAlerts:false,diagnostic:null,...settings};
+  const clock=now.getTime(),items=[];
+  const d=c.diagnostic;
+  if(d&&/^diagnostic-\d+$/.test(String(d.id))&&validWindow(Date.parse(d.dueAt),clock)){
+    items.push({id:d.id,title:'TESTE AGENDADO — o lembrete automático chegou!',dueAt:d.dueAt});
+  }
+  // Preserve os avisos de tarefas adiadas, que já são parte do comportamento V003.
+  items.push(...pendingReminders(data,c.hour));
+  if(c.agendaAlerts&&Array.isArray(data.appointments)){
+    for(const appointment of data.appointments){
+      if(appointment.status==='done'||!/^\d{4}-\d\d-\d\d$/.test(appointment.date||'')||
+         !/^\d\d:\d\d$/.test(appointment.time||''))continue;
+      const id=serverId('agenda',appointment.id);
+      const start=new Date(appointment.date+'T'+appointment.time+':00').getTime();
+      const due=start-30*60000;
+      if(!id||!validWindow(due,clock))continue;
+      items.push({id,title:'Agenda em 30 minutos: '+String(appointment.title||'Compromisso').slice(0,80),dueAt:new Date(due).toISOString()});
+    }
+  }
+  if(c.deadlineAlerts&&Array.isArray(data.tasks)&&/^\d\d:\d\d$/.test(c.hour)){
+    for(const task of data.tasks){
+      if(task.status==='done'||!/^\d{4}-\d\d-\d\d$/.test(task.due||''))continue;
+      const id=serverId('prazo',task.id);
+      const due=new Date(task.due+'T'+c.hour+':00').getTime();
+      if(!id||!validWindow(due,clock))continue;
+      items.push({id,title:'Prazo de hoje: '+String(task.title||'Tarefa').slice(0,90),dueAt:new Date(due).toISOString()});
+    }
+  }
+  return items.slice(0,20);
+}
+
 export function renderPushSettings(){
   const c=get(),state=pushState();
   const escape=s=>String(s||'').replace(/[&<>"']/g,v=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[v]));
@@ -39,6 +80,17 @@ export function renderPushSettings(){
     content+='<div class="form-field"><label for="push-time">Horário dos lembretes</label><input id="push-time" type="time" value="'+escape(c.hour)+'"></div>';
     content+='<button type="button" class="btn-primary" data-action="push-time">Salvar horário</button>';
     content+='<button type="button" class="btn-quiet" data-action="push-test">Enviar teste</button>';
+    content+='<button type="button" class="btn-quiet" data-action="push-scheduled-test">⏱ Testar lembrete agendado</button>';
+    const futureTest=c.diagnostic?.dueAt&&Date.parse(c.diagnostic.dueAt)>Date.now()-600000;
+    if(futureTest){
+      const when=new Date(c.diagnostic.dueAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      content+='<p class="push-diagnostic-note">Teste real enviado ao agendamento para '+escape(when)+'. O Cloudflare verifica os avisos a cada cinco minutos. Confira a tela bloqueada; este indicador não confirma a entrega.</p>';
+    }
+    content+='<div class="push-preferences"><strong>Lembretes inteligentes (opcionais)</strong>';
+    content+='<label class="push-check"><input type="checkbox" id="push-agenda-alerts" '+(c.agendaAlerts?'checked':'')+'> Compromissos da agenda (30 min antes)</label>';
+    content+='<label class="push-check"><input type="checkbox" id="push-deadline-alerts" '+(c.deadlineAlerts?'checked':'')+'> Tarefas com prazo (no horário acima)</label>';
+    content+='<button type="button" class="btn-quiet" data-action="push-save-preferences">Salvar lembretes inteligentes</button>';
+    content+='<p>Desativados por padrão. Seus avisos só são agendados quando o aplicativo sincroniza; horizonte de até 14 dias.</p></div>';
     content+='<button type="button" class="btn-quiet" data-action="push-disable">Desativar</button>';
   }else{
     content+='<p style="font-size:12px">É necessário conectar o serviço privado de notificações antes de ativar.</p>';
@@ -75,7 +127,7 @@ export async function syncPush(data,force=false){
     const reg=await navigator.serviceWorker.ready;
     const sub=await reg.pushManager.getSubscription();
     if(!sub)return false;
-    await api(c.url,'/sync',{subscription:sub.toJSON(),reminders:pendingReminders(data,c.hour)},c.token);
+    await api(c.url,'/sync',{subscription:sub.toJSON(),reminders:smartReminders(data,c)},c.token);
     return true;
   }catch(err){console.warn('SÓCIO: sincronização de lembretes pendente',err);return false;}
 }
@@ -87,6 +139,34 @@ export async function updatePushTime(){
   notify(ok?'Horário alterado e sincronizado.':'Horário salvo no iPhone; sincronização pendente.');
   return ok;
 }
+
+export async function schedulePushDiagnostic(){
+  const c=get();
+  if(!c.token||!c.url)return notify('Ative o Web Push neste atalho antes de agendar.');
+  if(c.diagnostic&&Date.parse(c.diagnostic.dueAt)>Date.now()-7*60000){
+    return notify('Um teste recente ainda pode chegar. Aguarde até sete minutos após o horário agendado.');
+  }
+  const dueAt=new Date(Date.now()+90000).toISOString();
+  const diagnostic={id:'diagnostic-'+Date.now(),dueAt};
+  put({...c,diagnostic});
+  const ok=await syncPush(readData(),true);
+  if(!ok){put(c);notify('Teste não agendado: sincronização com o servidor falhou.');return false;}
+  const at=new Date(dueAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  notify('Teste real agendado para '+at+'. A entrega pode ocorrer nos cinco minutos seguintes.');
+  return true;
+}
+export async function savePushPreferences(){
+  const c=get();
+  if(!c.token)return notify('Ative as notificações para escolher os lembretes.');
+  const agendaAlerts=!!element('push-agenda-alerts')?.checked;
+  const deadlineAlerts=!!element('push-deadline-alerts')?.checked;
+  put({...c,agendaAlerts,deadlineAlerts});
+  const ok=await syncPush(readData(),true);
+  if(!ok){put(c);notify('Não foi possível confirmar no servidor; preferências anteriores mantidas.');return false;}
+  notify('Preferências sincronizadas. Compromissos e prazos são opcionais.');
+  return true;
+}
+
 export async function testPush(){
   const c=get();
   if(!c.token)return notify('Ative as notificações primeiro.');

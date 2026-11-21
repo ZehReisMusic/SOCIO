@@ -1,5 +1,5 @@
 {
-  "version": "V003.6",
-  "releasedAt": "2026-11-20",
-  "description": "Unificação da paleta azul-grafite dos cartões de Negócios, Tarefas, Agenda, Executar, Ajustes, Histórico e REIZZOR STATION. Tela inicial, ícone 01 publicado, dados locais e Web Push preservados."
+  "version": "V003.7",
+  "releasedAt": "2026-11-21",
+  "description": "Teste de Web Push agendado em poucos minutos, com verificação real pelo cron Cloudflare; novos lembretes inteligentes opcionais para agenda (30 min antes) e tarefas com prazo. Sem mudar ícone, dados ou inscrições."
 }
