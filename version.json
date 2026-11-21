@@ -1,5 +1,5 @@
 {
-  "version": "V003.9",
+  "version": "V003.10",
   "releasedAt": "2026-11-21",
-  "description": "Agenda Inteligente: lembretes individuais 10, 30 ou 60 minutos antes (ou desligado), revisão por áudio, status distinguindo confirmação do Cloudflare de configuração local. Web Push, dados, ícone e paleta preservados."
+  "description": "Ajuste exclusivo de contraste no texto da notificação inferior (toast): texto branco sobre o fundo grafite existente. Mantidos Agenda, Web Push, dados, ícone e paleta."
 }
