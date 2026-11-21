@@ -1,0 +1,42 @@
+/* V003.16 — iOS: impede que o min-content do seletor nativo
+   alargue o track do modal e crie rolagem horizontal.
+   Mantém rolagem vertical e zoom por pinça. */
+@media (max-width:740px) {
+  .modal-backdrop {
+    grid-template-columns:minmax(0,1fr);
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+  .modal {
+    box-sizing:border-box;
+    justify-self:center;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    overflow-x:hidden;
+    overflow-y:auto;
+  }
+  .modal > form,
+  .modal .form-stack,
+  .modal .form-grid,
+  .modal .form-field {
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
+  .modal .agenda-datetime-grid {
+    grid-template-columns:minmax(0,1fr);
+    min-width:0;
+    max-width:100%;
+  }
+  .modal .agenda-datetime-grid input[type="date"],
+  .modal .agenda-datetime-grid input[type="time"] {
+    box-sizing:border-box;
+    inline-size:100%;
+    max-inline-size:100%;
+    min-inline-size:0;
+    font-size:16px;
+  }
+}
