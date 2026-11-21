@@ -1,7 +1,8 @@
+import {appointmentReminderEntry,appointmentReminderStatus} from './appointment-reminders.js';
 // MEU SÓCIO — push apenas com consentimento e serviço configurado.
 const KEY='socio.v003.push';
 let notify=()=>{},readData=()=>null;
-const get=()=>{try{return {url:'',token:'',hour:'10:00',agendaAlerts:false,deadlineAlerts:false,diagnostic:null,...JSON.parse(localStorage.getItem(KEY)||'{}')};}catch{return {url:'',token:'',hour:'10:00',agendaAlerts:false,deadlineAlerts:false,diagnostic:null};}};
+const get=()=>{try{return {url:'',token:'',hour:'10:00',agendaAlerts:false,deadlineAlerts:false,diagnostic:null,lastSync:null,...JSON.parse(localStorage.getItem(KEY)||'{}')};}catch{return {url:'',token:'',hour:'10:00',agendaAlerts:false,deadlineAlerts:false,diagnostic:null,lastSync:null};}};
 const put=c=>localStorage.setItem(KEY,JSON.stringify(c));
 const element=id=>document.getElementById(id);
 const supported=()=>('Notification' in window)&&('PushManager' in window)&&('serviceWorker' in navigator);
@@ -52,11 +53,9 @@ export function smartReminders(data,settings={},now=new Date()){
     for(const appointment of data.appointments){
       if(appointment.status==='done'||!/^\d{4}-\d\d-\d\d$/.test(appointment.date||'')||
          !/^\d\d:\d\d$/.test(appointment.time||''))continue;
-      const id=serverId('agenda',appointment.id);
-      const start=new Date(appointment.date+'T'+appointment.time+':00').getTime();
-      const due=start-30*60000;
-      if(!id||!validWindow(due,clock))continue;
-      items.push({id,title:'Agenda em 30 minutos: '+String(appointment.title||'Compromisso').slice(0,80),dueAt:new Date(due).toISOString()});
+      const entry=appointmentReminderEntry(appointment);
+      if(!entry||!validWindow(Date.parse(entry.dueAt),clock))continue;
+      items.push({id:entry.id,title:entry.title,dueAt:entry.dueAt});
     }
   }
   if(c.deadlineAlerts&&Array.isArray(data.tasks)&&/^\d\d:\d\d$/.test(c.hour)){
@@ -68,7 +67,17 @@ export function smartReminders(data,settings={},now=new Date()){
       items.push({id,title:'Prazo de hoje: '+String(task.title||'Tarefa').slice(0,90),dueAt:new Date(due).toISOString()});
     }
   }
-  return items.slice(0,20);
+  // Limite de 20 registros do Worker: priorize os avisos que vencem primeiro.
+  return items.sort((a,b)=>Date.parse(a.dueAt)-Date.parse(b.dueAt)).slice(0,20);
+}
+
+export function agendaReminderStatus(appointment,now=new Date()){
+  const c=get();
+  const state=pushState();
+  return appointmentReminderStatus(appointment,{
+    enabled:state.enabled&&state.granted,agendaAlerts:c.agendaAlerts,
+    syncedReminders:c.lastSync?.reminders||[]
+  },now);
 }
 
 export function renderPushSettings(){
@@ -87,7 +96,7 @@ export function renderPushSettings(){
       content+='<p class="push-diagnostic-note">Teste real enviado ao agendamento para '+escape(when)+'. O Cloudflare verifica os avisos a cada cinco minutos. Confira a tela bloqueada; este indicador não confirma a entrega.</p>';
     }
     content+='<div class="push-preferences"><strong>Lembretes inteligentes (opcionais)</strong>';
-    content+='<label class="push-check"><input type="checkbox" id="push-agenda-alerts" '+(c.agendaAlerts?'checked':'')+'> Compromissos da agenda (30 min antes)</label>';
+    content+='<label class="push-check"><input type="checkbox" id="push-agenda-alerts" '+(c.agendaAlerts?'checked':'')+'> Compromissos da agenda (avisos individuais: 10, 30 ou 60 min antes)</label>';
     content+='<label class="push-check"><input type="checkbox" id="push-deadline-alerts" '+(c.deadlineAlerts?'checked':'')+'> Tarefas com prazo (no horário acima)</label>';
     content+='<button type="button" class="btn-quiet" data-action="push-save-preferences">Salvar lembretes inteligentes</button>';
     content+='<p>Desativados por padrão. Seus avisos só são agendados quando o aplicativo sincroniza; horizonte de até 14 dias.</p></div>';
@@ -127,7 +136,14 @@ export async function syncPush(data,force=false){
     const reg=await navigator.serviceWorker.ready;
     const sub=await reg.pushManager.getSubscription();
     if(!sub)return false;
-    await api(c.url,'/sync',{subscription:sub.toJSON(),reminders:smartReminders(data,c)},c.token);
+    const reminders=smartReminders(data,c);
+    await api(c.url,'/sync',{subscription:sub.toJSON(),reminders},c.token);
+    // Só afirmamos "sincronizado" depois da confirmação da API, nunca só por salvar localmente.
+    const current=get();
+    if(current.url===c.url&&current.token===c.token){
+      put({...current,lastSync:{at:Date.now(),reminders:reminders.map(({id,dueAt})=>({id,dueAt}))}});
+      document.dispatchEvent(new Event('socio:push-synced'));
+    }
     return true;
   }catch(err){console.warn('SÓCIO: sincronização de lembretes pendente',err);return false;}
 }
