@@ -1,0 +1,25 @@
+/* MEU SÓCIO V003.15 — iPhone: o input nativo de data precisa de largura inteira.
+   Sem mudar o picker iOS, empilhe Data e Horário apenas no formulário de compromisso. */
+@media (max-width:740px) {
+  .modal .agenda-datetime-grid {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:14px;
+    width:100%;
+    min-width:0;
+  }
+  .modal .agenda-datetime-grid > .form-field {
+    min-width:0;
+    max-width:100%;
+    width:100%;
+  }
+  .modal .agenda-datetime-grid input[type="date"],
+  .modal .agenda-datetime-grid input[type="time"] {
+    box-sizing:border-box;
+    display:block;
+    min-width:0;
+    max-width:100%;
+    width:100%;
+    font-size:16px;
+  }
+}

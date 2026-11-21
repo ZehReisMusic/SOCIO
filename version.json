@@ -1,5 +1,5 @@
 {
-  "version": "V003.14",
+  "version": "V003.15",
   "releasedAt": "2026-11-21",
-  "description": "Correção do zoom involuntário ao abrir formulários no iPhone: remove foco automático em telas de toque, preservando-o no desktop. Não muda dados, Agenda, Web Push, ícone ou aparência."
+  "description": "Corrige transbordamento lateral ao editar compromissos no iPhone: campos Data e Horário são empilhados com largura integral apenas no formulário, preservando seletores nativos, zoom manual, Agenda, dados e Web Push."
 }

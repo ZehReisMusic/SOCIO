@@ -17,7 +17,8 @@ test('iOS: todos os campos editáveis da Agenda e ajustes têm texto >= 16px, se
  ])assert.ok(css.includes(selector),'Regra ausente para '+selector);
  assert.match(css,/font-size:16px\s*;/);
  const styles=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(m=>m[1]);
- assert.equal(styles.at(-1),'./css/ios-input-focus-v00313.css','correção deve vir depois dos temas');
+ assert.ok(styles.indexOf('./css/ios-input-focus-v00313.css')>styles.indexOf('./css/theme-v0032.css'),'fontes 16px devem vir depois dos temas');
+ assert.ok(styles.indexOf('./css/agenda-datetime-v00315.css')>styles.indexOf('./css/ios-input-focus-v00313.css'),'correção Data/Horário é a última regra específica');
  assert.match(read('css/theme-v0032.css'),/\.form-field input,\.form-field textarea,\.form-field select\{[^}]*font-size:14px/);
 });
 test('não bloquear zoom manual, não alterar meta viewport nem duplicar campos',()=>{
@@ -31,9 +32,9 @@ test('não bloquear zoom manual, não alterar meta viewport nem duplicar campos'
 });
 test('microversão conserva PWA, ícone, push, armazenamentos, ajustes visuais e Agenda',()=>{
  const sw=read('service-worker.js'),html=read('index.html');
- assert.equal(JSON.parse(read('version.json')).version,'V003.14');
- assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.14'/);
- assert.match(sw,/socio-v00314-20261121/);
+ assert.equal(JSON.parse(read('version.json')).version,'V003.15');
+ assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.15'/);
+ assert.match(sw,/socio-v00315-20261121/);
  assert.match(sw,/'\.\/css\/ios-input-focus-v00313\.css'/);
  assert.match(sw,/self\.addEventListener\('push'/);
  assert.match(sw,/self\.addEventListener\('notificationclick'/);
