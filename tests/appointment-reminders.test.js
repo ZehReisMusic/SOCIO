@@ -74,7 +74,7 @@ test('formulário por áudio e manual, detalhes e indicadores usam a mesma escol
  assert.match(app,/selectField\('Lembrete \(opcional\)','reminderMinutes'/);
  assert.match(app,/selectField\('Avisar antes deste compromisso','reminderMinutes'/);
  assert.match(app,/reminderMinutes,source,status:'open'/);
- assert.match(app,/Object.assign\(appointment,\{title,date,time,notes,reminderMinutes\}\)/);
+ assert.match(app,/Object.assign\(appointment,\{title,date,time,notes,reminderMinutes,taskId:/);
  assert.match(app,/agendaReminderStatus\(a\)/);
  assert.match(push,/document\.dispatchEvent\(new Event\('socio:push-synced'\)\)/);
  assert.match(push,/lastSync:\{at:Date\.now\(\),reminders/);
