@@ -5,7 +5,9 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 
 test('formulário da Agenda marca apenas a linha Data/Horário com classe responsiva',()=>{
  const app=read('js/app.js');
- assert.match(app,/<div class="form-grid agenda-datetime-grid">\$\{field\('Data','date',date,'date','required'\)\}\$\{field\('Horário','time',time,'time','required'\)\}<\/div>/);
+ assert.ok(app.includes('class="form-grid agenda-datetime-grid"'));
+ assert.ok(app.includes("agendaNativeDateTimeField('Data','date',date,'date')"));
+ assert.ok(app.includes("agendaNativeDateTimeField('Horário','time',time,'time')"));
  assert.equal((app.match(/agenda-datetime-grid/g)||[]).length,1);
  assert.match(app,/function agendaForm\(id='',voice=false,transcript='',audioUrl='',prefill=\{\}\)/);
  assert.match(app,/function startAgendaVoice\(\)/);
@@ -20,8 +22,8 @@ test('iPhone: Data/Horário são verticais, limitados à largura da janela, sem 
  assert.match(css,/max-width:100%;\s*width:100%;\s*font-size:16px/);
  assert.doesNotMatch(css,/-webkit-appearance:\s*none|touch-action|user-scalable|maximum-scale/);
  const app=read('js/app.js');
- assert.match(app,/field\('Data','date',date,'date','required'\)/);
- assert.match(app,/field\('Horário','time',time,'time','required'\)/);
+ assert.ok(app.includes("agendaNativeDateTimeField('Data','date',date,'date')"));
+ assert.ok(app.includes("agendaNativeDateTimeField('Horário','time',time,'time')"));
 });
 
 test('desktop mantém grade original: nenhuma regra de colunas fora do media query',()=>{
@@ -40,7 +42,7 @@ test('versão, cache e tema preservam todas as funções validadas do MEU SÓCIO
  assert.match(sw,/'\.\/css\/agenda-datetime-v00315\.css'/);
  const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(x=>x[1]);
  assert.ok(links.indexOf('./css/agenda-datetime-v00315.css')>links.indexOf('./css/ios-input-focus-v00313.css'));
- assert.equal(links.at(-1),'./css/ios-modal-width-v00316.css');
+ assert.equal(links.at(-1),'./css/agenda-native-picker-v00317.css');
  assert.match(html,/width=device-width,initial-scale=1,viewport-fit=cover/);
  assert.doesNotMatch(html,/user-scalable=no|maximum-scale=1/);
  assert.match(sw,/self\.addEventListener\('push'/);
