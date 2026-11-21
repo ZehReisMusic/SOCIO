@@ -86,7 +86,7 @@ export function renderPushSettings(){
   let content='<p>Receba lembretes de tarefas adiadas na tela bloqueada, com seu consentimento.</p>';
   content+='<span class="soft-pill">'+(state.enabled&&state.granted?'Conectado · Web Push':'Aguardando ativação')+'</span>';
   if(state.enabled){
-    content+='<div class="form-field"><label for="push-time">Horário dos lembretes</label><input id="push-time" type="time" value="'+escape(c.hour)+'"></div>';
+    content+='<div class="form-field push-time-field"><label for="push-time">Horário dos lembretes</label><div class="push-time-shell"><input id="push-time" type="time" value="'+escape(c.hour)+'"></div></div>';
     content+='<button type="button" class="btn-primary" data-action="push-time">Salvar horário</button>';
     content+='<button type="button" class="btn-quiet" data-action="push-test">Enviar teste</button>';
     content+='<button type="button" class="btn-quiet" data-action="push-scheduled-test">⏱ Testar lembrete agendado</button>';
