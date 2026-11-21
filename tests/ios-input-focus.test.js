@@ -32,9 +32,9 @@ test('não bloquear zoom manual, não alterar meta viewport nem duplicar campos'
 });
 test('microversão conserva PWA, ícone, push, armazenamentos, ajustes visuais e Agenda',()=>{
  const sw=read('service-worker.js'),html=read('index.html');
- assert.equal(JSON.parse(read('version.json')).version,'V003.18');
- assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.18'/);
- assert.match(sw,/socio-v00318-20261121/);
+ assert.equal(JSON.parse(read('version.json')).version,'V003.19');
+ assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.19'/);
+ assert.match(sw,/socio-v00319-20261121/);
  assert.match(sw,/'\.\/css\/ios-input-focus-v00313\.css'/);
  assert.match(sw,/self\.addEventListener\('push'/);
  assert.match(sw,/self\.addEventListener\('notificationclick'/);
