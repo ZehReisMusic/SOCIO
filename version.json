@@ -1,5 +1,5 @@
 {
-  "version": "V003.18",
+  "version": "V003.19",
   "releasedAt": "2026-11-21",
-  "description": "Correção isolada da largura do campo Horário dos lembretes em Ajustes no iPhone, com moldura estável e seletor nativo preservado. Sem alterações nas assinaturas Web Push, lembretes, dados, ícone ou Agenda."
+  "description": "Etapa 04: vinculos opcionais de ate 50 tarefas por compromisso, preparacoes e recomendações sensiveis a proximidade do evento. Migra backups de um vinculo anterior, sem alterar prazos, status, notificacoes Web Push, design ou dados locais."
 }
