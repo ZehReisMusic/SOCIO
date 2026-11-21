@@ -1,3 +1,4 @@
+import {preparationContext} from './agenda-task-links.js';
 /** Motor de recomendações determinístico e auditável (sem IA ou chamadas externas). */
 export const BUSINESS_STATES = {
   ativo: {label:'Em movimento', short:'Ativo'},
@@ -27,26 +28,28 @@ export function dueMeta(due, now=new Date()) {
   if (days<=7) return {bonus:2,label:`Em ${days} dias`,kind:'future'};
   return {bonus:0,label:niceDate(due),kind:'future'};
 }
-export function scoreTask(task, business, now = new Date()) {
+export function scoreTask(task, business, now = new Date(), appointments = []) {
   const impact = clamp(task.impact,1,5), urgency=clamp(task.urgency,1,5), effort=clamp(task.effort,1,5), focus=clamp(business?.focus || 1,1,5);
   const adjustment = business?.status === 'espera' ? -9 : business?.status === 'manutencao' ? -2 : business?.status === 'exploracao' ? -3 : business?.status === 'ativo' ? 3 : 0;
-  return impact*4 + urgency*3 + (6-effort)*2 + focus + dueMeta(task.due, now).bonus + adjustment;
+  return impact*4 + urgency*3 + (6-effort)*2 + focus + dueMeta(task.due, now).bonus + adjustment + (preparationContext(task, appointments, now)?.bonus || 0);
 }
 export function clamp(value, min, max) { const n=Number(value); return Number.isFinite(n) ? Math.min(max,Math.max(min,Math.round(n))) : min; }
 export function rankTasks(data, now = new Date(), excludedToday=true) {
   const businesses=new Map(data.businesses.map(b=>[b.id,b]));
   const skipped = excludedToday && data.skipped?.date === dateKey(now) ? new Set(data.skipped.taskIds || []) : new Set();
-  return data.tasks.filter(t=>t.status!=='done' && !skipped.has(t.id)).map(t=>({...t,score:scoreTask(t,businesses.get(t.businessId),now)}))
+  return data.tasks.filter(t=>t.status!=='done' && !skipped.has(t.id)).map(t=>({...t,score:scoreTask(t,businesses.get(t.businessId),now,data.appointments||[])}))
     .sort((a,b)=>b.score-a.score || (a.createdAt || '').localeCompare(b.createdAt || ''));
 }
 export function recommend(data,now = new Date()) {return rankTasks(data,now)[0] || null;}
-export function reasonFor(task,business,now=new Date()) {
+export function reasonFor(task,business,now=new Date(),appointments=[]) {
   if (!task) return 'Uma ação aparece aqui assim que você cadastrar uma tarefa.';
   const parts=[];
   if (task.impact>=4) parts.push('tem alto potencial de impacto no negócio');
   if (business?.status==='ativo' && business?.focus>=4) parts.push(`está conectada ao foco atual: ${business.name}`);
   const due=dueMeta(task.due,now);
   if (due.kind==='late'||due.kind==='today'||due.kind==='soon') parts.push(`tem um prazo próximo (${due.label.toLowerCase()})`);
+  const related=preparationContext(task,appointments,now);
+  if (related?.bonus) parts.push(`precisa ser preparada antes do compromisso "${related.appointment.title}" (${related.label})`);
   if (task.effort<=2) parts.push('é uma ação relativamente simples de tirar do papel');
   if (!parts.length) parts.push('é a melhor combinação de impacto, urgência e esforço entre as tarefas abertas');
   return `Essa ação ${parts.join('; ')}.`;
