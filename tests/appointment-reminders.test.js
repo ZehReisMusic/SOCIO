@@ -91,3 +91,11 @@ test('V003.9 preserva Web Push, a identidade visual, a chave local e o ícone or
  assert.match(updater,/APP_VERSION = 'V003\.9'/);
  assert.match(read('js/store.js'),/socio\.v001\.data/);
 });
+
+test('notificações de compromissos mostram título claro e abrem a Agenda, sem alterar o clique das tarefas',()=>{
+ const sw=read('service-worker.js');
+ assert.match(sw,/rawBody\.startsWith\('Uma prioridade ficou pendente: Compromisso em '\)/);
+ assert.match(sw,/tag:isAgenda\?'socio-agenda'/);
+ assert.match(sw,/data:\{target:isAgenda\?'agenda':'executar'\}/);
+ assert.match(sw,/event\.notification\.data\?\.target==='agenda'\?'\.\/#agenda':'\.\/#executar'/);
+});
