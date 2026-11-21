@@ -1,5 +1,5 @@
 {
-  "version": "V003.11",
+  "version": "V003.12",
   "releasedAt": "2026-11-21",
-  "description": "Ajuste responsivo do iPhone: cabeçalho MEU SÓCIO e botão + respeitam barra de status; margem de rolagem inferior evita encobrimento do último conteúdo. Preservados dados, Agenda, ícone, paleta, Web Push e toast branco."
+  "description": "Agenda Inteligente: detectar conflitos e sugerir horários livres na faixa escolhida, duração opcional; nenhum ajuste automático de compromissos. Voz, dados, Web Push, ícone e tema preservados."
 }
