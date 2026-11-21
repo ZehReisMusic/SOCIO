@@ -28,7 +28,7 @@ test('agenda só agenda 30 min antes e mediante opção expressa',()=>{
  const active=smartReminders(data,{agendaAlerts:true},now);
  assert.equal(active.length,1);
  assert.equal(active[0].id,'agenda-ap-1');
- assert.match(active[0].title,/Agenda em 30 minutos/);
+ assert.match(active[0].title,/Compromisso em 30 minutos/);
  const when=new Date(active[0].dueAt).getTime();
  assert.ok(Math.abs(when-(start.getTime()-30*60000))<60000);
  data.appointments[0].status='done';assert.deepEqual(smartReminders(data,{agendaAlerts:true},now),[]);
@@ -55,7 +55,7 @@ test('UI contém botão para teste e só ativa agenda/prazo quando o usuário op
 });
 test('testes agendados não modificam handler Web Push ou ícone do iPhone',()=>{
  const sw=read('service-worker.js'),manifest=JSON.parse(read('manifest.webmanifest'));
- assert.match(sw,/socio-v0038-20261121/);
+ assert.match(sw,/socio-v0039-20261121/);
  assert.match(sw,/self.addEventListener\('push'/);
  assert.match(sw,/self.addEventListener\('notificationclick'/);
  assert.equal(manifest.icons.length,2);
