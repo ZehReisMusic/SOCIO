@@ -1,3 +1,4 @@
+import {normalizeReminderMinutes} from './appointment-reminders.js';
 import {seedData, BUSINESS_STATES, BUSINESS_COLORS, clamp, safeDate} from './logic.js';
 export const STORAGE_KEY = 'socio.v001.data';
 export function readData(){
@@ -23,7 +24,7 @@ export function validateData(value){
   const e=value.events.map(v=>({id:clean(v.id,100),businessId:ids.has(v.businessId)?v.businessId:null,taskId:v.taskId?clean(v.taskId,100):null,type:['sistema','decisao','avanco','conclusao','reaberta','agenda','adiamento'].includes(v.type)?v.type:'sistema',title:clean(v.title,250),note:clean(v.note,3000),createdAt:clean(v.createdAt,40)}));
   const validAppointmentDate=d=>{if(!safeDate(d))return false;const [y,m,day]=d.split('-').map(Number);const check=new Date(y,m-1,day);return check.getFullYear()===y&&check.getMonth()===m-1&&check.getDate()===day;};
   const knownTaskIds=new Set(t.map(x=>x.id));
-  const appointments=Array.isArray(value.appointments)?value.appointments.slice(0,5000).filter(v=>v&&validAppointmentDate(v.date)&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(v.time||'')).map(v=>({id:clean(v.id,100),title:clean(v.title,250),date:v.date,time:v.time,notes:clean(v.notes,3000),taskId:knownTaskIds.has(clean(v.taskId,100))?clean(v.taskId,100):'',source:v.source==='voz'?'voz':'manual',status:v.status==='done'?'done':'open',createdAt:clean(v.createdAt,40)})).filter(v=>v.title):[];
+  const appointments=Array.isArray(value.appointments)?value.appointments.slice(0,5000).filter(v=>v&&validAppointmentDate(v.date)&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(v.time||'')).map(v=>({id:clean(v.id,100),title:clean(v.title,250),date:v.date,time:v.time,notes:clean(v.notes,3000),taskId:knownTaskIds.has(clean(v.taskId,100))?clean(v.taskId,100):'',reminderMinutes:normalizeReminderMinutes(v.reminderMinutes),source:v.source==='voz'?'voz':'manual',status:v.status==='done'?'done':'open',createdAt:clean(v.createdAt,40)})).filter(v=>v.title):[];
   const date=/^\d{4}-\d{2}-\d{2}$/.test(value.skipped?.date||'')?value.skipped.date:'';
   const taskIds=new Set(t.map(x=>x.id));
   return {version:1,businesses:b,tasks:t,events:e,appointments,station,skipped:{date,taskIds:Array.isArray(value.skipped?.taskIds)?value.skipped.taskIds.filter(v=>taskIds.has(v)).slice(0,10000):[]}};
