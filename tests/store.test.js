@@ -27,3 +27,15 @@ test('reabrir backup com estação não recria negócio que foi removido',()=>{
   const clean=validateData(data);
   assert.equal(clean.businesses.some(b=>b.id==='b-reizzor'),false);
 });
+
+test('vínculos de compromissos com tarefas persistem nos backups e referências inválidas são limpas',()=>{
+  const data=seedData();
+  const known=data.tasks[0].id;
+  data.appointments=[
+    {id:'a-1',title:'Reunião',date:'2026-11-25',time:'15:00',notes:'',taskId:known,status:'open'},
+    {id:'a-2',title:'Consulta',date:'2026-11-26',time:'09:00',notes:'',taskId:'t-nao-existe',status:'open'}];
+  const clean=validateData(data);
+  assert.equal(clean.appointments[0].taskId,known);
+  assert.equal(clean.appointments[1].taskId,'');
+  assert.deepEqual(clean.appointments,validateData(clean).appointments);
+});
