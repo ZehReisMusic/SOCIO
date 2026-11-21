@@ -1,5 +1,5 @@
 {
   "version": "V003.12",
   "releasedAt": "2026-11-21",
-  "description": "Agenda Inteligente: avisos de conflitos e consulta de horários livres dentro do intervalo escolhido, duração opcional sem presumir compromissos antigos; sem alterações automáticas. Mantidos Web Push, voz, dados, paleta, ícone e ajuste seguro do iPhone."
+  "description": "Agenda Inteligente: detectar conflitos e sugerir horários livres na faixa escolhida, duração opcional; nenhum ajuste automático de compromissos. Voz, dados, Web Push, ícone e tema preservados."
 }
