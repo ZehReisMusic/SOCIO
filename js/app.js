@@ -2,7 +2,7 @@ import {BUSINESS_STATES,BUSINESS_COLORS,newId,dateKey,niceDate,todayFull,htmlEsc
 import {STORAGE_KEY,readData,writeData,validateData,downloadJson} from './store.js';
 import {parseVoiceAppointment,sortAppointments,appointmentDateTime} from './agenda.js';
 import {APP_VERSION,initUpdates,checkForUpdates,applyDeferredUpdate} from './updater.js';
-import {renderPushSettings,initPush,enablePush,syncPush,updatePushTime,testPush,disablePush} from './push.js';
+import {renderPushSettings,initPush,enablePush,syncPush,updatePushTime,testPush,schedulePushDiagnostic,savePushPreferences,disablePush} from './push.js';
 import {STATION_STATUSES,renderStationContent} from './reizzor-station.js';
 
 const icons={
@@ -175,6 +175,8 @@ function handleClick(event){const target=event.target.closest('[data-action],[da
  case 'push-enable':void enablePush().then(ok=>{if(ok)render()});break;
  case 'push-disable':void disablePush().then(ok=>{if(ok)render()});break;
  case 'push-test':void testPush();break;
+ case 'push-scheduled-test':void schedulePushDiagnostic();break;
+ case 'push-save-preferences':void savePushPreferences();break;
  case 'push-time':void updatePushTime();break;
  case 'update-app':void checkForUpdates({manual:true});break;
  case 'export':downloadJson(data);toast('Backup preparado para download.');break;
@@ -204,7 +206,7 @@ function handleSubmit(event){if(event.target?.id!=='entry-form')return;event.pre
  else if(mode==='create-entry'){const title=String(f.get('title')||'').trim();if(!title){toast('Descreva o que aconteceu.');return;}const businessId=String(f.get('businessId')||'')||null;addEvent(String(f.get('type'))==='decisao'?'decisao':'avanco',title,businessId,null,String(f.get('note')||'').trim());message='Movimento registrado.';}
  else return;closeModal();save();toast(message);
 }
-async function importFile(event){const file=event.target.files?.[0];if(!file)return;try{if(file.size>10*1024*1024)throw new Error('O arquivo excede 10 MB.');const imported=validateData(JSON.parse(await file.text()));if(!confirm('Importar este backup substituirá todos os dados atuais deste dispositivo. Deseja continuar?'))return;data=imported;writeData(data);navigate('inicio');toast('Backup importado com sucesso.');}catch(err){toast(`Falha na importação: ${err.message}`);}finally{event.target.value='';}}
+async function importFile(event){const file=event.target.files?.[0];if(!file)return;try{if(file.size>10*1024*1024)throw new Error('O arquivo excede 10 MB.');const imported=validateData(JSON.parse(await file.text()));if(!confirm('Importar este backup substituirá todos os dados atuais deste dispositivo. Deseja continuar?'))return;data=imported;writeData(data);navigate('inicio');void syncPush(data);toast('Backup importado com sucesso.');}catch(err){toast(`Falha na importação: ${err.message}`);}finally{event.target.value='';}}
 // Eventos de página
 window.addEventListener('hashchange',()=>{const incoming=location.hash.slice(1);if(incoming&&incoming!==page){page=routes.some(([p])=>p===incoming)||incoming==='estacao'?incoming:'inicio';render();}});
 window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY){data=readData();render();}});
