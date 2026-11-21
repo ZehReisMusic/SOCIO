@@ -17,9 +17,11 @@ test('data e horário continuam nativos, completos e em linhas separadas no iPho
  assert.match(css,/\.modal \.agenda-datetime-grid\s*\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
  assert.match(css,/\.modal \.agenda-datetime-grid input\[type="date"\],[\s\S]*?\.modal \.agenda-datetime-grid input\[type="time"\]/);
  assert.match(css,/inline-size:100%;[^}]*max-inline-size:100%;[^}]*min-inline-size:0/);
- assert.match(app,/<div class="form-grid agenda-datetime-grid">/);
- assert.match(app,/field\('Data','date',date,'date','required'\)/);
- assert.match(app,/field\('Horário','time',time,'time','required'\)/);
+ assert.ok(app.includes('class="form-grid agenda-datetime-grid"'));
+ assert.ok(app.includes("agendaNativeDateTimeField('Data','date',date,'date')"));
+ assert.ok(app.includes("agendaNativeDateTimeField('Horário','time',time,'time')"));
+ assert.ok(app.includes("agendaNativeDateTimeField('Data','date',date,'date')"));
+ assert.ok(app.includes("agendaNativeDateTimeField('Horário','time',time,'time')"));
 });
 test('rolagem vertical e zoom por pinça continuam disponíveis',()=>{
  const css=read('css/ios-modal-width-v00316.css');
@@ -36,7 +38,7 @@ test('PWA V003.17 mantém cache de estilos, aviso branco e conexão Web Push',()
  assert.match(sw,/socio-v00317-20261121/);
  assert.match(sw,/'\.\/css\/ios-modal-width-v00316\.css'/);
  const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(x=>x[1]);
- assert.equal(links.at(-1),'./css/ios-modal-width-v00316.css');
+ assert.equal(links.at(-1),'./css/agenda-native-picker-v00317.css');
  assert.match(sw,/self\.addEventListener\('push'/);
  assert.match(sw,/self\.addEventListener\('notificationclick'/);
  assert.match(read('js/push.js'),/socio\.v003\.push/);
