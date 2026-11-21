@@ -103,3 +103,11 @@ test('PWA V003.12 preserva iPhone, aviso inferior branco, Web Push e ícone',()=
  assert.match(read('js/push.js'),/socio\.v003\.push/);
  assert.match(html,/apple-touch-icon\.png\?v=0035/);
 });
+
+test('arquivos JavaScript principais passam na verificação de sintaxe do Node',async()=>{
+ const {spawnSync}=await import('node:child_process');
+ for(const file of ['js/app.js','js/store.js','js/agenda-scheduling.js','js/agenda-overview.js','js/push.js','js/updater.js','service-worker.js']){
+   const run=spawnSync(process.execPath,['--check',file],{cwd:new URL('..',import.meta.url),encoding:'utf8'});
+   assert.equal(run.status,0,file+': '+run.stderr);
+ }
+});
