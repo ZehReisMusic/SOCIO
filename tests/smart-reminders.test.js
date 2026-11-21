@@ -56,7 +56,7 @@ test('UI contém botão para teste e só ativa agenda/prazo quando o usuário op
 });
 test('testes agendados não modificam handler Web Push ou ícone do iPhone',()=>{
  const sw=read('service-worker.js'),manifest=JSON.parse(read('manifest.webmanifest'));
- assert.match(sw,/socio-v00316-20261121/);
+ assert.match(sw,/socio-v00317-20261121/);
  assert.match(sw,/self.addEventListener\('push'/);
  assert.match(sw,/self.addEventListener\('notificationclick'/);
  assert.equal(manifest.icons.length,2);

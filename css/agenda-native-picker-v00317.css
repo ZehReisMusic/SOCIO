@@ -1,0 +1,53 @@
+/* V003.17 — Controle visual do picker nativo de data/hora no iPhone.
+   O Safari pode desenhar o input além da largura indicada. A borda agora
+   pertence a uma moldura independente que respeita a coluna do formulário. */
+@media (max-width:740px) {
+  .modal .agenda-datetime-grid .agenda-native-picker-shell {
+    box-sizing:border-box;
+    display:flex;
+    align-items:center;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    min-height:46px;
+    overflow:hidden;
+    background:#111f2b;
+    border:1px solid #436679;
+    border-radius:11px;
+  }
+  .modal .agenda-datetime-grid .agenda-native-picker-shell:focus-within {
+    border-color:var(--amber);
+    box-shadow:0 0 0 2px #d9a56722;
+  }
+  .modal .agenda-datetime-grid .agenda-native-picker-shell > input[type="date"],
+  .modal .agenda-datetime-grid .agenda-native-picker-shell > input[type="time"] {
+    display:block;
+    box-sizing:border-box;
+    flex:1 1 0%;
+    inline-size:100%;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    min-inline-size:0;
+    max-inline-size:100%;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+    background:transparent;
+    color:#f3f5f3;
+    font-size:16px;
+    text-align:center;
+    padding:12px 10px;
+    margin:0;
+    outline:none;
+  }
+  .modal .agenda-native-picker-shell input::-webkit-date-and-time-value {
+    min-width:0;
+    max-width:100%;
+    text-align:center;
+  }
+  .modal .agenda-native-picker-shell input::-webkit-datetime-edit {
+    min-width:0;
+    max-width:100%;
+  }
+}
