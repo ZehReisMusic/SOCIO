@@ -260,10 +260,12 @@ export function createSoundlineController(h){
   if(result.warnings.length)h.toast('Ditado interpretado. Confira os campos sinalizados antes de salvar.');
  }
  function stopVoice(cancel=false){
-  const old=speech;speech=null;
-  if(!old)return;
+  const old=speech;if(!old)return;
   old.cancelled=cancel;
-  try{cancel?old.recognition.abort():old.recognition.stop();}catch{if(!cancel)interpretVoice(old.transcript);}
+  if(cancel)speech=null;
+  try{cancel?old.recognition.abort():old.recognition.stop();}catch{
+   if(!cancel){speech=null;editQuote();interpretVoice(old.transcript);}
+  }
  }
  function startVoice(){
   const Recognizer=window.SpeechRecognition||window.webkitSpeechRecognition;
