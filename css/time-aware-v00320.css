@@ -1,0 +1,20 @@
+/* Etapa 05 — orientação temporal, sem mudar a grade e o zoom do iPhone */
+.time-guidance {
+ box-sizing:border-box;display:block;min-width:0;max-width:100%;
+ margin:0 0 16px;padding:13px 16px;
+ border:1px solid #365967;border-radius:13px;background:#142c38;
+ color:#d6e7ec;overflow-wrap:anywhere;
+}
+.time-guidance strong {
+ display:flex;align-items:center;gap:8px;
+ font-size:13px;font-weight:700;color:#efc68b;line-height:1.45;
+}
+.time-guidance p {margin:7px 0 0;font-size:12px;line-height:1.6;color:#bcd1d9}
+.time-guidance svg {flex-shrink:0}
+.execution-layout > .time-guidance {width:100%;margin:0 0 16px}
+.time-no-slot {color:#d2dfe4;line-height:1.65;font-size:14px;margin:0}
+@media(max-width:740px) {
+ .time-guidance {width:100%;max-width:100%;min-width:0;padding:12px 13px}
+ .time-guidance strong {font-size:13px}
+ .time-guidance p {font-size:12px}
+}

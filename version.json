@@ -1,5 +1,5 @@
 {
-  "version": "V003.19",
-  "releasedAt": "2026-11-21",
-  "description": "Etapa 04: vinculos opcionais de ate 50 tarefas por compromisso, preparacoes e recomendações sensiveis a proximidade do evento. Migra backups de um vinculo anterior, sem alterar prazos, status, notificacoes Web Push, design ou dados locais."
+  "version": "V003.20",
+  "releasedAt": "2026-11-22",
+  "description": "Etapa 05: recomendações respeitam duração estimada das tarefas e tempo até o próximo compromisso da Agenda, incluindo margem de 10 minutos. Não altera tarefas, prazos ou notificações e não pressupõe disponibilidade fora dos registros locais."
 }
