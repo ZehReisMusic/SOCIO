@@ -39,7 +39,7 @@ export function parseVoiceTask(transcript,businesses=[],now=new Date()){
  // Remoção por índice preserva os acentos e as palavras da fala original.
  const erase=(index,span)=>{if(index>=0&&span)title=title.slice(0,index)+' '.repeat(span.length)+title.slice(index+span.length);};
  erase(dateIndex,dateSpan);erase(durationIndex,durationSpan);
- title=title.replace(/^\s*(?:criar|crie|cadastrar|cadastre|adicionar|adicione|anotar|anote|registrar|registre|nova tarefa|preciso|tenho que|tarefa)\s*(?:uma?\s+tarefa\s*)?(?:de\s+)?/i,'');
+ title=title.replace(/^\s*(?:criar|crie|cadastrar|cadastre|adicionar|adicione|anotar|anote|registrar|registre|nova tarefa|preciso|tenho que|tarefa)\s*(?:(?:uma?\s+)?tarefa\s*)?(?:de\s+)?/i,'');
  title=title.replace(/\s+(?:ate|para|no|na|em|de)\s*$/i,'').replace(/\s+/g,' ').trim();
  // Preserva a redação original de quem falou no formulário revisável.
  const human=title?title.charAt(0).toLocaleUpperCase('pt-BR')+title.slice(1):'';
