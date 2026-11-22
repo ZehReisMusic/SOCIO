@@ -142,6 +142,7 @@ export function buildCableLine(input,supplies,settings=DEFAULT_SETTINGS,id=''){
   ['Embalagem direta',settings.directPackagingCents]
  ])if(cap(cost)>0)add(name,'un',1,cap(cost));
  const unitCostCents=components.reduce((sum,c)=>sum+c.totalCents,0);
+ if(unitCostCents<=0)throw new Error('Cadastre custos reais para os insumos antes de orçar este cabo.');
  const description=text(input.description||'Cabo SOUNDLINE',220)+' · '+r2(length)+' m · '+connector.name+
   ' ('+connectorQty+' '+(connectorQty===1?'ponta':'pontas')+')'+
   (sleeve?' · Malha '+sleeve.name:'')+(labelQty?' · Identificação em '+labelQty+' ponta(s)':'')+
