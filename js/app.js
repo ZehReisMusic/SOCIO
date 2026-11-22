@@ -100,8 +100,8 @@ function dashboard(){
     ${metric('Ações abertas','Para avançar',s.open,'tarefas')}
     ${metric('Avanços','Já registrados',s.progress,'trend')}
    </div>
-   <div class="home-primary-grid">
-    ${timeGuidance(plan)}${focusCard(plan.task,false,plan)}
+   ${timeGuidance(plan)}<div class="home-primary-grid">
+    ${focusCard(plan.task,false,plan)}
     <section class="home-day-card panel" aria-label="Progresso de tarefas">
      <div class="home-card-kicker">${svg('check',16)} EXECUÇÃO DO DIA</div>
      <div class="home-day-heading"><h2>Um passo de cada vez.</h2><span>${available.length===1?'1 disponível':available.length+' disponíveis'}</span></div>
