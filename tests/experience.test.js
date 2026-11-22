@@ -27,7 +27,7 @@ test('tela inicial não usa números inventados e mantém os eventos reais dos b
 
 test('tela compacta mantém os comandos de executar e adiar tarefas',()=>{
   const app=source('js/app.js');
-  assert.match(app,/function focusCard\(t,large=false\)/);
+  assert.match(app,/function focusCard\(t,large=false,plan=null\)/);
   assert.match(app,/btn\('Deixar para depois','skip-task'/);
   assert.match(app,/start-execution/);
   assert.match(source('css/experience-v0033.css'),/\.home-dashboard \.focus-panel/);
