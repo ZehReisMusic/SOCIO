@@ -1,0 +1,24 @@
+/* V003.21 — Ditado opcional para tarefas, sem alterar inputs nativos do iPhone. */
+.task-voice-panel {
+ box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;
+ gap:14px;min-width:0;max-width:100%;padding:16px 19px;margin:0 0 16px;
+ border:1px solid #36586b;border-radius:13px;background:#142d3b;
+}
+.task-voice-copy {flex:1 1 0;min-width:0;overflow-wrap:anywhere}
+.task-voice-copy strong {display:flex;align-items:center;gap:8px;font-size:14px;color:#e8eff3}
+.task-voice-copy strong svg {flex-shrink:0;color:#ecc48b}
+.task-voice-copy p {font-size:12px;line-height:1.6;color:#b7cbd4;margin:6px 0 0}
+.task-voice-copy p.muted {color:#9fb8c3}
+.task-voice-panel > button {
+ box-sizing:border-box;flex:0 0 auto;min-width:120px;
+ max-width:100%;white-space:normal;text-align:center;
+}
+#task-transcript {
+ box-sizing:border-box;width:100%;max-width:100%;min-width:0;
+ font-size:16px;line-height:1.5;resize:vertical;
+}
+@media(max-width:740px){
+ .task-voice-panel {flex-direction:column;align-items:stretch;padding:13px;gap:12px}
+ .task-voice-panel > button {width:100%;max-width:100%;min-width:0}
+ .task-voice-copy strong {font-size:13px}
+}
