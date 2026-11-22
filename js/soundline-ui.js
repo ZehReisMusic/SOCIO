@@ -32,8 +32,8 @@ export function createSoundlineController(h){
  }
  function listQuotes(){
   const quotes=[...state().quotes].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
-  const buttons=B(icon('plus',15)+' Novo orçamento','sl-new-quote','primary')+' '+B(icon('mic',15)+' Falar orçamento','sl-start-voice','outline');
-  let body='<div class="sl-main-actions">'+buttons+'</div>';
+  const buttons=B(icon('plus',15)+' Novo orçamento','sl-new-quote','primary')+' '+B(icon('mic',15)+' Falar orçamento','sl-start-voice','outline','id="sl-voice-trigger"');
+  let body='<div class="sl-main-actions">'+buttons+'</div><p id="sl-voice-live" role="status" aria-live="polite"></p>';
   body+=caption('Os custos e margens ficam somente no MEU SÓCIO. Os PDFs contêm apenas dados comerciais.');
   if(!quotes.length)body+='<div class="sl-empty"><h3>Seu primeiro orçamento começa aqui.</h3><p>Cadastre os insumos que usa na produção e crie a primeira proposta. Nada será enviado sem sua confirmação.</p>'+B('Cadastrar insumos','sl-go-supplies','outline')+'</div>';
   else body+='<div class="sl-quote-list">'+quotes.map(q=>{
