@@ -20,5 +20,5 @@ test('ajuste visual mantém os eventos de Web Push e o mesmo armazenamento',()=>
  assert.match(read('js/store.js'),/socio\.v001\.data/);
  assert.match(read('js/push.js'),/socio\.v003\.push/);
  assert.match(read('index.html'),/apple-touch-icon\.png\?v=0035/);
- assert.equal(JSON.parse(read('version.json')).version,'V003.19');
+ assert.equal(JSON.parse(read('version.json')).version,'V003.20');
 });
