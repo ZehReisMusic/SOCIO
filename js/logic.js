@@ -1,4 +1,5 @@
 import {preparationContext} from './agenda-task-links.js';
+import {createSoundlineState} from './soundline-core.js';
 /** Motor de recomendações determinístico e auditável (sem IA ou chamadas externas). */
 export const BUSINESS_STATES = {
   ativo: {label:'Em movimento', short:'Ativo'},
@@ -67,6 +68,7 @@ export function seedData(now=new Date()) {
       {id:'b-reizzor',name:'REIZZOR STATION',status:'manutencao',focus:1,color:BUSINESS_COLORS[2],objective:'Guardar composições, letras, repertório e áudios-guia em uma estação criativa privada.',situation:'Organização criativa pessoal. Não assumir tarefas coletivas da banda.',createdAt:stamp}
     ],
     appointments:[],
+    soundline:createSoundlineState(),
     station:{songs:[]},
     tasks:[
       {id:'t-mercadolivre',businessId:'b-soundline',title:'Publicar o primeiro anúncio no Mercado Livre',notes:'Escolha um cabo pronto, faça fotos reais e suficientes. Publique a primeira versão sem esperar a apresentação perfeita.',status:'open',impact:5,urgency:5,effort:2,minutes:30,due:'',createdAt:stamp,completedAt:null},
