@@ -4,6 +4,7 @@ import {parseVoiceAppointment,sortAppointments,appointmentDateTime} from './agen
 import {buildAgendaOverview} from './agenda-overview.js';
 import {linkedTaskIds,linkedTasks,preparationContext} from './agenda-task-links.js';
 import {selectTaskForTime} from './time-aware.js';
+import {parseVoiceTask} from './task-voice.js';
 import {normalizeReminderMinutes,reminderLabel} from './appointment-reminders.js';
 import {normalizeAgendaDuration,agendaDurationLabel,agendaConflicts,suggestAgendaSlots} from './agenda-scheduling.js';
 import {APP_VERSION,initUpdates,checkForUpdates,applyDeferredUpdate} from './updater.js';
@@ -23,7 +24,7 @@ const icons={
   plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="m5 12 4 4L19 6"/>',right:'<path d="m5 12 14 0m-6-6 6 6-6 6"/>',arrow:'<path d="m9 18 6-6-6-6"/>',edit:'<path d="m14 4 6 6M3 21l4.5-1 12-12a2.1 2.1 0 0 0-3-3l-12 12L3 21z"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',bolt:'<path d="m13 2-9 12h7l-1 8 10-12h-7z"/>',download:'<path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/>',upload:'<path d="M12 17V5m-4 4 4-4 4 4M4 17v4h16v-4"/>',delete:'<path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14"/>',star:'<path d="m12 2 3 6.5 7 1-5 5 .9 7.3-5.9-3.4-5.9 3.4L7 14.5l-5-5 7-1z"/>',trend:'<path d="m3 17 6-6 4 4 8-8M15 7h6v6"/>',layers:'<path d="m12 3 9 5-9 5-9-5 9-5zm-9 9 9 5 9-5M3 16l9 5 9-5"/>',coffee:'<path d="M4 8h13v7a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6zM17 9h2a3 3 0 0 1 0 6h-2M4 4h12"/>',spark:'<path d="m12 2 2.3 7.7L22 12l-7.7 2.3L12 22l-2.3-7.7L2 12l7.7-2.3L12 2z"/>',close:'<path d="M5 5l14 14M19 5 5 19"/>',note:'<path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"/>',pause:'<path d="M7 4v16M17 4v16"/>',shield:'<path d="m12 2 9 4v6c0 5-4 8-9 10-5-2-9-5-9-10V6z"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>'};
 const svg=(name,size=18)=>`<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name]||icons.star}</svg>`;
 const $=id=>document.getElementById(id);
-let data=readData(),page='inicio',taskFilter='all',toastTimer=null,voiceSession=null,stationSongId='',agendaPeriod='hoje',agendaAllOpen=false,agendaAvailability={open:false,date:dateKey(),from:'09:00',to:'21:00',durationMinutes:60,results:null};
+let data=readData(),page='inicio',taskFilter='all',toastTimer=null,voiceSession=null,taskSpeechSession=null,stationSongId='',agendaPeriod='hoje',agendaAllOpen=false,agendaAvailability={open:false,date:dateKey(),from:'09:00',to:'21:00',durationMinutes:60,results:null};
 const routes=[['inicio','Início'],['negocios','Negócios'],['tarefas','Tarefas'],['agenda','Minha Agenda'],['executar','Executar'],['historico','Histórico'],['ajustes','Ajustes']];
 const business=id=>data.businesses.find(b=>b.id===id);
 const initials=name=>String(name||'?').trim().split(/\s+/).slice(0,2).map(s=>s.charAt(0)).join('').toUpperCase();
@@ -32,7 +33,7 @@ const btn=(text,action,variant='outline',attrs='')=>`<button type="button" class
 const tag=(text,extra='')=>`<span class="pill ${extra}">${text}</span>`;
 function save(){if(!writeData(data)) toast('Não foi possível salvar neste dispositivo. Exporte seus dados.');render();void syncPush(data);}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3200);}
-function navigate(next){if(!routes.some(r=>r[0]===next)&&next!=='estacao')next='inicio';page=next;location.hash=next;render();window.scrollTo({top:0,behavior:'instant'});}
+function navigate(next){if(page==='tarefas'&&next!=='tarefas')cancelTaskSpeech();if(!routes.some(r=>r[0]===next)&&next!=='estacao')next='inicio';page=next;location.hash=next;render();window.scrollTo({top:0,behavior:'instant'});}
 function renderNavigation(){document.body.dataset.page=page;const navHtml=routes.slice(0,5).map(([id,label])=>`<button type="button" class="nav-item ${(page===id||(page==='estacao'&&id==='negocios'))?'active':''}" data-nav="${id}" aria-current="${(page===id||(page==='estacao'&&id==='negocios'))?'page':'false'}">${svg(id)}<span class="nav-label">${label}</span>${id==='tarefas'?`<span class="nav-number">${data.tasks.filter(x=>x.status!=='done').length}</span>`:''}</button>`).join('');$('main-nav').innerHTML=navHtml;$('mobile-nav').innerHTML=routes.map(([id,label])=>`<button type="button" class="${(page===id||(page==='estacao'&&id==='negocios'))?'active':''}" data-nav="${id}" aria-label="${label}" aria-current="${(page===id||(page==='estacao'&&id==='negocios'))?'page':'false'}">${svg(id)}<span>${id==='agenda'?'Agenda':label}</span></button>`).join('');$('topbar-current').textContent=page==='estacao'?'REIZZOR STATION':routes.find(([id])=>id===page)?.[1]||'Visão geral';}
 function render(){renderNavigation();$('view').innerHTML=({inicio:dashboard,negocios:businesses,tarefas:tasksView,executar:execution,historico:history,ajustes:settings,agenda:agendaView,estacao:stationView}[page]||dashboard)();}
 function sectionHeader(kicker,title,subtitle,actions=''){return `<div class="eyebrow">${kicker}</div><div class="view-header"><div><h1>${title}</h1><p>${subtitle}</p></div>${actions?`<div class="view-actions">${actions}</div>`:''}</div>`;}
@@ -126,8 +127,67 @@ function dashboard(){
  </div>`;
 }
 function businesses(){const arranged=[...data.businesses].sort((a,b)=>b.focus-a.focus||a.name.localeCompare(b.name));return `${sectionHeader('SUAS FRENTES','Meus negócios','Uma visão clara do que está ativo, em espera ou em avaliação.',btn(`${svg('plus')} Novo negócio`,'new-business','primary'))}<div class="business-grid">${arranged.map(b=>{const open=data.tasks.filter(t=>t.businessId===b.id&&t.status==='open').length;return `<article class="business-card"><div class="business-head">${businessIcon(b)}<span class="b-tag">${BUSINESS_STATES[b.status]?.label}</span></div><div><h2>${esc(b.name)}</h2><p>${esc(b.objective||'Sem objetivo definido.')}</p><p><strong>Situação:</strong> ${esc(b.situation||'Não informada.')}</p></div><div class="business-meta"><span>${open} ${open===1?'tarefa aberta':'tarefas abertas'}</span><span>·</span><span>Foco</span><div class="focus-bubbles">${Array.from({length:5},(_,i)=>`<span class="${i<b.focus?'on':''}"></span>`).join('')}</div></div><div class="business-bottom">${b.id==='b-reizzor'?'<button type="button" class="btn-primary btn-small" data-action="open-station">Abrir estação</button>':''}<button class="list-link" data-action="new-task" data-business="${esc(b.id)}">${svg('plus',13)} Nova tarefa</button><button class="btn-outline btn-small" data-action="edit-business" data-id="${esc(b.id)}">${svg('edit',13)} Editar</button></div></article>`;}).join('')}</div>`;}
+// Ditado de tarefas. Reconhecimento depende da API nativa do navegador;
+ // sem suporte, fica disponível revisão digitada/ditado do teclado do iPhone.
+function taskVoicePanel(){
+ return `<div class="panel task-voice-panel"><div class="task-voice-copy"><strong>${svg('mic',18)} Cadastrar tarefa por voz</strong><p>Diga a tarefa, o negócio e, se quiser, um prazo ou duração. Tudo será revisado antes de salvar.</p><p class="muted small" id="task-voice-status" role="status" aria-live="polite">O reconhecimento depende do suporte do navegador.</p></div><button type="button" class="btn-primary" data-action="task-voice-start" id="task-voice-button">${svg('mic',16)} Falar tarefa</button></div>`;
+}
+function taskSpeechStatus(message){
+ const el=$('task-voice-status');if(el)el.textContent=message;
+}
+function cancelTaskSpeech(){
+ const session=taskSpeechSession;taskSpeechSession=null;
+ if(!session)return;session.cancelled=true;
+ try{session.recognition.abort();}catch{}
+}
+function finishTaskSpeech(session){
+ if(taskSpeechSession!==session)return;
+ taskSpeechSession=null;
+ if(session.cancelled||page!=='tarefas')return;
+ taskForm('','',true,session.transcript||'');
+ if(session.error)toast(session.error);
+}
+function startTaskSpeech(){
+ if(taskSpeechSession){stopTaskSpeech();return;}
+ const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Speech){
+   taskForm('','',true,'');
+   toast('Reconhecimento automático indisponível. Use o microfone do teclado do iPhone ou digite a tarefa.');
+   return;
+ }
+ let recognition;
+ try{recognition=new Speech();}catch{taskForm('','',true,'');toast('Ditado indisponível. Revise manualmente.');return;}
+ const session={recognition,transcript:'',cancelled:false,error:''};taskSpeechSession=session;
+ recognition.lang='pt-BR';recognition.continuous=true;recognition.interimResults=true;
+ recognition.onresult=event=>{
+   if(taskSpeechSession!==session)return;
+   session.transcript=Array.from(event.results||[]).map(r=>r[0]?.transcript||'').join(' ').trim();
+   taskSpeechStatus(session.transcript?'Ouvindo: '+session.transcript:'Ouvindo...');
+ };
+ recognition.onerror=event=>{
+   if(taskSpeechSession!==session)return;
+   session.error=event?.error==='not-allowed'?'Microfone não autorizado. Você pode digitar a tarefa ou usar o microfone do teclado.':
+     'Não foi possível concluir a transcrição. Revise o texto antes de salvar.';
+ };
+ recognition.onend=()=>finishTaskSpeech(session);
+ const button=$('task-voice-button');
+ try{
+   recognition.start();
+   if(button){button.dataset.action='task-voice-stop';button.innerHTML=`${svg('stop',16)} Parar e revisar`;}
+   taskSpeechStatus('Ouvindo... toque em “Parar e revisar” quando terminar.');
+ }catch{
+   taskSpeechSession=null;taskForm('','',true,'');
+   toast('Não foi possível iniciar o reconhecimento. Use o microfone do teclado ou digite.');
+ }
+}
+function stopTaskSpeech(){
+ const session=taskSpeechSession;if(!session)return;
+ const btn=$('task-voice-button');if(btn){btn.disabled=true;btn.textContent='Preparando revisão...';}
+ taskSpeechStatus('Finalizando o ditado...');
+ try{session.recognition.stop();}catch{finishTaskSpeech(session);}
+}
 function taskRow(t){const b=business(t.businessId),d=dueMeta(t.due),done=t.status==='done';return `<div class="task-row ${done?'done':''}"><button type="button" class="complete-toggle ${done?'done':''}" data-action="toggle-task" data-id="${esc(t.id)}" title="${done?'Reabrir tarefa':'Concluir tarefa'}" aria-label="${done?'Reabrir':'Concluir'} ${esc(t.title)}">${done?svg('check'):''}</button>${b?businessIcon(b):''}<div class="task-content"><div class="task-title">${esc(t.title)}</div><div class="task-subrow"><span>${esc(b?.name||'Sem negócio')}</span><span>${t.minutes||20} min</span><span>${esc(d.label)}</span><span>Impacto ${t.impact}/5</span></div>${taskPreparationTag(t)}</div>${!done?`<div class="task-score" title="Pontuação de prioridade">${scoreTask(t,b,new Date(),data.appointments||[])}</div>`:''}<div class="task-actions"><button class="icon-btn" data-action="edit-task" data-id="${esc(t.id)}" aria-label="Editar tarefa">${svg('edit')}</button><button class="icon-btn" data-action="delete-task" data-id="${esc(t.id)}" aria-label="Excluir tarefa">${svg('delete')}</button></div></div>`;}
-function tasksView(){let tasks=[...data.tasks].sort((a,b)=>{if(a.status!==b.status)return a.status==='open'?-1:1;return scoreTask(b,business(b.businessId),new Date(),data.appointments||[])-scoreTask(a,business(a.businessId),new Date(),data.appointments||[]);});if(taskFilter==='open')tasks=tasks.filter(t=>t.status==='open');else if(taskFilter==='done')tasks=tasks.filter(t=>t.status==='done');return `${sectionHeader('AÇÕES CONCRETAS','Tarefas inteligentes','Não é uma lista infinita. O foco é escolher ações que realmente geram avanço.',btn(`${svg('plus')} Nova tarefa`,'new-task','primary'))}<div class="filter-bar">${[['all','Todas'],['open','Pendentes'],['done','Concluídas']].map(([id,label])=>`<button type="button" data-action="filter-task" data-filter="${id}" class="filter-btn ${taskFilter===id?'active':''}">${label} ${id==='open'?`(${data.tasks.filter(t=>t.status==='open').length})`:''}</button>`).join('')}</div><div class="task-list">${tasks.length?tasks.map(taskRow).join(''):empty('Nenhuma tarefa aqui','Você pode registrar uma nova ação concreta sem fazer planos enormes.','new-task','Criar tarefa')}</div><div class="tipline section-gap">${svg('spark',14)} Pontuação calculada automaticamente com impacto financeiro, urgência, esforço, foco do negócio e prazo. Ela é uma sugestão, não uma obrigação.</div>`;}
+function tasksView(){let tasks=[...data.tasks].sort((a,b)=>{if(a.status!==b.status)return a.status==='open'?-1:1;return scoreTask(b,business(b.businessId),new Date(),data.appointments||[])-scoreTask(a,business(a.businessId),new Date(),data.appointments||[]);});if(taskFilter==='open')tasks=tasks.filter(t=>t.status==='open');else if(taskFilter==='done')tasks=tasks.filter(t=>t.status==='done');return `${sectionHeader('AÇÕES CONCRETAS','Tarefas inteligentes','Não é uma lista infinita. O foco é escolher ações que realmente geram avanço.',btn(`${svg('plus')} Nova tarefa`,'new-task','primary'))}${taskVoicePanel()}<div class="filter-bar">${[['all','Todas'],['open','Pendentes'],['done','Concluídas']].map(([id,label])=>`<button type="button" data-action="filter-task" data-filter="${id}" class="filter-btn ${taskFilter===id?'active':''}">${label} ${id==='open'?`(${data.tasks.filter(t=>t.status==='open').length})`:''}</button>`).join('')}</div><div class="task-list">${tasks.length?tasks.map(taskRow).join(''):empty('Nenhuma tarefa aqui','Você pode registrar uma nova ação concreta sem fazer planos enormes.','new-task','Criar tarefa')}</div><div class="tipline section-gap">${svg('spark',14)} Pontuação calculada automaticamente com impacto financeiro, urgência, esforço, foco do negócio e prazo. Ela é uma sugestão, não uma obrigação.</div>`;}
 function execution(){const plan=timePlan(),top=plan.task;return `<section class="execution-layout"><div class="execution-top"><div class="eyebrow">MODO EXECUÇÃO</div><h1>Uma coisa de cada vez.</h1><p>Feche o resto. Execute um pequeno passo concreto.</p></div>${timeGuidance(plan)}${top?`<div class="execution-card"><div class="caps">SUA ÚNICA PRIORIDADE AGORA</div><h2>${esc(top.title)}</h2><p>${esc(top.notes||'Defina a menor ação possível e execute sem polir além do necessário.')}</p><div class="focus-split">${tag(esc(business(top.businessId)?.name||'Geral'))}${tag(`${svg('clock',13)} ${top.minutes||20} minutos`,'soft-pill')}</div><div class="focus-buttons">${btn(`${svg('check')} Concluí essa ação`,'complete-task','primary',`data-id="${esc(top.id)}"`)}${btn('Não agora, outra ação','skip-task','outline',`data-id="${esc(top.id)}"`)}</div><div class="execution-reason"><strong>${svg('spark',13)} POR QUE AGORA?</strong><p>${esc(reasonFor(top,business(top.businessId),new Date(),data.appointments||[]))}</p></div></div>`:`<div class="execution-card">${['no-fit','too-short','occupied','uncertain'].includes(plan.status)?'<p class="time-no-slot">Sem tarefa recomendada para execução imediata. Use a Agenda para revisar o próximo intervalo.</p>':empty('Hoje você já pode encerrar','Nenhuma ação disponível agora. É permitido descansar ou rever as ações adiadas.',data.tasks.some(t=>t.status==='open')?'restore-skips':'new-task',data.tasks.some(t=>t.status==='open')?'Rever ações de hoje':'Criar próxima ação')}</div>`}<div class="execution-footer">Sem cronômetro obrigatório. Sem pontos por produtividade. <strong>Só avanço real.</strong></div></section>`;}
 function reminderCaption(a){
  const state=agendaReminderStatus(a);
@@ -259,7 +319,7 @@ function openModal(html,mode,recordId=''){$('modal-content').innerHTML=html;$('m
  if(finePointer)setTimeout(()=>$('modal-content').querySelector('input:not([type="hidden"]),select,textarea')?.focus(),0);}
 function closeModal(){$('modal-backdrop').hidden=true;$('modal-content').innerHTML='';document.body.style.overflow='';clearVoice();queueMicrotask(applyDeferredUpdate);}
 function businessForm(id=''){const b=business(id)||{name:'',status:'ativo',focus:3,color:BUSINESS_COLORS[0],objective:'',situation:''};const html=`${field('Nome do negócio','name',b.name,'text','required maxlength="120" placeholder="Ex.: SOUNDLINE"')}${textArea('Objetivo principal','objective',b.objective,'maxlength="2000" placeholder="Qual resultado você quer alcançar?"')}${textArea('Situação atual','situation',b.situation,'maxlength="2000" placeholder="Em que ponto está?"')}<div class="form-grid">${selectField('Momento do negócio','status',b.status,Object.entries(BUSINESS_STATES).map(([k,v])=>[k,v.label]))}${selectField('Nível de foco agora','focus',b.focus,[1,2,3,4,5].map(n=>[n,`${n} / 5`]))}</div>${selectField('Cor de identificação','color',b.color,BUSINESS_COLORS.map((c,i)=>[c,['Âmbar','Verde','Azul','Lavanda','Cinza','Coral'][i]]))}`;openModal(formWrap('MEUS NEGÓCIOS',id?'Editar negócio':'Novo negócio',html),id?'edit-business':'create-business',id);}
-function taskForm(id='',selectedBusiness=''){const t=data.tasks.find(t=>t.id===id)||{title:'',businessId:selectedBusiness||data.businesses[0]?.id||'',notes:'',impact:3,urgency:3,effort:2,minutes:20,due:''};if(!data.businesses.length){toast('Cadastre um negócio primeiro.');businessForm();return;}const html=`${field('Ação concreta','title',t.title,'text','required maxlength="250" placeholder="Ex.: Publicar meu primeiro anúncio"')}${selectField('Negócio','businessId',t.businessId,data.businesses.map(b=>[b.id,b.name]))}${textArea('O menor próximo passo (opcional)','notes',t.notes,'maxlength="3000" placeholder="O que basta fazer para considerar concluído?"')}<div class="form-grid third">${selectField('Impacto','impact',t.impact,[1,2,3,4,5].map(n=>[n,`${n}/5`]))}${selectField('Urgência','urgency',t.urgency,[1,2,3,4,5].map(n=>[n,`${n}/5`]))}${selectField('Esforço','effort',t.effort,[1,2,3,4,5].map(n=>[n,`${n}/5`]))}</div><div class="form-grid">${field('Prazo (opcional)','due',t.due,'date')}${selectField('Duração estimada','minutes',t.minutes,[5,10,15,20,30,45,60,90,120].map(n=>[n,`${n} min`]))}</div><div class="tipline">O SÓCIO usa impacto, urgência, esforço, foco do negócio e prazo para recomendar a melhor ação disponível.</div>`;openModal(formWrap('AÇÃO PRÁTICA',id?'Editar tarefa':'Nova tarefa',html),id?'edit-task':'create-task',id);}
+function taskForm(id='',selectedBusiness='',voice=false,transcript=''){const parsed=voice?parseVoiceTask(transcript,data.businesses):null;const t=data.tasks.find(t=>t.id===id)||{title:parsed?.title||'',businessId:parsed?.businessId||selectedBusiness||data.businesses[0]?.id||'',notes:'',impact:3,urgency:3,effort:2,minutes:parsed?.minutes||20,due:parsed?.due||''};if(!data.businesses.length){toast('Cadastre um negócio primeiro.');businessForm();return;}const voiceHtml=voice?`<div class="voice-review"><div class="caps">TAREFA POR VOZ · REVISÃO</div><p>Confira a transcrição. Se necessário, edite e toque em “Interpretar novamente”. Você decide todos os campos antes de salvar.</p><textarea id="task-transcript" rows="3" placeholder="Transcrição indisponível. Use o microfone do teclado ou digite aqui.">${esc(transcript)}</textarea>${btn(`${svg('spark',15)} Interpretar novamente`,'parse-task-voice','outline')}</div>`:'';const html=`${voiceHtml}${field('Ação concreta','title',t.title,'text','required maxlength="250" placeholder="Ex.: Publicar meu primeiro anúncio"')}${selectField('Negócio','businessId',t.businessId,data.businesses.map(b=>[b.id,b.name]))}${textArea('O menor próximo passo (opcional)','notes',t.notes,'maxlength="3000" placeholder="O que basta fazer para considerar concluído?"')}<div class="form-grid third">${selectField('Impacto','impact',t.impact,[1,2,3,4,5].map(n=>[n,`${n}/5`]))}${selectField('Urgência','urgency',t.urgency,[1,2,3,4,5].map(n=>[n,`${n}/5`]))}${selectField('Esforço','effort',t.effort,[1,2,3,4,5].map(n=>[n,`${n}/5`]))}</div><div class="form-grid">${field('Prazo (opcional)','due',t.due,'date')}${selectField('Duração estimada','minutes',t.minutes,[5,10,15,20,30,45,60,90,120].map(n=>[n,`${n} min`]))}</div><div class="tipline">O SÓCIO usa impacto, urgência, esforço, foco do negócio e prazo para recomendar a melhor ação disponível.</div>`;openModal(formWrap('AÇÃO PRÁTICA',id?'Editar tarefa':voice?'Revisar tarefa por voz':'Nova tarefa',html),id?'edit-task':'create-task',id);}
 function entryForm(){const html=`${selectField('Tipo de registro','type','avanco',[['avanco','Avanço real'],['decisao','Decisão tomada']])}${field('O que aconteceu?','title','','text','required maxlength="250" placeholder="Ex.: Defini o preço de um cabo"')}${selectField('Negócio (opcional)','businessId','',[['','Geral / sem negócio'],...data.businesses.map(b=>[b.id,b.name])])}${textArea('Notas (opcional)','note','','maxlength="3000" placeholder="O que aprendeu ou decidiu?"')}`;openModal(formWrap('HISTÓRICO','Registrar um movimento',html,'Registrar'),'create-entry');}
 function addEvent(type,title,businessId=null,taskId=null,note=''){data.events.unshift({id:newId('e'),businessId,taskId,type,title,note,createdAt:new Date().toISOString()});}
 function completeTask(id){const t=data.tasks.find(x=>x.id===id);if(!t)return;if(t.status==='done'){t.status='open';t.completedAt=null;addEvent('reaberta',`Tarefa retomada: ${t.title}`,t.businessId,t.id);save();toast('Tarefa reaberta.');return;}t.status='done';t.completedAt=new Date().toISOString();addEvent('conclusao',`Tarefa concluída: ${t.title}`,t.businessId,t.id);save();toast('Avanço registrado. Muito bem!');}
@@ -274,6 +334,9 @@ function handleClick(event){const target=event.target.closest('[data-action],[da
  case 'add-guide':stationGuideForm(id);break;
  case 'delete-guide':{const song=data.station?.songs?.find(s=>s.id===target.dataset.song);const guide=song?.guides?.find(g=>g.id===id);if(song&&guide&&confirm('Remover a referência "'+guide.label+'"? O áudio original não será apagado.')){song.guides=song.guides.filter(g=>g.id!==id);song.updatedAt=new Date().toISOString();save();toast('Referência removida.');}break;}
  case 'new-task':taskForm('',target.dataset.business||'');break;
+  case 'task-voice-start':startTaskSpeech();break;
+  case 'task-voice-stop':stopTaskSpeech();break;
+  case 'parse-task-voice':{const p=parseVoiceTask($('task-transcript')?.value||'',data.businesses);if($('f-title'))$('f-title').value=p.title;if(p.due&&$('f-due'))$('f-due').value=p.due;if(p.minutes&&$('f-minutes'))$('f-minutes').value=String(p.minutes);if(p.businessId&&$('f-businessId'))$('f-businessId').value=p.businessId;toast('Interpretação atualizada. Revise os campos e confirme para salvar.');break;}
  case 'edit-task':taskForm(id);break;
  case 'new-business':businessForm();break;
  case 'edit-business':businessForm(id);break;

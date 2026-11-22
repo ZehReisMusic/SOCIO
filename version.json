@@ -1,5 +1,5 @@
 {
-  "version": "V003.20",
+  "version": "V003.21",
   "releasedAt": "2026-11-22",
-  "description": "Etapa 05: recomendações respeitam duração estimada das tarefas e tempo até o próximo compromisso da Agenda, incluindo margem de 10 minutos. Não altera tarefas, prazos ou notificações e não pressupõe disponibilidade fora dos registros locais."
+  "description": "Tarefas por Voz: reconhecimento pt-BR quando suportado, revisão editável obrigatória, interpretação de título, negócio, prazo e duração opcionais; fallback para ditado do teclado. Preserva Etapa 05 (recomendações por tempo), Web Push, Agenda, armazenamento local e adaptações do iPhone."
 }
