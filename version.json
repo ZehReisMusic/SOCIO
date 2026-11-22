@@ -1,5 +1,5 @@
 {
-  "version": "V003.21",
+  "version": "V003.22",
   "releasedAt": "2026-11-22",
-  "description": "Tarefas por Voz: reconhecimento pt-BR quando suportado, revisão editável obrigatória, interpretação de título, negócio, prazo e duração opcionais; fallback para ditado do teclado. Preserva Etapa 05 (recomendações por tempo), Web Push, Agenda, armazenamento local e adaptações do iPhone."
+  "description": "SOUNDLINE Orçamentos V001: insumos e custo por metro/unidade, regras de lucro mínimo 100%, propostas multi-itens, entrega por aplicativo variável, custos de marketplace configuráveis, histórico de clientes/status, ditado revisável e geração de PDF local. Preserva dados da Agenda, Tarefas, Web Push e REIZZOR."
 }

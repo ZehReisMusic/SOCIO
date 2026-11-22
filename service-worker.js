@@ -1,8 +1,8 @@
-// MEU SÓCIO V003.21 — Painel com ondas e design system, PWA offline, atualização e Web Push (entrega preservada; clique contextual na Agenda).
-const CACHE_NAME = 'socio-v00321-20261122';
+// MEU SÓCIO V003.22 — Painel com ondas e design system, PWA offline, atualização e Web Push (entrega preservada; clique contextual na Agenda).
+const CACHE_NAME = 'socio-v00322-20261122';
 const ASSETS = [
-  './', './index.html', './css/style.css', './css/theme-v0032.css', './css/experience-v0033.css', './css/palette-v0036.css', './css/agenda-v0038.css', './css/reminders-v0039.css', './css/iphone-safe-area-v00311.css', './css/agenda-scheduling-v00312.css', './css/ios-input-focus-v00313.css', './css/agenda-datetime-v00315.css', './css/ios-modal-width-v00316.css', './css/agenda-native-picker-v00317.css', './css/push-time-mobile-v00318.css', './css/agenda-task-links-v00319.css', './css/time-aware-v00320.css', './css/task-voice-v00321.css', './assets/socio-waves.svg',
-  './js/app.js', './js/updater.js', './js/push.js', './js/agenda-task-links.js', './js/time-aware.js', './js/task-voice.js', './js/store.js',
+  './', './index.html', './css/style.css', './css/theme-v0032.css', './css/experience-v0033.css', './css/palette-v0036.css', './css/agenda-v0038.css', './css/reminders-v0039.css', './css/iphone-safe-area-v00311.css', './css/agenda-scheduling-v00312.css', './css/ios-input-focus-v00313.css', './css/agenda-datetime-v00315.css', './css/ios-modal-width-v00316.css', './css/agenda-native-picker-v00317.css', './css/push-time-mobile-v00318.css', './css/agenda-task-links-v00319.css', './css/time-aware-v00320.css', './css/task-voice-v00321.css', './css/soundline-v00322.css', './assets/socio-waves.svg',
+  './js/app.js', './js/updater.js', './js/push.js', './js/agenda-task-links.js', './js/time-aware.js', './js/task-voice.js', './js/soundline-core.js', './js/soundline-ui.js', './js/soundline-pdf.js', './js/soundline-voice.js', './js/store.js',
   './js/logic.js', './js/reizzor-station.js', './js/agenda.js', './js/agenda-overview.js', './js/appointment-reminders.js', './js/agenda-scheduling.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png',
   './icons/apple-touch-icon.png'

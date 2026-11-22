@@ -5,6 +5,7 @@ import {buildAgendaOverview} from './agenda-overview.js';
 import {linkedTaskIds,linkedTasks,preparationContext} from './agenda-task-links.js';
 import {selectTaskForTime} from './time-aware.js';
 import {parseVoiceTask} from './task-voice.js';
+import {createSoundlineController} from './soundline-ui.js';
 import {normalizeReminderMinutes,reminderLabel} from './appointment-reminders.js';
 import {normalizeAgendaDuration,agendaDurationLabel,agendaConflicts,suggestAgendaSlots} from './agenda-scheduling.js';
 import {APP_VERSION,initUpdates,checkForUpdates,applyDeferredUpdate} from './updater.js';
@@ -31,11 +32,18 @@ const initials=name=>String(name||'?').trim().split(/\s+/).slice(0,2).map(s=>s.c
 const businessIcon=b=>`<div class="b-icon" style="--item-color:${BUSINESS_COLORS.includes(b?.color)?b.color:BUSINESS_COLORS[0]}">${esc(initials(b?.name))}</div>`;
 const btn=(text,action,variant='outline',attrs='')=>`<button type="button" class="btn-${variant}" data-action="${action}" ${attrs}>${text}</button>`;
 const tag=(text,extra='')=>`<span class="pill ${extra}">${text}</span>`;
+const soundlineUI=createSoundlineController({
+  getData:()=>data,commit:save,refresh:render,navigate,toast,
+  esc,btn,svg,newId,formWrap,field,selectField,textArea,openModal,closeModal,
+  modalMode:()=>$('modal-content').dataset.mode||'',
+  modalId:()=>$('modal-content').dataset.recordId||''
+});
+
 function save(){if(!writeData(data)) toast('Não foi possível salvar neste dispositivo. Exporte seus dados.');render();void syncPush(data);}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3200);}
-function navigate(next){if(page==='tarefas'&&next!=='tarefas')cancelTaskSpeech();if(!routes.some(r=>r[0]===next)&&next!=='estacao')next='inicio';page=next;location.hash=next;render();window.scrollTo({top:0,behavior:'instant'});}
-function renderNavigation(){document.body.dataset.page=page;const navHtml=routes.slice(0,5).map(([id,label])=>`<button type="button" class="nav-item ${(page===id||(page==='estacao'&&id==='negocios'))?'active':''}" data-nav="${id}" aria-current="${(page===id||(page==='estacao'&&id==='negocios'))?'page':'false'}">${svg(id)}<span class="nav-label">${label}</span>${id==='tarefas'?`<span class="nav-number">${data.tasks.filter(x=>x.status!=='done').length}</span>`:''}</button>`).join('');$('main-nav').innerHTML=navHtml;$('mobile-nav').innerHTML=routes.map(([id,label])=>`<button type="button" class="${(page===id||(page==='estacao'&&id==='negocios'))?'active':''}" data-nav="${id}" aria-label="${label}" aria-current="${(page===id||(page==='estacao'&&id==='negocios'))?'page':'false'}">${svg(id)}<span>${id==='agenda'?'Agenda':label}</span></button>`).join('');$('topbar-current').textContent=page==='estacao'?'REIZZOR STATION':routes.find(([id])=>id===page)?.[1]||'Visão geral';}
-function render(){renderNavigation();$('view').innerHTML=({inicio:dashboard,negocios:businesses,tarefas:tasksView,executar:execution,historico:history,ajustes:settings,agenda:agendaView,estacao:stationView}[page]||dashboard)();}
+function navigate(next){if(page==='tarefas'&&next!=='tarefas')cancelTaskSpeech();if(page==='soundline'&&next!=='soundline')soundlineUI.cancelVoice();if(!routes.some(r=>r[0]===next)&&next!=='estacao'&&next!=='soundline')next='inicio';page=next;location.hash=next;render();window.scrollTo({top:0,behavior:'instant'});}
+function renderNavigation(){document.body.dataset.page=page;const navHtml=routes.slice(0,5).map(([id,label])=>`<button type="button" class="nav-item ${(page===id||((page==='estacao'||page==='soundline')&&id==='negocios'))?'active':''}" data-nav="${id}" aria-current="${(page===id||((page==='estacao'||page==='soundline')&&id==='negocios'))?'page':'false'}">${svg(id)}<span class="nav-label">${label}</span>${id==='tarefas'?`<span class="nav-number">${data.tasks.filter(x=>x.status!=='done').length}</span>`:''}</button>`).join('');$('main-nav').innerHTML=navHtml;$('mobile-nav').innerHTML=routes.map(([id,label])=>`<button type="button" class="${(page===id||((page==='estacao'||page==='soundline')&&id==='negocios'))?'active':''}" data-nav="${id}" aria-label="${label}" aria-current="${(page===id||((page==='estacao'||page==='soundline')&&id==='negocios'))?'page':'false'}">${svg(id)}<span>${id==='agenda'?'Agenda':label}</span></button>`).join('');$('topbar-current').textContent=page==='estacao'?'REIZZOR STATION':page==='soundline'?'SOUNDLINE · Orçamentos':routes.find(([id])=>id===page)?.[1]||'Visão geral';}
+function render(){renderNavigation();$('view').innerHTML=({inicio:dashboard,negocios:businesses,tarefas:tasksView,executar:execution,historico:history,ajustes:settings,agenda:agendaView,estacao:stationView,soundline:()=>soundlineUI.render()}[page]||dashboard)();}
 function sectionHeader(kicker,title,subtitle,actions=''){return `<div class="eyebrow">${kicker}</div><div class="view-header"><div><h1>${title}</h1><p>${subtitle}</p></div>${actions?`<div class="view-actions">${actions}</div>`:''}</div>`;}
 function metric(label,note,num,icon){return `<div class="metric"><div class="metric-heading">${svg(icon)}${label}</div><div class="metric-number">${num}</div><div class="metric-foot">${note}</div></div>`;}
 function empty(title,subtitle,action='new-task',button='Criar tarefa'){return `<div class="empty"><span class="empty-symbol">${svg('spark')}</span><h3>${title}</h3><p>${subtitle}</p>${btn(`${svg('plus')} ${button}`,action,'primary')}</div>`;}
@@ -126,7 +134,7 @@ function dashboard(){
    </section>
  </div>`;
 }
-function businesses(){const arranged=[...data.businesses].sort((a,b)=>b.focus-a.focus||a.name.localeCompare(b.name));return `${sectionHeader('SUAS FRENTES','Meus negócios','Uma visão clara do que está ativo, em espera ou em avaliação.',btn(`${svg('plus')} Novo negócio`,'new-business','primary'))}<div class="business-grid">${arranged.map(b=>{const open=data.tasks.filter(t=>t.businessId===b.id&&t.status==='open').length;return `<article class="business-card"><div class="business-head">${businessIcon(b)}<span class="b-tag">${BUSINESS_STATES[b.status]?.label}</span></div><div><h2>${esc(b.name)}</h2><p>${esc(b.objective||'Sem objetivo definido.')}</p><p><strong>Situação:</strong> ${esc(b.situation||'Não informada.')}</p></div><div class="business-meta"><span>${open} ${open===1?'tarefa aberta':'tarefas abertas'}</span><span>·</span><span>Foco</span><div class="focus-bubbles">${Array.from({length:5},(_,i)=>`<span class="${i<b.focus?'on':''}"></span>`).join('')}</div></div><div class="business-bottom">${b.id==='b-reizzor'?'<button type="button" class="btn-primary btn-small" data-action="open-station">Abrir estação</button>':''}<button class="list-link" data-action="new-task" data-business="${esc(b.id)}">${svg('plus',13)} Nova tarefa</button><button class="btn-outline btn-small" data-action="edit-business" data-id="${esc(b.id)}">${svg('edit',13)} Editar</button></div></article>`;}).join('')}</div>`;}
+function businesses(){const arranged=[...data.businesses].sort((a,b)=>b.focus-a.focus||a.name.localeCompare(b.name));return `${sectionHeader('SUAS FRENTES','Meus negócios','Uma visão clara do que está ativo, em espera ou em avaliação.',btn(`${svg('plus')} Novo negócio`,'new-business','primary'))}<div class="business-grid">${arranged.map(b=>{const open=data.tasks.filter(t=>t.businessId===b.id&&t.status==='open').length;return `<article class="business-card"><div class="business-head">${businessIcon(b)}<span class="b-tag">${BUSINESS_STATES[b.status]?.label}</span></div><div><h2>${esc(b.name)}</h2><p>${esc(b.objective||'Sem objetivo definido.')}</p><p><strong>Situação:</strong> ${esc(b.situation||'Não informada.')}</p></div><div class="business-meta"><span>${open} ${open===1?'tarefa aberta':'tarefas abertas'}</span><span>·</span><span>Foco</span><div class="focus-bubbles">${Array.from({length:5},(_,i)=>`<span class="${i<b.focus?'on':''}"></span>`).join('')}</div></div><div class="business-bottom">${b.id==='b-reizzor'?'<button type="button" class="btn-primary btn-small" data-action="open-station">Abrir estação</button>':''}${b.id==='b-soundline'?'<button type="button" class="btn-primary btn-small" data-action="open-soundline">Orçamentos SOUNDLINE</button>':''}<button class="list-link" data-action="new-task" data-business="${esc(b.id)}">${svg('plus',13)} Nova tarefa</button><button class="btn-outline btn-small" data-action="edit-business" data-id="${esc(b.id)}">${svg('edit',13)} Editar</button></div></article>`;}).join('')}</div>`;}
 // Ditado de tarefas. Reconhecimento depende da API nativa do navegador;
  // sem suporte, fica disponível revisão digitada/ditado do teclado do iPhone.
 function taskVoicePanel(){
@@ -324,8 +332,9 @@ function entryForm(){const html=`${selectField('Tipo de registro','type','avanco
 function addEvent(type,title,businessId=null,taskId=null,note=''){data.events.unshift({id:newId('e'),businessId,taskId,type,title,note,createdAt:new Date().toISOString()});}
 function completeTask(id){const t=data.tasks.find(x=>x.id===id);if(!t)return;if(t.status==='done'){t.status='open';t.completedAt=null;addEvent('reaberta',`Tarefa retomada: ${t.title}`,t.businessId,t.id);save();toast('Tarefa reaberta.');return;}t.status='done';t.completedAt=new Date().toISOString();addEvent('conclusao',`Tarefa concluída: ${t.title}`,t.businessId,t.id);save();toast('Avanço registrado. Muito bem!');}
 function skipTask(id){const t=data.tasks.find(x=>x.id===id);if(!t||t.status==='done')return;if(data.skipped?.date!==dateKey())data.skipped={date:dateKey(),taskIds:[]};if(!data.skipped.taskIds.includes(id)){data.skipped.taskIds.push(id);addEvent('adiamento',`Ação adiada: ${t.title}`,t.businessId,t.id,'Retorna às recomendações amanhã.');}save();toast('Tudo bem. Essa ação volta amanhã.');}
-function handleClick(event){const target=event.target.closest('[data-action],[data-nav]');if(!target)return;event.preventDefault();if(target.dataset.nav){navigate(target.dataset.nav);return;}const act=target.dataset.action,id=target.dataset.id||'';switch(act){
+function handleClick(event){const target=event.target.closest('[data-action],[data-nav]');if(!target)return;event.preventDefault();if(target.dataset.nav){navigate(target.dataset.nav);return;}if(target.dataset.action?.startsWith('sl-')&&soundlineUI.action(target))return;const act=target.dataset.action,id=target.dataset.id||'';switch(act){
  case 'open-station':navigate('estacao');break;
+ case 'open-soundline':navigate('soundline');break;
  case 'back-to-business':navigate('negocios');break;
  case 'new-song':stationSongForm();break;
  case 'open-song':stationSongId=id;navigate('estacao');break;
@@ -380,7 +389,7 @@ function handleClick(event){const target=event.target.closest('[data-action],[da
  case 'import':$('import-file')?.click();break;
  case 'reset':if(confirm('Isso APAGARÁ seus dados locais e restaurará os exemplos iniciais. Faça um backup antes. Deseja continuar?')){data=seedData();writeData(data);render();toast('Exemplos restaurados.');}break;
  }}
-function handleSubmit(event){if(event.target?.id!=='entry-form')return;event.preventDefault();const f=new FormData(event.target),mode=$('modal-content').dataset.mode,id=$('modal-content').dataset.recordId,now=new Date().toISOString();let message='Salvo.';
+function handleSubmit(event){if(soundlineUI.submit(event))return;if(event.target?.id!=='entry-form')return;event.preventDefault();const f=new FormData(event.target),mode=$('modal-content').dataset.mode,id=$('modal-content').dataset.recordId,now=new Date().toISOString();let message='Salvo.';
  if(mode==='create-business'||mode==='edit-business'){const payload={name:String(f.get('name')||'').trim(),objective:String(f.get('objective')||'').trim(),situation:String(f.get('situation')||'').trim(),status:String(f.get('status')),focus:Number(f.get('focus')),color:String(f.get('color'))};if(!payload.name){toast('Informe o nome do negócio.');return;}if(mode==='create-business'){data.businesses.push({id:newId('b'),...payload,createdAt:now});message='Negócio adicionado.';}else{const b=business(id);if(!b)return;Object.assign(b,payload);message='Negócio atualizado.';}}
  else if(mode==='create-task'||mode==='edit-task'){const payload={title:String(f.get('title')||'').trim(),businessId:String(f.get('businessId')||''),notes:String(f.get('notes')||'').trim(),impact:Number(f.get('impact')),urgency:Number(f.get('urgency')),effort:Number(f.get('effort')),minutes:Number(f.get('minutes')),due:String(f.get('due')||'')};if(!payload.title||!business(payload.businessId)){toast('Informe a ação e o negócio.');return;}if(mode==='create-task'){data.tasks.push({id:newId('t'),...payload,status:'open',createdAt:now,completedAt:null});message='Nova ação registrada.';}else{const t=data.tasks.find(x=>x.id===id);if(!t)return;Object.assign(t,payload);message='Ação atualizada.';}}
  else if(mode==='create-song'||mode==='edit-song'){
@@ -406,7 +415,7 @@ function handleSubmit(event){if(event.target?.id!=='entry-form')return;event.pre
 }
 async function importFile(event){const file=event.target.files?.[0];if(!file)return;try{if(file.size>10*1024*1024)throw new Error('O arquivo excede 10 MB.');const imported=validateData(JSON.parse(await file.text()));if(!confirm('Importar este backup substituirá todos os dados atuais deste dispositivo. Deseja continuar?'))return;data=imported;writeData(data);navigate('inicio');void syncPush(data);toast('Backup importado com sucesso.');}catch(err){toast(`Falha na importação: ${err.message}`);}finally{event.target.value='';}}
 // Eventos de página
-window.addEventListener('hashchange',()=>{const incoming=location.hash.slice(1);if(incoming&&incoming!==page){page=routes.some(([p])=>p===incoming)||incoming==='estacao'?incoming:'inicio';render();}});
+window.addEventListener('hashchange',()=>{const incoming=location.hash.slice(1);if(incoming&&incoming!==page){page=routes.some(([p])=>p===incoming)||incoming==='estacao'||incoming==='soundline'?incoming:'inicio';render();}});
 window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY){data=readData();render();}});
 document.addEventListener('click',handleClick);
 document.addEventListener('socio:push-synced',()=>{if(page==='agenda'&&$('modal-backdrop')?.hidden)render();});
@@ -414,7 +423,7 @@ document.addEventListener('submit',handleSubmit);
 document.addEventListener('change',event=>{if(event.target?.id==='import-file')importFile(event);});
 $('modal-backdrop').addEventListener('click',event=>{if(event.target===$('modal-backdrop'))closeModal();});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('modal-backdrop').hidden)closeModal();});
-page=routes.some(([id])=>id===location.hash.slice(1))||location.hash.slice(1)==='estacao'?location.hash.slice(1):'inicio';render();
+page=routes.some(([id])=>id===location.hash.slice(1))||location.hash.slice(1)==='estacao'||location.hash.slice(1)==='soundline'?location.hash.slice(1):'inicio';render();
 initPush({notify:toast,data:()=>data});
 initUpdates({notify:toast,isBusy:()=>$('modal-backdrop')?.hidden===false});
 window.addEventListener('pageshow',()=>void syncPush(data));

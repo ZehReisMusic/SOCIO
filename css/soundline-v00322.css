@@ -1,0 +1,88 @@
+/* SOUNDLINE V001 — central comercial integrada e adaptada ao iPhone. */
+.sl-workspace {width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding-bottom:36px;overflow-wrap:anywhere}
+.sl-heading,.sl-editor-head {display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:22px;min-width:0}
+.sl-heading h1 {font-size:clamp(27px,5vw,40px);letter-spacing:-1.4px;line-height:1.1;margin:6px 0 7px}
+.sl-heading p,.sl-editor-head p {font-size:13px;line-height:1.6;color:#adc0cb;margin:0}
+.sl-overline {font-size:10px;letter-spacing:1.6px;color:#d6ad75;font-weight:800}
+.sl-nav {display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid rgba(190,208,218,.16);padding-bottom:13px;margin-bottom:22px}
+.sl-nav button {cursor:pointer;appearance:none;border:1px solid rgba(190,208,218,.2);border-radius:9px;background:transparent;color:#d1dde2;padding:11px 15px;font:inherit;font-size:13px}
+.sl-nav button.active {background:#213e4d;border-color:#6b938e;color:#fff;font-weight:700}
+.sl-section {min-width:0}
+.sl-section-head {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.sl-section-head h2,.sl-editor-head h2 {margin:0;color:#ecf3f5;font-size:20px;line-height:1.3}
+.sl-note {font-size:12px;color:#9fb6c0;line-height:1.65;max-width:800px}
+.sl-main-actions,.sl-actions,.sl-row-actions {display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sl-main-actions {margin-bottom:12px}
+.sl-actions {margin:16px 0}
+.sl-empty {background:#162d39;border:1px dashed #46616e;border-radius:12px;padding:24px;margin:16px 0;color:#cddde5}
+.sl-empty h3 {margin:0 0 7px;font-size:17px}
+.sl-empty p {margin:5px 0 14px;font-size:13px;line-height:1.65;color:#afc4cf}
+.sl-empty.sl-small {padding:14px;font-size:13px}
+.sl-quote-list,.sl-supply-list {display:grid;grid-template-columns:1fr;gap:10px}
+.sl-quote-card,.sl-supply-row,.sl-editor,.sl-detail,.sl-form,.sl-totals {box-sizing:border-box;min-width:0;max-width:100%;border-radius:12px;border:1px solid rgba(140,178,191,.22);background:#142c38}
+.sl-quote-card {padding:17px}
+.sl-quote-card h3 {margin:8px 0 4px;font-size:17px;color:#f1f5f5;overflow-wrap:anywhere}
+.sl-quote-card p,.sl-quote-top span {font-size:12px;color:#adc1cc;margin:0}
+.sl-quote-top,.sl-quote-bottom,.sl-money-row {display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.sl-quote-top>div {display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sl-quote-top strong {color:#f1c68c}
+.sl-status {padding:5px 9px;border:1px solid #44636d;border-radius:15px;font-size:11px!important;white-space:nowrap}
+.sl-quote-bottom {margin-top:14px;flex-wrap:wrap}
+.sl-quote-bottom>strong {font-size:19px;color:#e8f1f2}
+.sl-supply-row {display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:14px 16px}
+.sl-supply-row strong {font-size:13px;overflow-wrap:anywhere}
+.sl-supply-row p {font-size:12px;color:#9cb7c2;margin:4px 0 0}
+.sl-form {padding:18px}
+.sl-form .form-field {min-width:0;max-width:100%}
+.sl-form input,.sl-form select,.sl-form textarea,.sl-voice-review textarea {box-sizing:border-box;min-width:0;max-width:100%;width:100%;font-size:16px!important}
+.sl-grid-2 {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:12px 0}
+.sl-grid-2>* {min-width:0}
+.sl-check {display:flex;align-items:flex-start;gap:10px;color:#bed2d9;font-size:13px;line-height:1.5;margin:15px 0}
+.sl-check input {width:18px;height:18px;flex:0 0 18px}
+.sl-editor {padding:17px}
+.sl-editor .sl-form {background:transparent;border:0;padding:0}
+.sl-editor-head {margin-bottom:18px}
+.sl-product-builder,.sl-line-list,.sl-voice-review {border-radius:10px;border:1px solid rgba(140,178,191,.22);padding:15px;margin:20px 0;background:rgba(9,29,40,.25)}
+.sl-product-builder h3,.sl-line-list h3 {font-size:15px;margin:0 0 15px}
+.sl-line-item {display:flex;align-items:center;justify-content:space-between;gap:14px;border-top:1px solid rgba(140,178,191,.18);padding:13px 0;min-width:0}
+.sl-line-item strong {display:block;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.sl-line-item p {margin:5px 0 0;font-size:12px;color:#a7c0ca}
+.sl-totals {padding:17px;margin-top:16px;background:#122733}
+.sl-totals h3 {font-size:14px;color:#e7c393;margin:0 0 16px}
+.sl-money-row {font-size:13px;color:#b7cbd3;margin:0;padding:9px 0;align-items:flex-start}
+.sl-money-row strong {color:#f0f5f5;text-align:right;flex-shrink:0}
+.sl-money-total {border-top:1px solid #74918c;padding:15px 0;font-size:15px;color:#f6ead9;font-weight:700}
+.sl-money-total strong {color:#f1c990;font-size:20px}
+.sl-warnings {padding:11px 13px;margin:14px 0;border-left:3px solid #d5a976;border-radius:7px;background:#342d29;color:#f4dfc9;font-size:12px;line-height:1.55}
+.sl-warnings p {margin:4px 0}
+.sl-detail {padding:20px}
+.sl-detail h2 {font-size:23px;margin:12px 0 3px}
+.sl-detail>p {font-size:13px;color:#adbfca;margin:0 0 12px}
+.sl-detail-products {padding:8px 0}
+.sl-detail-products>div {padding:14px 0;border-bottom:1px solid rgba(150,188,194,.16);font-size:13px;line-height:1.55}
+.sl-detail-products p {font-size:12px;color:#acc1c9}
+.sl-delivery {padding:15px 0;font-size:12px;color:#b0c8cf;line-height:1.6}
+.sl-status-controls {margin:20px 0}
+.sl-status-controls strong {display:block;font-size:13px;margin-bottom:10px}
+.sl-status-controls .sl-row-actions button {font-size:12px}
+.sl-voice-review strong {display:block;margin-bottom:8px}
+.sl-footnote {color:#8eaab4;font-size:11px;line-height:1.55;margin:24px 0}
+#sl-voice-live {color:#e3bc86;font-size:12px;min-height:18px}
+@media(max-width:740px){
+ .sl-workspace,.sl-section,.sl-editor {width:100%;min-width:0;max-width:100%;overflow-x:hidden}
+ .sl-heading,.sl-editor-head {flex-direction:column;align-items:stretch;gap:12px}
+ .sl-heading>button {align-self:flex-start}
+ .sl-grid-2 {grid-template-columns:minmax(0,1fr);gap:10px}
+ .sl-nav {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .sl-nav button {font-size:11px;padding:10px 5px;min-width:0}
+ .sl-supply-row {grid-template-columns:minmax(0,1fr);gap:10px}
+ .sl-supply-row>strong {font-size:14px}
+ .sl-quote-card,.sl-editor,.sl-detail,.sl-form,.sl-totals {padding:13px}
+ .sl-quote-bottom {align-items:flex-start}
+ .sl-quote-bottom .sl-row-actions {width:100%}
+ .sl-main-actions button {flex:1 1 auto}
+ .sl-line-item {align-items:flex-start}
+ .sl-line-item button {flex-shrink:0}
+ .sl-product-builder,.sl-line-list,.sl-voice-review {padding:12px}
+ .sl-money-total strong {font-size:17px}
+}
