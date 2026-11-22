@@ -28,16 +28,16 @@ test('atalhos da tela inicial são ações reais, sem números inventados',()=>{
   for(const code of ['data-nav="tarefas"','data-nav="agenda"','data-nav="negocios"','data-action="open-station"'])
     assert.ok(app.includes(code),'Atalho não conectado: '+code);
 });
-test('versionamento consistente V003.19 sem apagar dados nem alterar subscrição',()=>{
+test('versionamento consistente V003.20 sem apagar dados nem alterar subscrição',()=>{
   const version=JSON.parse(read('version.json'));
   const html=read('index.html'),app=read('js/app.js'),updater=read('js/updater.js');
   const worker=read('service-worker.js');
-  assert.equal(version.version,'V003.19');
-  assert.match(html,/MEU SÓCIO · V003\.19/);
+  assert.equal(version.version,'V003.20');
+  assert.match(html,/MEU SÓCIO · V003\.20/);
   assert.match(html,/agenda-v0038\.css/);
   assert.match(worker,/agenda-overview\.js/);
-  assert.match(updater,/APP_VERSION = 'V003\.19'/);
-  assert.match(worker,/socio-v00319-20261121/);
+  assert.match(updater,/APP_VERSION = 'V003\.20'/);
+  assert.match(worker,/socio-v00320-20261122/);
   assert.match(worker,/self\.addEventListener\('push'/);
   assert.match(worker,/self\.addEventListener\('notificationclick'/);
   assert.match(app,/initPush\(\{notify:toast,data:\(\)=>data\}\)/);
