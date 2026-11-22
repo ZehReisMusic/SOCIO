@@ -314,21 +314,23 @@ export function createSoundlineController(h){
   const q=state().quotes.find(v=>v.id===id),d=h.getData();if(!q)return;
   const business=d.businesses.find(b=>b.id==='b-soundline')||d.businesses.find(b=>/soundline/i.test(b.name||''));
   if(!business){h.toast('Negócio SOUNDLINE não encontrado para a tarefa.');return;}
-  d.tasks.push({id:h.newId('t'),businessId:business.id,title:'Acompanhar orçamento '+q.number+' — '+q.clientName,
+  const followupTitle='Acompanhar orçamento '+q.number+' — '+q.clientName;
+  if(d.tasks.some(t=>t.status==='open'&&t.title===followupTitle)){h.toast('Já existe uma tarefa pendente para esse orçamento.');return;}
+  d.tasks.push({id:h.newId('t'),businessId:business.id,title:followupTitle,
    notes:'Verificar se o cliente recebeu a proposta e esclarecer dúvidas. Não alterar o orçamento sem confirmação.',
    status:'open',impact:4,urgency:3,effort:1,minutes:10,due:'',createdAt:new Date().toISOString(),completedAt:null});
   h.commit();h.toast('Tarefa de acompanhamento criada.');
  }
  function action(target){
   const a=target.dataset.action,id=target.dataset.id||'';
-  if(a==='sl-back'){stopVoice(true);h.navigate('negocios');return true;}
-  if(a==='sl-tab'){stopVoice(true);tab=target.dataset.tab||'quotes';screen='list';draft=null;refresh();return true;}
+  if(a==='sl-back'){if(screen==='editor'&&!confirm('Sair sem salvar este orçamento?'))return true;stopVoice(true);h.navigate('negocios');return true;}
+  if(a==='sl-tab'){if(screen==='editor'&&!confirm('Trocar de área descartará a edição do orçamento. Continuar?'))return true;stopVoice(true);tab=target.dataset.tab||'quotes';screen='list';draft=null;refresh();return true;}
   if(a==='sl-go-supplies'){tab='supplies';refresh();return true;}
   if(a==='sl-new-supply'){supplyModal();return true;}
   if(a==='sl-edit-supply'){supplyModal(id);return true;}
   if(a==='sl-new-quote'){editQuote();return true;}
   if(a==='sl-edit-quote'){editQuote(id);return true;}
-  if(a==='sl-cancel-editor'){draft=null;screen='list';refresh();return true;}
+  if(a==='sl-cancel-editor'){if(!confirm('Descartar as alterações deste orçamento?'))return true;draft=null;screen='list';refresh();return true;}
   if(a==='sl-list'){screen='list';refresh();return true;}
   if(a==='sl-view-quote'){screen='detail:'+id;refresh();return true;}
   if(a==='sl-add-line'){addLine();return true;}
