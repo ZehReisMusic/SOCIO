@@ -30,7 +30,7 @@ const categories=new Set(SUPPLY_CATEGORIES.map(x=>x[0]));
 const statuses=QUOTE_STATUSES.map(x=>x[0]);
 const modes=DELIVERY_MODES.map(x=>x[0]);
 const r2=n=>Math.round((n+Number.EPSILON)*100)/100;
-export function money(cents){return (cap(cents)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
+export function money(cents){const value=Number(cents)||0;return (value/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
 export function fromMoney(input){
   const raw=String(input??'').replace(/[R$\s]/g,'').trim();
   if(raw==='')return null;
@@ -45,8 +45,8 @@ export function normalizeSoundline(input){
  const cfg=raw.settings&&typeof raw.settings==='object'?raw.settings:{};
  const settings={
   ...DEFAULT_SETTINGS,
-  minMarkupPct:cap(cfg.minMarkupPct??100,400),
-  defaultMarkupPct:cap(cfg.defaultMarkupPct??100,400),
+  minMarkupPct:Math.max(100,cap(cfg.minMarkupPct??100,400)),
+  defaultMarkupPct:Math.max(100,cap(cfg.defaultMarkupPct??100,400)),
   assemblyCents:cap(cfg.assemblyCents),
   consumablesCents:cap(cfg.consumablesCents),
   overheadCents:cap(cfg.overheadCents),
@@ -84,7 +84,7 @@ export function normalizeSoundline(input){
    clientContact:text(q.clientContact,150),channel:q.channel==='mercado_livre'?'mercado_livre':'direto',
    status:oneOf(q.status,statuses,'rascunho'),items,
    productPriceCents:q.productPriceCents===null||q.productPriceCents===undefined?null:cap(q.productPriceCents),
-   pricing:{markupPct:cap(p.markupPct??100,400),minMarkupPct:cap(p.minMarkupPct??100,400),
+   pricing:{markupPct:Math.max(100,cap(p.markupPct??100,400)),minMarkupPct:Math.max(100,cap(p.minMarkupPct??100,400)),
      marketplaceFeePct:decimal(p.marketplaceFeePct,90),
      marketplaceFixedFeeCents:cap(p.marketplaceFixedFeeCents),
      marketplacePackagingCents:cap(p.marketplacePackagingCents),
@@ -100,7 +100,7 @@ export function normalizeSoundline(input){
  return {settings,supplies,quotes,sequence:cap(raw.sequence,999999)};
 }
 export function quotePricingSnapshot(settings=DEFAULT_SETTINGS,markup=100){
- return {markupPct:cap(markup,400),minMarkupPct:cap(settings.minMarkupPct??100,400),
+ return {markupPct:Math.max(100,cap(markup,400)),minMarkupPct:Math.max(100,cap(settings.minMarkupPct??100,400)),
   marketplaceFeePct:decimal(settings.marketplaceFeePct,90),
   marketplaceFixedFeeCents:cap(settings.marketplaceFixedFeeCents),
   marketplacePackagingCents:cap(settings.marketplacePackagingCents),
