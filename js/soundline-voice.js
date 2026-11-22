@@ -17,7 +17,7 @@ export function parseSoundlineVoice(transcript,supplies=[]){
  const quantity=quantityMatch?num(quantityMatch[1]):1;
  const lengthMeters=lenMatch?num(lenMatch[1]):null;
  // Não confundir "para um cliente" com "para João": exigir marcador de orçamento/cliente.
- const customerMatch=raw.match(/(?:orçamento\s+para|orcamento\s+para|cliente\s+|para\s+o\s+cliente\s+)([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .'-]{1,80}?)(?=\s*[,.;]|\s+(?:\d+|um|uma|dois|duas|três|tres|quatro|cinco|cabo|cabos)\b|$)/i);
+ const customerMatch=raw.match(/(?:orçamento\s+para\s+(?:o\s+cliente\s+)?|orcamento\s+para\s+(?:o\s+cliente\s+)?|(?:cliente|para\s+o\s+cliente)\s+)([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .'-]{1,80}?)(?=\s*[,.;]|\s+(?:\d+|um|uma|dois|duas|três|tres|quatro|cinco|cabo|cabos)\b|$)/i);
  const clientName=customerMatch?customerMatch[1].trim():'';
  const byCategory=category=>(supplies||[]).filter(s=>s.category===category&&s.active!==false);
  const matched=(category)=>{
@@ -25,8 +25,9 @@ export function parseSoundlineVoice(transcript,supplies=[]){
   // Sem uma correspondência única suficientemente clara, exigir escolha manual.
   return candidates.length===1?candidates[0].id:'';
  };
- const connectorId=matched('conector'),cableId=matched('cabo'),sleeveId=matched('malha'),labelId=matched('identificacao');
+ const connectorId=matched('conector'),cableId=matched('cabo'),sleeveId=matched('malha');let labelId=matched('identificacao');
  const hasIdentification=/\bidentificac(?:ao|oes)\b|\betiquet(?:a|as)\b/.test(norm);
+ if(hasIdentification&&!labelId&&byCategory('identificacao').length===1)labelId=byCategory('identificacao')[0].id;
  const twoEnds=/\b(?:duas|2|ambas)\s+pontas\b|\b(?:nos|nas)\s+dois\s+lados\b/.test(norm);
  const labelQty=hasIdentification&&twoEnds?2:hasIdentification?1:0;
  const channel=/mercado\s*livre/.test(norm)?'mercado_livre':'direto';
