@@ -38,11 +38,11 @@ test('tema do iPhone não perde CSS antigos e não força zoom ou rolagem',()=>{
  assert.doesNotMatch(css,/user-scalable|maximum-scale|touch-action|position:fixed/);
  assert.ok(html.indexOf('soundline-v00322.css')>html.indexOf('task-voice-v00321.css'));
 });
-test('V003.25 entra no cache PWA e preserva notificações e recursos anteriores',()=>{
+test('V003.26 entra no cache PWA e preserva notificações e recursos anteriores',()=>{
  const sw=read('service-worker.js'),html=read('index.html'),up=read('js/updater.js');
- assert.match(up,/APP_VERSION = 'V003\.25'/);
- assert.match(html,/MEU SÓCIO · V003\.25/);
- assert.match(sw,/socio-v00325-20261123/);
+ assert.match(up,/APP_VERSION = 'V003\.26'/);
+ assert.match(html,/MEU SÓCIO · V003\.26/);
+ assert.match(sw,/socio-v00326-20261123/);
  for(const f of ['soundline-core.js','soundline-ui.js','soundline-pdf.js','soundline-voice.js','time-aware.js','task-voice.js','agenda-task-links.js','push.js'])
   assert.ok(sw.includes(f),f);
  assert.match(sw,/self\.addEventListener\('push'/);

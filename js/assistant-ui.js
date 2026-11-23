@@ -8,6 +8,7 @@ export function createAssistantController(h){
  let activeRecognition=null, lastResponse=null, lastQuery='',lastTaskId='', pending=null;
  let audioStatus='Toque em “Ouvir resposta” para reproduzir o áudio, caso necessário.';
  let neuralStatus='A voz masculina é opcional, experimental e exige baixar o modelo.';
+ let neuralPreviewUrl='';
  const safe=h.escape;
  const icon=h.icon;
  const voiceEngine=createAssistantSpeech(message=>{
@@ -24,7 +25,18 @@ export function createAssistantController(h){
    const reply=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
    if(reply)reply.textContent=message;
   },
-  playAudio:blob=>voiceEngine.playBlob(blob)
+  playAudio:blob=>{
+   if(typeof document!=='undefined'&&typeof URL.createObjectURL==='function'){
+    const player=document.getElementById('assistant-neural-preview');
+    if(player){
+     if(neuralPreviewUrl)URL.revokeObjectURL(neuralPreviewUrl);
+     neuralPreviewUrl=URL.createObjectURL(blob);
+     player.src=neuralPreviewUrl;
+     player.hidden=false;
+    }
+   }
+   return voiceEngine.playBlob(blob);
+  }
  });
 
  function getSpeech(){
@@ -229,7 +241,7 @@ export function createAssistantController(h){
     '<button type="button" class="assistant-suggestion" data-action="assistant-example" data-query="'+safe(q)+'">'+safe(label)+'</button>').join('')+'</div>'+
    '<p class="assistant-status" id="assistant-listening-status" role="status" aria-live="polite">'+
     (listening?'Ouvindo... a escuta termina quando você parar de falar.':'Toque em Falar ou digite. Os comandos são processados pelas regras do aplicativo.')+'</p>'+
-   '<details class="assistant-voice-settings"><summary>Voz do SÓCIO · <span id="assistant-voice-name">'+safe(voiceInfo.name)+'</span></summary>'+
+   '<details class="assistant-voice-settings"><summary>Voz do SÓCIO · <span id="assistant-voice-name">'+safe(neuralEngine.enabled()?'Faber (experimental)':voiceInfo.name)+'</span></summary>'+
    '<div class="assistant-voice-config"><label for="assistant-voice-select">Voz brasileira disponível no aparelho</label>'+
    '<select id="assistant-voice-select" aria-label="Selecionar voz">'+voiceOptions()+'</select>'+
    '<button type="button" class="btn-outline" data-action="assistant-test-voice">Testar voz</button></div>'+
@@ -240,7 +252,12 @@ export function createAssistantController(h){
    (!neuralEngine.enabled()?'<button type="button" class="btn-outline" data-action="assistant-neural-enable">Baixar e experimentar Faber</button>':
     '<button type="button" class="btn-outline" data-action="assistant-neural-test">Testar voz masculina</button>'+
     '<button type="button" class="btn-outline" data-action="assistant-neural-disable">Voltar à voz do iPhone</button>')+'</div>'+
-   '<p class="assistant-neural-status" id="assistant-neural-status" role="status" aria-live="polite">'+safe(neuralStatus)+'</p></div></details>'+
+   '<div class="assistant-neural-actions">'+
+    '<button type="button" class="btn-outline" data-action="assistant-audio-check">Testar saída de áudio</button></div>'+
+   '<p class="assistant-neural-status" id="assistant-neural-status" role="status" aria-live="polite">'+safe(neuralStatus)+'</p>'+
+   '<audio id="assistant-neural-preview" controls preload="none" hidden aria-label="Reproduzir áudio Faber gerado"></audio>'+
+   '<p class="assistant-neural-help">Se aparecer o reprodutor acima, a Faber gerou o áudio; use o botão Play para testar o som. Se aparecer FABER-SYNTH, a geração falhou antes da reprodução.</p>'+
+   '</div></details>'+
    (lastResponse?'<div class="assistant-response" aria-live="polite"><div class="assistant-response-head"><strong>'+icon('spark',15)+' SÓCIO RESPONDE</strong>'+
      '<button type="button" class="btn-primary assistant-replay" data-action="assistant-repeat" aria-label="Ouvir resposta">'+icon('volume-2',14)+' Ouvir resposta</button></div>'+
     '<p class="assistant-audio-status" id="assistant-audio-status" aria-live="polite">'+safe(audioStatus)+'</p>'+
@@ -278,12 +295,26 @@ export function createAssistantController(h){
   }
   if(command==='assistant-neural-test'){
    voiceEngine.primeAudio();
+   const player=typeof document!=='undefined'?document.getElementById('assistant-neural-preview'):null;
+   if(player){player.hidden=true;player.removeAttribute('src');player.load?.();}
+   if(neuralPreviewUrl){URL.revokeObjectURL(neuralPreviewUrl);neuralPreviewUrl='';}
    void neuralEngine.test().then(out=>{
-    if(!out.ok)h.toast('A voz Faber não pôde ser reproduzida. Volte à voz do iPhone se necessário.');
-   });return true;
+    if(!out.ok&&out.reason!=='cancelled'){
+     const phase=out.phase||out.diagnostic?.phase||'não identificada';
+     h.toast('Teste Faber: falha na etapa '+phase+'. Veja o diagnóstico no cartão.');
+    }
+   });
+   return true;
+  }
+  if(command==='assistant-audio-check'){
+   if(!voiceEngine.testOutput())h.toast('Não foi possível gerar tom de teste no iPhone.');
+   else h.toast('Tom de teste enviado; confirme se ouviu.');
+   return true;
   }
   if(command==='assistant-neural-disable'){
-   stopAudio();neuralEngine.disable();h.refresh();return true;
+   stopAudio();neuralEngine.disable();
+   if(neuralPreviewUrl){URL.revokeObjectURL(neuralPreviewUrl);neuralPreviewUrl='';}
+   h.refresh();return true;
   }
   if(command==='assistant-cancel-task'){
    pending=null;lastResponse={message:'Tudo certo. A tarefa não foi alterada.',related:'',detail:''};

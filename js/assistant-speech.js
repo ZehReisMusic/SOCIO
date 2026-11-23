@@ -44,6 +44,24 @@ export function createAssistantSpeech(onStatus=()=>{}){
    return true;
   }catch{return false;}
  }
+ function testOutput(){
+  // Tom curto gerado localmente no próprio toque. Testa Web Audio, não a voz Piper.
+  try{
+   primeAudio();
+   if(!audioContext?.createOscillator||!audioContext?.createGain)throw Error('Web Audio sem oscilador.');
+   const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();
+   oscillator.type='sine';oscillator.frequency.value=520;
+   gain.gain.value=0.08;
+   oscillator.connect(gain);gain.connect(audioContext.destination);
+   oscillator.onended=()=>{try{oscillator.disconnect();gain.disconnect();}catch{}};
+   oscillator.start();oscillator.stop(audioContext.currentTime+0.30);
+   notify('Tom de teste solicitado. Se não ouviu, confira o volume, o modo silencioso e a saída de som.');
+   return true;
+  }catch(error){
+   notify('Não foi possível testar o áudio pelo Web Audio neste aparelho.');
+   return false;
+  }
+ }
  async function playBlob(wav){
   const Ctor=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
   if(!Ctor)throw Error('O iPhone não oferece Web Audio.');
@@ -133,5 +151,5 @@ export function createAssistantSpeech(onStatus=()=>{}){
   const voices=getVoices(),voice=chosenVoice();
   return {voices,selected:voices.some(v=>v.voiceURI===selected)?selected:'',available:!!engine(),name:voice?.name||'Voz padrão do iPhone'};
  }
- return {speak,stop,primeAudio,playBlob,selectVoice,voiceInfo,getVoices};
+ return {speak,stop,primeAudio,testOutput,playBlob,selectVoice,voiceInfo,getVoices};
 }
