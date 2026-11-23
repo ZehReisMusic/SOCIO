@@ -116,6 +116,13 @@ export function resolveAssistantCommand(input,data,now=new Date(),context={}){
    ' minutos.'+(free.status==='bounded'?' Considerei a margem de dez minutos antes do compromisso.':
     ' A disponibilidade fora da Agenda não foi verificada.'),{related:'tarefas',lastTaskId:t.id});
  }
+ if(/\b(?:quanto tempo (?:tenho|resta|falta)|tempo livre|janela (?:livre|disponivel)|quanto tempo ate)\b/.test(q)){
+  const ctx=availableTimeContext(activeAppointments(data),now);
+  if(ctx.status==='occupied')return reply('Você tem um compromisso cadastrado em andamento até '+ctx.endsAt+'. Não considero esse período livre.',{related:'agenda'});
+  if(ctx.status==='uncertain')return reply('Existe um compromisso anterior sem duração cadastrada. Não consigo confirmar seu tempo livre.',{related:'agenda'});
+  if(ctx.status==='bounded'||ctx.status==='too-short')return reply('Há cerca de '+ctx.availableMinutes+' minutos úteis antes do próximo compromisso, às '+ctx.nextAt+', já descontando dez minutos de margem.',{related:'agenda'});
+  return reply('Não há próximo compromisso cadastrado para hoje. Não consigo estimar sua disponibilidade fora da Agenda.',{related:'agenda'});
+ }
  if(/\b(?:proxim[oa]\s+compromisso|proxim[oa]\s+reuniao)\b/.test(q)){
   const next=activeAppointments(data).filter(a=>appointmentDateTime(a)>=now)
    .sort((a,b)=>appointmentDateTime(a)-appointmentDateTime(b))[0];
@@ -130,7 +137,7 @@ export function resolveAssistantCommand(input,data,now=new Date(),context={}){
   return reply('Hoje há '+today.length+' compromisso'+(today.length===1?'':'s')+' cadastrado'+(today.length===1?'':'s')+
    ': '+today.slice(0,3).map(a=>a.time+', '+a.title).join('; ')+'.',{related:'agenda'});
  }
- if(/\b(?:semana|ultimos sete dias|ultimos 7 dias)\b/.test(q)&&/\b(?:fiz|conclui|avancei|resultado|conquistas?|progresso|realizei|concluidas?)\b/.test(q)){
+ if(/\b(?:semana|ultimos sete dias|ultimos 7 dias)\b/.test(q)&&/\b(?:fiz|conclui|concluir|avancei|resultado|conquistas?|progresso|realizei|concluidas?|concluidas)\b/.test(q)){
   const start=new Date(now.getFullYear(),now.getMonth(),now.getDate()-6);
   const from=start.getTime();
   const done=(data?.tasks||[]).filter(t=>t.completedAt&&new Date(t.completedAt).getTime()>=from&&new Date(t.completedAt)<=now);
