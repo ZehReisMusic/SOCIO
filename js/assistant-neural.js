@@ -11,7 +11,7 @@ const KEY='socio.assistant.neural.v1';
 const SAMPLE='Olá! Eu sou o SÓCIO. Vamos organizar suas prioridades e seus negócios.';
 export function modelConsentMessage(){
  return 'Testar voz masculina Faber (experimental)? O primeiro uso baixa cerca de 65 MB do modelo e componentes adicionais. '+
- 'A geração das frases ocorre no aparelho; exige internet no primeiro download, pode ser lenta e pode não funcionar nesta versão do iPhone. '+
+ 'A geração das frases ocorre no aparelho; exige internet no primeiro download, pode ser lenta e pode depender do navegador e das capacidades do computador ou celular. '+
  'Se falhar, você continuará com a voz padrão. O uso comercial da voz deve ser verificado antes de adotá-la definitivamente.';
 }
 export function createAssistantNeural({status=()=>{},playAudio=async()=>{},onTiming=()=>{},loadLibrary=null}={}){
@@ -63,9 +63,9 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},onTim
   const code={biblioteca:'FABER-LIB',modelo:'FABER-MODEL',sintese:'FABER-SYNTH',audio:'FABER-AUDIO'}[phase]||'FABER-ERR';
   lastProblem={phase,code,detail:shortError(error)};
   const help=phase==='audio'?'O WAV foi gerado. Teste o reprodutor manual abaixo.':
-   phase==='sintese'?'O modelo está cadastrado, mas o iPhone não conseguiu gerar a fala.':
+   phase==='sintese'?'O modelo está cadastrado, mas o navegador não conseguiu gerar a fala.':
    'Não foi possível carregar o motor ou os arquivos necessários.';
-  tell(code+' — '+help+' A voz padrão do iPhone segue disponível. Detalhe: '+lastProblem.detail);
+  tell(code+' — '+help+' A voz padrão do dispositivo segue disponível. Detalhe: '+lastProblem.detail);
   return lastProblem;
  }
  async function load(){
@@ -132,7 +132,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},onTim
     if(!Array.isArray(stored)||!stored.includes(PIPER_VOICE_ID)){
      enable=false;prepared=false;
      try{localStorage.removeItem(KEY);}catch{}
-     tell('O modelo da voz Faber não está mais armazenado. Voltando à voz do iPhone.');
+     tell('O modelo da voz Faber não está mais armazenado. Voltando à voz do dispositivo.');
      return {ok:false,reason:'not-cached'};
     }
     prepared=true;
@@ -177,7 +177,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},onTim
   ++requested;enable=false;prepared=false;lastWav=null;lastProblem=null;
   warmupPromise=null;warmupReady=false;wavCache.clear();
   try{localStorage.removeItem(KEY);}catch{}
-  tell('Voz do iPhone reativada. O modelo baixado pode permanecer no armazenamento deste navegador.');
+  tell('Voz padrão do dispositivo reativada. O modelo baixado pode permanecer no armazenamento deste navegador.');
  }
  function cancel(){++requested;}
  return {enabled,prepare,warmup,warmedUp,generate,test,disable,cancel,diagnostic,generatedAudio,modelConsentMessage};
