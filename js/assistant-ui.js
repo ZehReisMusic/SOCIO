@@ -5,9 +5,11 @@ import {createAssistantSpeech} from './assistant-speech.js';
 import {createAssistantNeural,modelConsentMessage} from './assistant-neural.js';
 import {isTaskSlotAvailable,reservationMinutes} from './assistant-task-planning.js';
 import {dateKey} from './logic.js';
+import {applyVocabulary,proposeVoiceCorrection} from './assistant-vocabulary.js';
 
 export function createAssistantController(h){
  let activeRecognition=null, lastResponse=null, lastQuery='',lastTaskId='', pending=null;
+ let lastVoiceShown='',pendingLearning=null;
  let audioStatus='Toque em “Ouvir resposta” para reproduzir o áudio, caso necessário.';
  let neuralStatus=neuralEngineStatusDefault();
  let neuralTechnical='';
@@ -164,8 +166,9 @@ export function createAssistantController(h){
   h.refresh();
   speak(lastResponse.message);
  }
- function execute(raw){
-  const query=stripAssistantWakeword(raw).trim().slice(0,350);
+ function execute(raw,{fromVoice=false}={}){
+  const query=applyVocabulary(stripAssistantWakeword(raw).trim().slice(0,350),h.data()?.vocabulary);
+  if(fromVoice){lastVoiceShown=query;pendingLearning=null;}
   if(!query){h.toast('Digite ou fale sua pergunta para o SÓCIO.');return;}
   lastQuery=query;
   pending=null;
@@ -210,7 +213,7 @@ export function createAssistantController(h){
   activeRecognition=null;
   if(!isHome()||session.cancelled)return;
   if(session.transcript){
-   execute(session.transcript);
+   execute(session.transcript,{fromVoice:true});
    return;
   }
   const message=session.error||'Não recebi uma transcrição. Você pode usar o campo de texto ou o microfone do teclado.';
@@ -239,7 +242,7 @@ export function createAssistantController(h){
    const segments=Array.from(event.results||[]).map(r=>r[0]?.transcript||'');
    session.transcript=segments.join(' ').trim();
    const input=document.getElementById('assistant-command-text');
-   if(input)input.value=session.transcript;
+   if(input)input.value=applyVocabulary(session.transcript,h.data()?.vocabulary);
    updateListening(session.transcript?'Ouvindo: '+session.transcript:'Ouvindo...');
    if(session.transcript){
     if(session.noSpeechTimer){clearTimeout(session.noSpeechTimer);session.noSpeechTimer=null;}
@@ -313,7 +316,8 @@ export function createAssistantController(h){
    '<div class="assistant-suggestions" aria-label="Sugestões rápidas">'+shortcuts.map(([q,label])=>
     '<button type="button" class="assistant-suggestion" data-action="assistant-example" data-query="'+safe(q)+'">'+safe(label)+'</button>').join('')+'</div>'+
    '<p class="assistant-status" id="assistant-listening-status" role="status" aria-live="polite">'+
-    (listening?'Ouvindo... a escuta termina quando você parar de falar.':'Toque em Falar ou digite. Os comandos são processados pelas regras do aplicativo.')+'</p>'+
+    (listening?'Ouvindo... a escuta termina quando você parar de falar.':'Toque em Falar ou digite. Os comandos são processados pelas regras do aplicativo.')+'</p>'+ 
+    (pendingLearning?'<div class="assistant-learn-panel" role="status"><strong>Aprender esta correção?</strong><p>Quando eu ouvir <b>“'+safe(pendingLearning.heard)+'”</b>, interpretar como <b>“'+safe(pendingLearning.correct)+'”</b> nas próximas vezes?</p><div class="assistant-learn-actions"><button type="button" class="btn-primary" data-action="assistant-learn-confirm">Sim, aprender</button><button type="button" class="btn-outline" data-action="assistant-learn-ignore">Agora não</button></div></div>':'')+
    '<details class="assistant-voice-settings"><summary>Voz do SÓCIO · <span id="assistant-voice-name">'+
      safe(neuralEngine.enabled()?'Faber · masculina':voiceInfo.name)+'</span></summary>'+
    '<div class="assistant-voice-compact">'+
@@ -355,6 +359,12 @@ export function createAssistantController(h){
  }
  function action(target){
   const command=target?.dataset?.action||'';
+  if(command==='assistant-learn-confirm'){
+   const choice=pendingLearning;pendingLearning=null;
+   if(choice&&h.learnVocabulary?.(choice.heard,choice.correct))h.toast('Correção aprendida. Ela será aplicada aos próximos ditados.');
+   h.refresh();return true;
+  }
+  if(command==='assistant-learn-ignore'){pendingLearning=null;h.refresh();return true;}
   if(command==='assistant-stop-audio'){
    stopAudio();
    audioStatus='Áudio interrompido. A resposta escrita permanece disponível.';
@@ -378,7 +388,7 @@ export function createAssistantController(h){
   }
   if(command==='assistant-start-voice'){startListening();return true;}
   if(command==='assistant-stop-voice'){stopListening();return true;}
-  if(command==='assistant-example'){voiceEngine.primeAudio();execute(target.dataset.query||'');return true;}
+  if(command==='assistant-example'){lastVoiceShown='';pendingLearning=null;voiceEngine.primeAudio();execute(target.dataset.query||'');return true;}
   if(command==='assistant-repeat'){voiceEngine.primeAudio();if(lastResponse&&!speak(lastResponse.message))h.toast('Leitura de voz indisponível. A resposta está escrita na tela.');return true;}
   if(command==='assistant-test-voice'){
    voiceEngine.primeAudio();
@@ -447,7 +457,16 @@ export function createAssistantController(h){
   voiceEngine.primeAudio();
   const input=event.target.querySelector('[name="query"]');
   if(activeRecognition)cancelListening();
-  execute(input?.value||'');
+  const utterance=input?.value||'';
+  const proposed=lastVoiceShown?proposeVoiceCorrection(lastVoiceShown,stripAssistantWakeword(utterance)):null;
+  lastVoiceShown='';pendingLearning=null;
+  execute(utterance);
+  if(proposed){
+   const known=applyVocabulary(proposed.heard,h.data()?.vocabulary);
+   if(known.toLocaleLowerCase('pt-BR')===proposed.heard.toLocaleLowerCase('pt-BR')){
+    pendingLearning=proposed;h.refresh();
+   }
+  }
   return true;
  }
  function change(event){
