@@ -1,0 +1,9 @@
+/* V003.26 — diagnóstico de voz no iPhone, não interfere no layout principal. */
+.assistant-neural-config audio{display:block;box-sizing:border-box;width:100%;max-width:100%;min-height:46px;margin:10px 0 0}
+.assistant-neural-config audio[hidden]{display:none}
+.assistant-neural-help{color:#a9c4d0;font-size:11px;line-height:1.6;margin:8px 0 0}
+.assistant-neural-status{overflow-wrap:anywhere;word-break:break-word}
+.assistant-neural-config .assistant-neural-status{user-select:text;-webkit-user-select:text}
+@media(max-width:740px){
+ .assistant-neural-config audio{max-width:100%;width:100%;min-width:0}
+}
