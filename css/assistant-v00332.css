@@ -1,0 +1,6 @@
+/* V003.32 — Faber em navegadores do Mac e campo de consulta efêmero. */
+.assistant-mac-voice{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:100%;min-width:0;margin:0 0 12px;padding:10px 12px;border:1px solid #395563;background:#14262e;border-radius:10px}
+.assistant-mac-voice p{flex:1;min-width:0;margin:0;color:#b7cbd2;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+.assistant-mac-voice p strong{color:#f4dab5;font-weight:700}
+.assistant-mac-voice button{flex-shrink:0;max-width:100%;min-height:40px;padding:8px 12px;white-space:normal;text-align:center}
+@media(max-width:740px){.assistant-mac-voice{flex-direction:column;align-items:stretch}.assistant-mac-voice button{width:100%;font-size:13px}}

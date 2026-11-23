@@ -82,7 +82,7 @@ export function createAssistantSpeech(onStatus=()=>{},onActivity=()=>{}){
   const token=playbackToken;
   const cancelled=()=>{if(token!==playbackToken)throw Object.assign(new Error('Reprodução cancelada.'),{name:'AbortError'});};
   const ctx=getAudioContext();
-  if(!ctx)throw Error('O iPhone não oferece Web Audio.');
+  if(!ctx)throw Error('Este navegador não oferece Web Audio.');
   if(ctx.state!=='running')await ctx.resume?.();
   cancelled();
   if(ctx.state==='interrupted')throw Error('Web Audio interrompido; toque em Play no reprodutor WAV.');
@@ -140,7 +140,7 @@ export function createAssistantSpeech(onStatus=()=>{},onActivity=()=>{}){
     started=true;
     activity(true);
     if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
-    notify('Reproduzindo a resposta. Se não ouvir, confira o volume e o modo silencioso do iPhone.');
+    notify('Reproduzindo a resposta. Se não ouvir, confira o volume e o modo silencioso do aparelho.');
    };
    item.onend=()=>{
     if(utterance!==item)return;utterance=null;
@@ -152,7 +152,7 @@ export function createAssistantSpeech(onStatus=()=>{},onActivity=()=>{}){
     if(utterance!==item)return;utterance=null;
     activity(false);
     if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
-    notify('O iPhone não conseguiu reproduzir automaticamente. Toque em “Ouvir resposta”.');
+    notify('O navegador não conseguiu reproduzir automaticamente. Toque em “Ouvir resposta”.');
    };
    synth.speak(item);
    activity(true);
@@ -177,7 +177,7 @@ export function createAssistantSpeech(onStatus=()=>{},onActivity=()=>{}){
  }
  function voiceInfo(){
   const voices=getVoices(),voice=chosenVoice();
-  return {voices,selected:voices.some(v=>v.voiceURI===selected)?selected:'',available:!!engine(),name:voice?.name||'Voz padrão do iPhone'};
+  return {voices,selected:voices.some(v=>v.voiceURI===selected)?selected:'',available:!!engine(),name:voice?.name||'Voz padrão do dispositivo'};
  }
  return {speak,stop,primeAudio,testOutput,playBlob,selectVoice,voiceInfo,getVoices};
 }
