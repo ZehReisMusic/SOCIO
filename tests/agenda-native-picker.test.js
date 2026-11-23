@@ -34,15 +34,15 @@ test('borda da moldura é independente do input WebKit e fica confinada à largu
  assert.match(css,/::-webkit-date-and-time-value/);
  assert.doesNotMatch(css,/appearance:none|touch-action|user-scalable|maximum-scale/);
 });
-test('V003.22 preserva Web Push, dados, zoom manual e ícone',()=>{
+test('V003.23 preserva Web Push, dados, zoom manual e ícone',()=>{
  const html=read('index.html'),sw=read('service-worker.js');
- assert.equal(JSON.parse(read('version.json')).version,'V003.22');
- assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.22'/);
- assert.match(sw,/socio-v00322-20261122/);
+ assert.equal(JSON.parse(read('version.json')).version,'V003.23');
+ assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.23'/);
+ assert.match(sw,/socio-v00323-20261122/);
  assert.match(sw,/'\.\/css\/agenda-native-picker-v00317\.css'/);
  const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(m=>m[1]);
  assert.ok(links.includes('./css/agenda-native-picker-v00317.css'));
- assert.equal(links.at(-1),'./css/soundline-v00322.css');
+ assert.equal(links.at(-1),'./css/assistant-v00323.css');
  assert.match(html,/width=device-width,initial-scale=1,viewport-fit=cover/);
  assert.doesNotMatch(html,/user-scalable=no|maximum-scale=1/);
  assert.match(sw,/self\.addEventListener\('push'/);
