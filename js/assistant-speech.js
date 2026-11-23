@@ -19,6 +19,7 @@ export function rankPortugueseVoices(voices=[]){
 }
 export function createAssistantSpeech(onStatus=()=>{}){
  let utterance=null,pendingTimer=null,selected='';
+ let audioContext=null,sourceNode=null,playbackResolver=null;
  try{selected=localStorage.getItem(KEY)||'';}catch{}
  const notify=(message)=>{
   try{onStatus(message);}catch{}
@@ -29,7 +30,49 @@ export function createAssistantSpeech(onStatus=()=>{}){
   const voices=getVoices();
   return voices.find(v=>v.voiceURI===selected)||voices[0]||null;
  };
+ function primeAudio(){
+  // Chamado diretamente no toque de Falar/Consultar/Testar: desbloqueia Web Audio
+  // para arquivos WAV gerados depois. Não garante liberar speechSynthesis nativo.
+  try{
+   const Ctor=window.AudioContext||window.webkitAudioContext;
+   if(!Ctor)return false;
+   if(!audioContext)audioContext=new Ctor();
+   if(audioContext.state==='suspended')void audioContext.resume().catch(()=>{});
+   const silence=audioContext.createBuffer(1,1,audioContext.sampleRate||22050);
+   const silent=audioContext.createBufferSource();
+   silent.buffer=silence;silent.connect(audioContext.destination);silent.start(0);
+   return true;
+  }catch{return false;}
+ }
+ async function playBlob(wav){
+  const Ctor=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
+  if(!Ctor)throw Error('O iPhone não oferece Web Audio.');
+  if(!audioContext)audioContext=new Ctor();
+  if(audioContext.state!=='running')await audioContext.resume();
+  const data=await wav.arrayBuffer();
+  const decoded=await audioContext.decodeAudioData(data);
+  if(!decoded||!decoded.length)throw Error('Não foi possível decodificar áudio.');
+  stopSource();
+  return new Promise((resolve,reject)=>{
+   try{
+    const node=audioContext.createBufferSource();
+    sourceNode=node;playbackResolver=resolve;
+    node.buffer=decoded;
+    node.connect(audioContext.destination);
+    node.onended=()=>{if(sourceNode===node){sourceNode=null;playbackResolver=null;}resolve();};
+    node.start(0);
+   }catch(error){sourceNode=null;playbackResolver=null;reject(error);}
+  });
+ }
+ function stopSource(){
+  if(sourceNode){
+   const old=sourceNode;sourceNode=null;
+   try{old.onended=null;old.stop(0);old.disconnect();}catch{}
+  }
+  if(playbackResolver){const done=playbackResolver;playbackResolver=null;done();}
+ }
  function stop({quiet=false}={}){
+  stopSource();
   if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
   if(utterance){utterance.onstart=null;utterance.onend=null;utterance.onerror=null;utterance=null;}
   try{engine()?.cancel?.();}catch{}
@@ -90,5 +133,5 @@ export function createAssistantSpeech(onStatus=()=>{}){
   const voices=getVoices(),voice=chosenVoice();
   return {voices,selected:voices.some(v=>v.voiceURI===selected)?selected:'',available:!!engine(),name:voice?.name||'Voz padrão do iPhone'};
  }
- return {speak,stop,selectVoice,voiceInfo,getVoices};
+ return {speak,stop,primeAudio,playBlob,selectVoice,voiceInfo,getVoices};
 }

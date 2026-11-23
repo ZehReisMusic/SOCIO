@@ -1,0 +1,12 @@
+/* V003.25 — voz masculina neural opcional sem afetar cartões da Home */
+.assistant-neural-config{margin-top:13px;padding:12px;border:1px solid #466579;border-radius:11px;background:#112934;min-width:0;overflow-wrap:anywhere}
+.assistant-neural-config>strong{display:block;font-size:12px;color:#f1ce9f;line-height:1.5}
+.assistant-neural-config>p{font-size:11px;line-height:1.6;margin:7px 0;color:#b7cfd8}
+.assistant-neural-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.assistant-neural-actions button{min-height:42px;font-size:12px;padding:10px 12px;max-width:100%}
+.assistant-neural-config .assistant-neural-status{color:#d8e8ec;border-left:2px solid #d4ad79;padding:7px 10px;background:#193848;border-radius:4px;min-height:12px}
+@media(max-width:740px){
+ .assistant-neural-config{padding:10px;max-width:100%}
+ .assistant-neural-actions{flex-direction:column;align-items:stretch}
+ .assistant-neural-actions button{width:100%}
+}
