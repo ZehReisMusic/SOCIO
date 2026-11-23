@@ -1,5 +1,5 @@
 {
-  "version": "V003.22",
+  "version": "V003.23",
   "releasedAt": "2026-11-22",
-  "description": "SOUNDLINE Orçamentos V001: insumos e custo por metro/unidade, regras de lucro mínimo 100%, propostas multi-itens, entrega por aplicativo variável, custos de marketplace configuráveis, histórico de clientes/status, ditado revisável e geração de PDF local. Preserva dados da Agenda, Tarefas, Web Push e REIZZOR."
+  "description": "SÓCIO Assistente local: respostas em português faladas e escritas na tela Início; consultas a tarefas, Agenda, janela temporal e SOUNDLINE; sugestões sem IA paga; criação de tarefas e compromissos por revisão; conclusão de tarefa com confirmação; botões de voz especializados preservados. Compatibilidade iPhone com entrada por teclado."
 }
