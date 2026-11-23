@@ -45,6 +45,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
     const stored=await engine.stored?.();
     if(!Array.isArray(stored)||!stored.includes(PIPER_VOICE_ID))return false;
     await engine.TtsSession.create({voiceId:PIPER_VOICE_ID});
+    if(!enable)return false;
     warmupReady=true;prepared=true;
     return true;
    }catch(error){
@@ -155,7 +156,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
    tell('Fala gerada. Tentando reproduzir no alto-falante…');
    await playAudio(wav);
    if(id!==requested)return {ok:false,reason:'cancelled'};
-   tell('Resposta Faber finalizada. Você pode repetir no reprodutor abaixo.');
+   tell('Resposta Faber concluída. Para ouvir novamente, toque em Ouvir resposta.');
    return {ok:true,phase:'audio',wav};
   }catch(error){
    console.warn('SÓCIO Piper geração:',error);
