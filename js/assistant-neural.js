@@ -3,7 +3,10 @@
  * Código de terceiros é carregado somente após ativação explícita.
  * Em caso de falha, o mecanismo nativo segue disponível. */
 export const PIPER_VOICE_ID='pt_BR-faber-medium';
-export const PIPER_CDN='https://esm.sh/@mintplex-labs/piper-tts-web@1.0.3?bundle';
+// Versão de onnxruntime-web deve coincidir com os binários WASM de 1.18.0
+// usados no próprio Piper Mintplex; evitar resolver ^1.18.0 para um 1.x posterior.
+export const PIPER_ORT_VERSION='1.18.0';
+export const PIPER_CDN='https://esm.sh/@mintplex-labs/piper-tts-web@1.0.3?bundle&deps=onnxruntime-web@1.18.0';
 const KEY='socio.assistant.neural.v1';
 const SAMPLE='Olá! Eu sou o SÓCIO. Vamos organizar suas prioridades e seus negócios.';
 export function modelConsentMessage(){
