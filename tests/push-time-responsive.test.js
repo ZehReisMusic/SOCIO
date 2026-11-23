@@ -26,14 +26,14 @@ test('no iPhone, a moldura do horário cabe dentro do cartão, com picker WebKit
   assert.match(html,/width=device-width,initial-scale=1,viewport-fit=cover/);
   assert.doesNotMatch(html,/user-scalable=no|maximum-scale=1/);
 });
-test('V003.22 preserva assinatura Web Push, Agenda, dados, logo e atualizador automático',()=>{
+test('V003.23 preserva assinatura Web Push, Agenda, dados, logo e atualizador automático',()=>{
   const html=read('index.html'),sw=read('service-worker.js');
-  assert.equal(JSON.parse(read('version.json')).version,'V003.22');
-  assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.22'/);
-  assert.match(sw,/socio-v00322-20261122/);
+  assert.equal(JSON.parse(read('version.json')).version,'V003.23');
+  assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.23'/);
+  assert.match(sw,/socio-v00323-20261122/);
   assert.match(sw,/'\.\/css\/push-time-mobile-v00318\.css'/);
   const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(x=>x[1]);
-  assert.equal(links.at(-1),'./css/soundline-v00322.css');
+  assert.equal(links.at(-1),'./css/assistant-v00323.css');
   assert.match(sw,/self\.addEventListener\('push'/);
   assert.match(sw,/self\.addEventListener\('notificationclick'/);
   assert.match(read('js/store.js'),/socio\.v001\.data/);
