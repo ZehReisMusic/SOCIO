@@ -5,6 +5,7 @@ import {availableTimeContext,selectTaskForTime} from './time-aware.js';
 import {sortAppointments,appointmentDateTime,parseVoiceAppointment} from './agenda.js';
 import {parseVoiceTask} from './task-voice.js';
 import {calculateQuote} from './soundline-core.js';
+import {isTaskScheduleQuestion,planTaskSchedule} from './assistant-task-planning.js';
 
 export function normalizeAssistantPhrase(input){
  return String(input??'').toLocaleLowerCase('pt-BR').normalize('NFD')
@@ -77,6 +78,9 @@ export function resolveAssistantCommand(input,data,now=new Date(),context={}){
  }
  if(/\b(?:criar|crie|novo|nova|fazer|preparar)\s+(?:um\s+|uma\s+)?orcamento\b/.test(q))
   return {kind:'open-soundline',message:'Vou abrir a SOUNDLINE para você criar e revisar seu orçamento.'};
+
+ // Sugere horários para executar uma tarefa identificada, sem criar compromisso automaticamente.
+ if(isTaskScheduleQuestion(q))return planTaskSchedule(raw,data,now,context);
 
  // Primeiro as perguntas específicas, depois comandos mais amplos.
  if(/\b(?:orcam(?:ento|entos)|propostas?)\b/.test(q)){
