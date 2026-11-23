@@ -10,6 +10,13 @@ export function createAssistantController(h){
  let neuralStatus=neuralEngineStatusDefault();
  let neuralTechnical='';
  let neuralPreviewUrl='';
+ let speechBusy=false,playbackSerial=0,localQueryMs=null,voiceTiming='',nativeFallbackPlaying=false;
+ const clock=()=>typeof performance!=='undefined'&&typeof performance.now==='function'?performance.now():Date.now();
+ function setSpeechBusy(active){
+  speechBusy=Boolean(active);
+  const button=typeof document!=='undefined'?document.getElementById('assistant-stop-audio'):null;
+  if(button){button.hidden=!speechBusy;button.disabled=!speechBusy;}
+ }
  const safe=h.escape;
  const icon=h.icon;
  function neuralEngineStatusDefault(){return 'Faber pronta para responder.';}
@@ -17,8 +24,17 @@ export function createAssistantController(h){
   audioStatus=message;
   const el=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
   if(el)el.textContent=message;
+ },playing=>{
+  if(!neuralEngine.enabled()||nativeFallbackPlaying)setSpeechBusy(playing);
  });
  const neuralEngine=createAssistantNeural({
+  onTiming:({readyMs,fromCache,characters})=>{
+   voiceTiming='Consulta local: '+(localQueryMs===null?'—':localQueryMs+' ms')+
+    ' · Voz pronta: '+readyMs+' ms · '+(fromCache?'áudio reutilizado':'áudio gerado')+
+    ' ('+characters+' caracteres).';
+   const el=typeof document!=='undefined'?document.getElementById('assistant-voice-timing'):null;
+   if(el)el.textContent=voiceTiming;
+  },
   status:message=>{
    const failed=/^FABER-(?:LIB|MODEL|SYNTH|AUDIO|ERR)/.test(message);
    neuralTechnical=failed?message:'';
@@ -40,6 +56,7 @@ export function createAssistantController(h){
     // A saída WebAudio é prioritária; não ocupar espaço com player se funcionou.
     await voiceEngine.playBlob(blob);
    }catch(error){
+    if(error?.name==='AbortError')throw error;
     // Só exibir o player HTML nativo quando a saída automática falhar.
     if(typeof document!=='undefined'&&typeof URL.createObjectURL==='function'){
      const panel=document.getElementById('assistant-voice-tech');
@@ -61,16 +78,37 @@ export function createAssistantController(h){
   return typeof window!=='undefined'&&(window.SpeechRecognition||window.webkitSpeechRecognition);
  }
  function isHome(){return h.page()==='inicio';}
- function stopAudio(){neuralEngine.cancel();voiceEngine.stop({quiet:true});}
+ function stopAudio(){
+  ++playbackSerial;
+  neuralEngine.cancel();voiceEngine.stop({quiet:true});nativeFallbackPlaying=false;
+  const player=typeof document!=='undefined'?document.getElementById('assistant-neural-preview'):null;
+  if(player){try{player.pause();player.currentTime=0;}catch{}}
+  setSpeechBusy(false);
+ }
  function speak(message){
+  stopAudio();
+  const serial=++playbackSerial;
+  setSpeechBusy(true);
   if(neuralEngine.enabled()){
-   // Mantém o fallback no caso de o iOS impedir carregar ou executar o modelo.
+   // O controle de parada aparece já durante a síntese e continua na reprodução.
    void neuralEngine.generate(message).then(out=>{
-    if(!out.ok&&out.reason!=='cancelled')voiceEngine.speak(message);
+    if(serial!==playbackSerial)return;
+    if(!out.ok&&out.reason!=='cancelled'){
+     nativeFallbackPlaying=true;
+     if(!voiceEngine.speak(message))setSpeechBusy(false);
+    }else setSpeechBusy(false);
+   }).catch(error=>{
+    if(serial!==playbackSerial)return;
+    console.warn('SÓCIO: falha ao gerar a voz.',error);
+    nativeFallbackPlaying=true;
+    if(!voiceEngine.speak(message))setSpeechBusy(false);
    });
    return true;
   }
-  return voiceEngine.speak(message);
+  nativeFallbackPlaying=true;
+  const ok=voiceEngine.speak(message);
+  if(!ok)setSpeechBusy(false);
+  return ok;
  }
  function voiceOptions(){
   const info=voiceEngine.voiceInfo();
@@ -129,7 +167,9 @@ export function createAssistantController(h){
   if(!query){h.toast('Digite ou fale sua pergunta para o SÓCIO.');return;}
   lastQuery=query;
   pending=null;
+  const started=clock();
   const result=resolveAssistantCommand(query,h.data(),new Date(),{lastTaskId});
+  localQueryMs=Math.max(0,Math.round(clock()-started));
   if(result.kind==='confirm-complete'){
    pending={type:'complete-task',taskId:result.taskId};
    lastResponse={message:result.message,related:'tarefas',detail:''};
@@ -291,13 +331,15 @@ export function createAssistantController(h){
    '<p class="assistant-neural-status" id="assistant-neural-status" role="status" aria-live="polite">'+safe(neuralStatus)+'</p>'+
    '<details class="assistant-voice-advanced" id="assistant-voice-tech"><summary>Diagnóstico de áudio</summary>'+
     '<p>Utilize estes testes apenas se a reprodução apresentar algum problema.</p>'+
+    '<p class="assistant-voice-timing" id="assistant-voice-timing">'+safe(voiceTiming||'Os tempos de consulta e síntese aparecerão após uma resposta.')+'</p>'+ 
     '<p class="assistant-voice-diagnostic" id="assistant-voice-diagnostic"'+(neuralTechnical?'':' hidden')+'>'+safe(neuralTechnical)+'</p>'+
     '<button type="button" class="btn-outline" data-action="assistant-audio-check">Testar saída de áudio</button>'+
     '<audio id="assistant-neural-preview" controls preload="none" hidden aria-label="Reproduzir WAV gerado"></audio>'+
     '<p class="assistant-neural-help">Se aparecer FABER-SYNTH, a geração falhou. Se aparecer FABER-AUDIO, teste o arquivo WAV que será disponibilizado aqui.</p>'+
    '</details></div></details>'+ 
    (lastResponse?'<div class="assistant-response" aria-live="polite"><div class="assistant-response-head"><strong>'+icon('spark',15)+' SÓCIO RESPONDE</strong>'+
-     '<button type="button" class="btn-primary assistant-replay" data-action="assistant-repeat" aria-label="Ouvir resposta">'+icon('volume-2',14)+' Ouvir resposta</button></div>'+
+     '<span class="assistant-response-actions"><button type="button" class="btn-primary assistant-replay" data-action="assistant-repeat" aria-label="Ouvir resposta">'+icon('volume-2',14)+' Ouvir resposta</button>'+ 
+     '<button id="assistant-stop-audio" type="button" class="btn-outline assistant-stop-audio" data-action="assistant-stop-audio" aria-label="Parar reprodução de áudio"'+(speechBusy?'':' hidden')+'>'+icon('stop',14)+' Parar áudio</button></span></div>'+
     '<p class="assistant-audio-status" id="assistant-audio-status" aria-live="polite">'+safe(audioStatus)+'</p>'+
     '<p>'+safe(lastResponse.message)+'</p>'+
     (lastResponse.detail?'<p class="assistant-response-extra">'+safe(lastResponse.detail)+'</p>':'')+
@@ -310,6 +352,13 @@ export function createAssistantController(h){
  }
  function action(target){
   const command=target?.dataset?.action||'';
+  if(command==='assistant-stop-audio'){
+   stopAudio();
+   audioStatus='Áudio interrompido. A resposta escrita permanece disponível.';
+   const label=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
+   if(label)label.textContent=audioStatus;
+   return true;
+  }
   if(command==='assistant-start-voice'){startListening();return true;}
   if(command==='assistant-stop-voice'){stopListening();return true;}
   if(command==='assistant-example'){voiceEngine.primeAudio();execute(target.dataset.query||'');return true;}

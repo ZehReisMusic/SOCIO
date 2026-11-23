@@ -14,7 +14,7 @@ export function modelConsentMessage(){
  'A geração das frases ocorre no aparelho; exige internet no primeiro download, pode ser lenta e pode não funcionar nesta versão do iPhone. '+
  'Se falhar, você continuará com a voz padrão. O uso comercial da voz deve ser verificado antes de adotá-la definitivamente.';
 }
-export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadLibrary=null}={}){
+export function createAssistantNeural({status=()=>{},playAudio=async()=>{},onTiming=()=>{},loadLibrary=null}={}){
  let lib=null,loading=null,enable=false,prepared=false,busy=false,requested=0;
  let lastProblem=null,lastWav=null;
  let warmupPromise=null,warmupReady=false;
@@ -22,6 +22,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
  const CACHE_LIMIT=3;
  try{enable=localStorage.getItem(KEY)==='enabled';}catch{}
  const tell=text=>{try{status(text);}catch{}};
+ const clock=()=>typeof performance!=='undefined'&&typeof performance.now==='function'?performance.now():Date.now();
  const loader=loadLibrary||(()=>import(PIPER_CDN));
  const enabled=()=>enable;
  const diagnostic=()=>lastProblem?{...lastProblem}:null;
@@ -117,6 +118,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
  async function generate(text){
   if(!enable)return {ok:false,reason:'disabled'};
   const id=++requested;
+  const began=clock();
   lastProblem=null;
   lastWav=null;
   let phase='biblioteca';
@@ -138,6 +140,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
    phase='sintese';
    const phrase=String(text||'').trim().slice(0,600);
    let wav=wavCache.get(phrase);
+   const fromCache=Boolean(wav);
    if(wav){
     tell('Reproduzindo áudio já preparado…');
    }else{
@@ -152,6 +155,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
    if(!(wav instanceof Blob)||!wav.size)throw Error('O motor não produziu arquivo WAV.');
    lastWav=wav;
    if(!wavCache.has(phrase))cacheWav(phrase,wav);
+   try{onTiming({readyMs:Math.round(clock()-began),fromCache,characters:phrase.length});}catch{}
    phase='audio';
    tell('Fala gerada. Tentando reproduzir no alto-falante…');
    await playAudio(wav);
@@ -159,6 +163,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
    tell('Resposta Faber concluída. Para ouvir novamente, toque em Ouvir resposta.');
    return {ok:true,phase:'audio',wav};
   }catch(error){
+   if(id!==requested||error?.name==='AbortError')return {ok:false,reason:'cancelled'};
    console.warn('SÓCIO Piper geração:',error);
    const detail=reportFailure(phase,error);
    return {ok:false,reason:'error',phase,diagnostic:detail,wav:lastWav};

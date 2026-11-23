@@ -21,9 +21,9 @@ test('layout temporal tem seu próprio cartão, sem mexer no menu e nos seletore
 });
 test('versão PWA correta com todos os módulos offline e Web Push intacto',()=>{
  const html=read('index.html'),sw=read('service-worker.js'),updater=read('js/updater.js');
- assert.match(html,/MEU SÓCIO · V003\.28/);
- assert.match(updater,/APP_VERSION = 'V003\.28'/);
- assert.match(sw,/socio-v00328-20261123/);
+ assert.match(html,/MEU SÓCIO · V003\.29/);
+ assert.match(updater,/APP_VERSION = 'V003\.29'/);
+ assert.match(sw,/socio-v00329-20261123/);
  for(const file of ['./js/time-aware.js','./css/time-aware-v00320.css','./js/agenda-task-links.js','./js/push.js'])
    assert.ok(sw.includes(file));
  assert.match(sw,/self\.addEventListener\('notificationclick'/);

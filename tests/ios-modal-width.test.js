@@ -31,15 +31,15 @@ test('rolagem vertical e zoom por pinça continuam disponíveis',()=>{
  assert.match(html,/width=device-width,initial-scale=1,viewport-fit=cover/);
  assert.doesNotMatch(html,/user-scalable=no|maximum-scale=1/);
 });
-test('PWA V003.28 mantém cache de estilos, aviso branco e conexão Web Push',()=>{
+test('PWA V003.29 mantém cache de estilos, aviso branco e conexão Web Push',()=>{
  const sw=read('service-worker.js'),html=read('index.html');
- assert.equal(JSON.parse(read('version.json')).version,'V003.28');
- assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.28'/);
- assert.match(sw,/socio-v00328-20261123/);
+ assert.equal(JSON.parse(read('version.json')).version,'V003.29');
+ assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.29'/);
+ assert.match(sw,/socio-v00329-20261123/);
  assert.match(sw,/'\.\/css\/ios-modal-width-v00316\.css'/);
  const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(x=>x[1]);
  assert.ok(links.includes('./css/agenda-native-picker-v00317.css'));
- assert.equal(links.at(-1),'./css/assistant-v00328.css');
+ assert.equal(links.at(-1),'./css/assistant-v00329.css');
  assert.match(sw,/self\.addEventListener\('push'/);
  assert.match(sw,/self\.addEventListener\('notificationclick'/);
  assert.match(read('js/push.js'),/socio\.v003\.push/);
