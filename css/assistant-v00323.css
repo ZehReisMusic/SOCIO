@@ -1,0 +1,56 @@
+/* MEU SÓCIO V003.23 — assistente geral antes dos cartões do painel. */
+.home-dashboard>.assistant-card{grid-column:1/-1;box-sizing:border-box;min-width:0;max-width:100%}
+.assistant-card{position:relative;overflow:hidden;border:1px solid #527682;border-radius:17px;
+ background:linear-gradient(118deg,#1b3540 0%,#13262f 61%,#11202a 100%);
+ box-shadow:inset 0 1px #aacbd022,0 10px 27px #0002;padding:17px 21px;color:#f3f5f3}
+.assistant-card::before{content:"";position:absolute;right:-80px;top:-95px;width:260px;height:230px;
+ background:radial-gradient(circle,#367f8b3a,transparent 72%);pointer-events:none}
+.assistant-head{display:flex;align-items:center;gap:14px;min-width:0}
+.assistant-emblem{flex:0 0 45px;width:45px;height:45px;display:flex;align-items:center;justify-content:center;
+ color:#f4c78e;border:1px solid #a27f53;border-radius:13px;background:linear-gradient(145deg,#3d3428,#172d36)}
+.assistant-head-copy{min-width:0}
+.assistant-eyebrow{letter-spacing:.15em;font-size:9px;font-weight:800;color:#e6b678}
+.assistant-head-copy h2{font-family:var(--font-display);font-size:20px;line-height:1.2;letter-spacing:-.04em;margin:3px 0}
+.assistant-head-copy p{font-size:12px;color:#afc7cd;line-height:1.5;margin:0}
+.assistant-command-form{margin:13px 0 0;min-width:0;max-width:100%}
+.assistant-label{display:block;font-size:11px;color:#b6cbd0;font-weight:600;margin:0 0 7px}
+.assistant-input-row{display:flex;align-items:stretch;gap:7px;min-width:0;max-width:100%}
+.assistant-input-row input{flex:1 1 100%;min-width:0;max-width:100%;box-sizing:border-box;background:#0e202a;
+ color:#eef6f8;border:1px solid #547481;border-radius:10px;min-height:44px;font-size:16px!important;line-height:1.35;padding:10px 11px}
+.assistant-input-row input:focus{outline:2px solid #d6ad71;outline-offset:1px}
+.assistant-input-row input::placeholder{color:#98aeb6;opacity:1}
+.assistant-input-row button{white-space:nowrap;min-height:44px;font-size:12px;padding:9px 13px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.assistant-suggestions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
+.assistant-suggestion{font:inherit;color:#d6e5e8;border:1px solid #456879;background:#223e4d;border-radius:18px;font-size:11px;
+ padding:7px 11px;cursor:pointer;white-space:normal}
+.assistant-suggestion:hover{border-color:#b4c4be;background:#315162}
+.assistant-status{color:#9db7c2;font-size:10px;line-height:1.55;min-height:13px;margin:10px 0 0}
+.assistant-response{border-top:1px solid #44616d;margin-top:14px;padding-top:12px}
+.assistant-response-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.assistant-response-head strong{display:flex;align-items:center;gap:8px;letter-spacing:.07em;color:#e5b97e;font-size:11px}
+.assistant-response-head button{font-size:11px;padding:7px 8px;display:inline-flex;align-items:center;gap:5px}
+.assistant-response>p{font-size:13px;line-height:1.65;margin:10px 0 0;color:#e5eeee;overflow-wrap:anywhere;white-space:normal}
+.assistant-response>p.assistant-response-extra{color:#b9cdd4;font-size:12px}
+.assistant-confirm{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+.assistant-confirm button{padding:10px 12px;font-size:12px}
+.assistant-related-link{font:inherit;font-size:12px;color:#f3c88c;text-decoration:underline;background:transparent;
+ border:0;cursor:pointer;margin-top:12px;padding:4px 0}
+@media(max-width:740px){
+ .assistant-card{padding:13px 14px;border-radius:14px;max-width:100%}
+ .assistant-head{gap:10px}
+ .assistant-emblem{flex-basis:39px;width:39px;height:39px;border-radius:11px}
+ .assistant-head-copy h2{font-size:18px}
+ .assistant-head-copy p{font-size:11px}
+ .assistant-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+ .assistant-input-row>input{grid-column:1/-1;width:100%}
+ .assistant-input-row>.assistant-mic{grid-column:1;max-width:100%}
+ .assistant-input-row>.assistant-send{grid-column:2}
+ .assistant-suggestions{margin-top:9px}
+ .assistant-suggestion{font-size:10px;padding:7px 9px}
+ .assistant-status{font-size:10px}
+ .assistant-response-head{align-items:flex-start}
+}
+@media(max-width:355px){
+ .assistant-input-row button{padding:9px 10px;font-size:11px}
+ .assistant-suggestion{font-size:10px}
+}
