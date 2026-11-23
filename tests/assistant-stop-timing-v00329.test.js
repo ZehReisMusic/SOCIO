@@ -109,13 +109,13 @@ test('tempos da consulta local e síntese são expostos apenas no diagnóstico r
  }finally{voice.disable();reset();}
 });
 
-test('arquivos PWA atualizados para V003.31 preservam outras áreas e Web Push',()=>{
+test('arquivos PWA atualizados para V003.32 preservam outras áreas e Web Push',()=>{
  assert.match(read('index.html'),/assistant-v00329\.css/);
- assert.match(read('index.html'),/MEU SÓCIO · V003\.31/);
- assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.31'/);
- assert.match(read('service-worker.js'),/socio-v00331-20261123/);
+ assert.match(read('index.html'),/MEU SÓCIO · V003\.32/);
+ assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.32'/);
+ assert.match(read('service-worker.js'),/socio-v00332-20261123/);
  assert.match(read('service-worker.js'),/assistant-v00329\.css/);
  assert.match(read('service-worker.js'),/self\.addEventListener\('push'/);
  assert.match(read('js/app.js'),/createAssistantController/);
- assert.match(read('version.json'),/V003\.31/);
+ assert.match(read('version.json'),/V003\.32/);
 });

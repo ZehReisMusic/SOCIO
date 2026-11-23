@@ -120,7 +120,7 @@ test('assistente continua na Home após saudação, layout iPhone, Web Push e da
  assert.ok(app.indexOf('\${assistantUI.render()}',start)<app.indexOf('class="metrics home-metrics"',start));
  assert.match(css,/@media\(max-width:740px\)/);assert.match(css,/min-width:0/);
  assert.doesNotMatch(css,/position:fixed|user-scalable|maximum-scale/);
- assert.match(sw,/socio-v00331-20261123/);
+ assert.match(sw,/socio-v00332-20261123/);
  assert.match(sw,/assistant-neural\.js/);
  assert.match(sw,/self\.addEventListener\('push'/);
 });

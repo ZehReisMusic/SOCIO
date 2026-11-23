@@ -98,7 +98,7 @@ test('nova opção de áudio preserva Assistente, demais microfones e cache PWA'
  assert.match(ui,/assistant-stop-voice/);
  assert.match(sw,/assistant-neural\.js/);
  assert.match(sw,/assistant-v00325\.css/);
- assert.match(sw,/socio-v00331-20261123/);
+ assert.match(sw,/socio-v00332-20261123/);
  assert.match(sw,/self\.addEventListener\('push'/);
  assert.match(css,/@media\(max-width:740px\)/);
 });
