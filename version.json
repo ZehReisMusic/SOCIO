@@ -1,5 +1,5 @@
 {
-  "version": "V003.31",
+  "version": "V003.32",
   "releasedAt": "2026-11-23",
-  "description": "Vocabulário inteligente: correção manual com confirmação, palavras aprendidas para assistente, tarefas, Agenda e SOUNDLINE, gestão em Ajustes e backup local. Preserva Faber, sugestão de horários e Web Push."
+  "description": "Faber configurável no Mac com ativação explícita por navegador, resposta em voz masculina local, limpeza do campo de perguntas após 15 segundos de inatividade sem apagar edições, testes completos em macOS e Linux. Preserva vocabulário, Agenda e Web Push."
 }
