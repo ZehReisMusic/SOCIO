@@ -17,12 +17,44 @@ export function modelConsentMessage(){
 export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadLibrary=null}={}){
  let lib=null,loading=null,enable=false,prepared=false,busy=false,requested=0;
  let lastProblem=null,lastWav=null;
+ let warmupPromise=null,warmupReady=false;
+ const wavCache=new Map();
+ const CACHE_LIMIT=3;
  try{enable=localStorage.getItem(KEY)==='enabled';}catch{}
  const tell=text=>{try{status(text);}catch{}};
  const loader=loadLibrary||(()=>import(PIPER_CDN));
  const enabled=()=>enable;
  const diagnostic=()=>lastProblem?{...lastProblem}:null;
  const generatedAudio=()=>lastWav;
+ const warmedUp=()=>warmupReady;
+ function cacheWav(text,wav){
+  if(wavCache.has(text))wavCache.delete(text);
+  wavCache.set(text,wav);
+  // Armazenamento só em memória nesta sessão, limitado a três respostas.
+  while(wavCache.size>CACHE_LIMIT)wavCache.delete(wavCache.keys().next().value);
+ }
+ async function warmup(){
+  if(!enable)return false;
+  if(warmupPromise)return warmupPromise;
+  // Executa antecipadamente a mesma inicialização ONNX que predict faria
+  // na primeira fala, reutilizando a sessão TtsSession da biblioteca.
+  warmupPromise=(async()=>{
+   try{
+    const engine=await load();
+    if(typeof engine.TtsSession?.create!=='function')return false;
+    const stored=await engine.stored?.();
+    if(!Array.isArray(stored)||!stored.includes(PIPER_VOICE_ID))return false;
+    await engine.TtsSession.create({voiceId:PIPER_VOICE_ID});
+    warmupReady=true;prepared=true;
+    return true;
+   }catch(error){
+    // Falha de pré-carregamento não desativa a voz nem impede a tentativa manual.
+    console.warn('SÓCIO Faber pré-carregamento:',error);
+    return false;
+   }
+  })();
+  return warmupPromise;
+ }
  const shortError=error=>String(error?.message||error?.name||error||'Erro desconhecido')
   .replace(/[\r\n\t]+/g,' ').slice(0,160);
  function reportFailure(phase,error){
@@ -58,7 +90,8 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
     if(Array.isArray(existing)&&existing.includes(PIPER_VOICE_ID)){
      prepared=true;enable=true;
      try{localStorage.setItem(KEY,'enabled');}catch{}
-     tell('Voz masculina Faber pronta. Faça um teste para ouvir.');
+     tell('Voz masculina Faber pronta.');
+     void warmup();
      return true;
     }
    }
@@ -69,7 +102,8 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
    });
    prepared=true;enable=true;
    try{localStorage.setItem(KEY,'enabled');}catch{}
-   tell('Voz masculina preparada. Toque em Testar Faber para confirmar a reprodução.');
+   tell('Voz masculina preparada.');
+   void warmup();
    return true;
   }catch(error){
    prepared=false;enable=false;
@@ -101,11 +135,22 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
     prepared=true;
    }
    phase='sintese';
-   tell('Etapa 3/3: gerando fala no iPhone… aguarde.');
-   const wav=await engine.predict({text:String(text||'').trim().slice(0,600),voiceId:PIPER_VOICE_ID});
+   const phrase=String(text||'').trim().slice(0,600);
+   let wav=wavCache.get(phrase);
+   if(wav){
+    tell('Reproduzindo áudio já preparado…');
+   }else{
+    tell(warmupReady?'Gerando fala com Faber…':'Preparando primeira resposta com Faber…');
+    // Se o pré-carregamento ainda está rodando, aproveita o resultado sem
+    // iniciar uma segunda sessão de inferência. Se falhar, predict tentará.
+    if(warmupPromise)await warmupPromise;
+    if(id!==requested)return {ok:false,reason:'cancelled'};
+    wav=await engine.predict({text:phrase,voiceId:PIPER_VOICE_ID});
+   }
    if(id!==requested)return {ok:false,reason:'cancelled'};
    if(!(wav instanceof Blob)||!wav.size)throw Error('O motor não produziu arquivo WAV.');
    lastWav=wav;
+   if(!wavCache.has(phrase))cacheWav(phrase,wav);
    phase='audio';
    tell('Fala gerada. Tentando reproduzir no alto-falante…');
    await playAudio(wav);
@@ -124,9 +169,10 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
  }
  function disable(){
   ++requested;enable=false;prepared=false;lastWav=null;lastProblem=null;
+  warmupPromise=null;warmupReady=false;wavCache.clear();
   try{localStorage.removeItem(KEY);}catch{}
   tell('Voz do iPhone reativada. O modelo baixado pode permanecer no armazenamento deste navegador.');
  }
  function cancel(){++requested;}
- return {enabled,prepare,generate,test,disable,cancel,diagnostic,generatedAudio,modelConsentMessage};
+ return {enabled,prepare,warmup,warmedUp,generate,test,disable,cancel,diagnostic,generatedAudio,modelConsentMessage};
 }
