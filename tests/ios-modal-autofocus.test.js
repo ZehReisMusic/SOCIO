@@ -39,11 +39,11 @@ test('zoom manual e PWA continuam intactos, sem configuração especial de viewp
  assert.match(app,/const finePointer=window\.matchMedia\?\./);
  assert.match(app,/if\(finePointer\)setTimeout/);
  assert.match(read('css/ios-input-focus-v00313.css'),/font-size:16px/);
- assert.match(sw,/socio-v00330-20261123/);
+ assert.match(sw,/socio-v00331-20261123/);
  assert.match(sw,/self\.addEventListener\('push'/);
  assert.match(sw,/self\.addEventListener\('notificationclick'/);
  assert.match(read('js/store.js'),/socio\.v001\.data/);
  assert.match(read('js/push.js'),/socio\.v003\.push/);
  assert.match(html,/apple-touch-icon\.png\?v=0035/);
- assert.equal(JSON.parse(read('version.json')).version,'V003.30');
+ assert.equal(JSON.parse(read('version.json')).version,'V003.31');
 });
