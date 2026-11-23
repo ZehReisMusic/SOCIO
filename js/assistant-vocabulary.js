@@ -5,12 +5,12 @@ const WORD=/[\p{L}\p{N}]+/gu;
 const terms=s=>[...String(s??'').matchAll(WORD)].map(m=>({text:m[0],start:m.index,end:m.index+m[0].length}));
 const norm=s=>String(s??'').toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const key=s=>norm(s).trim().replace(/\s+/g,' ');
-const safePhrase=s=>String(s??'').trim().replace(/\s+/g,' ').slice(0,40);
+const safePhrase=s=>String(s??'').trim().replace(/\s+/g,' ');
 const valid=s=>/^[\p{L}\p{N}]+(?: [\p{L}\p{N}]+){0,3}$/u.test(s)&&key(s).length>=2&&s.length<=40;
 const stopwords=new Set(['a','o','as','os','de','da','do','das','dos','em','no','na','um','uma','que','qual','hoje','amanha','por','para','com','sem','sim','nao','se','eu','meu','minha','seu','sua','voce','tarefa','agenda','horario','horarios']);
 export function normalizeVocabulary(raw){
  const output=[],seen=new Set();
- for(const item of Array.isArray(raw)?raw:[]){
+ for(const item of Array.isArray(raw)?raw.slice(0,500):[]){
   if(output.length>=MAX_VOCABULARY)break;
   const heard=safePhrase(item?.heard),correct=safePhrase(item?.correct),k=key(heard);
   if(!valid(heard)||!valid(correct)||k===key(correct)||seen.has(k))continue;
