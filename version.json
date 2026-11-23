@@ -1,5 +1,5 @@
 {
-  "version": "V003.26",
+  "version": "V003.27",
   "releasedAt": "2026-11-23",
-  "description": "SÓCIO Assistente Faber: diagnóstico separado de carregamento, modelo, síntese e reprodução de áudio no iPhone; WAV gerado disponível em reprodutor manual para testar voz mesmo se WebAudio falhar; teste independente da saída Web Audio; nome da voz Faber corrigido quando selecionada; mantém modelo local opt-in, voz padrão fallback, Agenda, Tarefas, SOUNDLINE e Web Push."
+  "description": "SÓCIO Assistente: alinhar a versão de onnxruntime-web 1.18.0 do Piper Faber aos arquivos WASM exigidos (erro no available backend found); recuperar Web Audio criando um novo AudioContext ao detectar estado interrupted/closed no iPhone. Sem baixar novamente o modelo; manter diagnóstico, fallback de voz nativa e todas as funções do app. Compatibilidade e síntese Faber dependem de reteste no iPhone."
 }
