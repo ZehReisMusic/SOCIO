@@ -9,7 +9,7 @@ const SAMPLE='Olá! Eu sou o SÓCIO. Vamos organizar suas prioridades e seus neg
 export function modelConsentMessage(){
  return 'Testar voz masculina Faber (experimental)? O primeiro uso baixa cerca de 65 MB do modelo e componentes adicionais. '+
  'A geração das frases ocorre no aparelho; exige internet no primeiro download, pode ser lenta e pode não funcionar nesta versão do iPhone. '+
- 'Se falhar, você continuará com a voz padrão.';
+ 'Se falhar, você continuará com a voz padrão. O uso comercial da voz deve ser verificado antes de adotá-la definitivamente.';
 }
 export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadLibrary=null}={}){
  let lib=null,loading=null,enable=false,prepared=false,busy=false,requested=0;
@@ -67,8 +67,12 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
    const engine=await load();
    if(!prepared){ // Em uma nova sessão o modelo pode estar salvo no armazenamento local.
     const stored=await engine.stored?.();
-    if(!Array.isArray(stored)||!stored.includes(PIPER_VOICE_ID))
+    if(!Array.isArray(stored)||!stored.includes(PIPER_VOICE_ID)){
+     enable=false;prepared=false;
+     try{localStorage.removeItem(KEY);}catch{}
+     tell('O modelo da voz Faber não está mais armazenado. Voltando à voz do iPhone.');
      return {ok:false,reason:'not-cached'};
+    }
     prepared=true;
    }
    const wav=await engine.predict({text:String(text||'').trim().slice(0,600),voiceId:PIPER_VOICE_ID});
