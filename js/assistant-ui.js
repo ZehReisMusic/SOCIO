@@ -11,7 +11,7 @@ export function createAssistantController(h){
  let activeRecognition=null, lastResponse=null, lastQuery='',lastTaskId='', pending=null;
  let lastVoiceShown='',pendingLearning=null;
  const INPUT_IDLE_MS=15000;
- let inputClearTimer=null,inputRevision=0;
+ let inputClearTimer=null,inputRevision=0,editingCommand=false;
  let audioStatus='Toque em “Ouvir resposta” para reproduzir o áudio, caso necessário.';
  let neuralStatus=neuralEngineStatusDefault();
  let neuralTechnical='';
@@ -99,10 +99,10 @@ export function createAssistantController(h){
   const revision=inputRevision;
   inputClearTimer=setTimeout(()=>{
    inputClearTimer=null;
-   if(revision!==inputRevision||!isHome()||activeRecognition||pendingLearning)return;
+   if(revision!==inputRevision||!isHome()||activeRecognition||pendingLearning||editingCommand)return;
    const field=document.getElementById('assistant-command-text');
    // Não descartar texto corrigido, digitado e ainda não enviado.
-   if(field&&(document.activeElement===field||field.value!==lastQuery))return;
+   if(field&&field.value!==lastQuery)return;
    lastQuery='';lastVoiceShown='';
    if(field)field.value='';
   },INPUT_IDLE_MS);
@@ -110,10 +110,15 @@ export function createAssistantController(h){
  }
  function onCommandInput(event){
   if(event.target?.id!=='assistant-command-text')return false;
-  cancelInputClear();return true;
+  editingCommand=true;cancelInputClear();return true;
+ }
+ function onCommandFocus(event){
+  if(event.target?.id!=='assistant-command-text')return false;
+  editingCommand=true;cancelInputClear();return true;
  }
  function onCommandBlur(event){
   if(event.target?.id!=='assistant-command-text')return false;
+  editingCommand=false;
   if(lastQuery&&!pendingLearning&&event.target.value===lastQuery)queueInputClear();
   return true;
  }
@@ -202,7 +207,7 @@ export function createAssistantController(h){
   speak(lastResponse.message);
  }
  function execute(raw,{fromVoice=false}={}){
-  cancelInputClear();
+  editingCommand=false;cancelInputClear();
   const query=applyVocabulary(stripAssistantWakeword(raw).trim().slice(0,350),h.data()?.vocabulary);
   if(fromVoice){lastVoiceShown=query;pendingLearning=null;}
   if(!query){h.toast('Digite ou fale sua pergunta para o SÓCIO.');return;}
@@ -261,7 +266,7 @@ export function createAssistantController(h){
  }
  function startListening(){
   if(activeRecognition){stopListening();return;}
-  cancelInputClear();
+  editingCommand=false;cancelInputClear();
   stopAudio();
   voiceEngine.primeAudio();
   if(neuralEngine.enabled())void neuralEngine.warmup();
@@ -494,7 +499,7 @@ export function createAssistantController(h){
  }
  function submit(event){
   if(event.target?.id!=='assistant-command-form')return false;
-  cancelInputClear();
+  editingCommand=false;cancelInputClear();
   event.preventDefault();
   voiceEngine.primeAudio();
   const input=event.target.querySelector('[name="query"]');
@@ -519,5 +524,5 @@ export function createAssistantController(h){
   return true;
  }
  function rememberTask(id){if(id)lastTaskId=id;}
- return {render,action,submit,change,cancelListening,stopAudio,rememberTask,onCommandInput,onCommandBlur};
+ return {render,action,submit,change,cancelListening,stopAudio,rememberTask,onCommandInput,onCommandFocus,onCommandBlur};
 }
