@@ -42,7 +42,7 @@ test('V003.30 preserva Web Push, dados, zoom manual e ícone',()=>{
  assert.match(sw,/'\.\/css\/agenda-native-picker-v00317\.css'/);
  const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(m=>m[1]);
  assert.ok(links.includes('./css/agenda-native-picker-v00317.css'));
- assert.equal(links.at(-1),'./css/assistant-v00329.css');
+ assert.equal(links.at(-1),'./css/assistant-v00330.css');
  assert.match(html,/width=device-width,initial-scale=1,viewport-fit=cover/);
  assert.doesNotMatch(html,/user-scalable=no|maximum-scale=1/);
  assert.match(sw,/self\.addEventListener\('push'/);
