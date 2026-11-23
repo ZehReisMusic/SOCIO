@@ -71,12 +71,13 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
      return {ok:false,reason:'not-cached'};
     prepared=true;
    }
-   const wav=await engine.predict({text:String(text||'').trim().slice(0,380),voiceId:PIPER_VOICE_ID});
+   const wav=await engine.predict({text:String(text||'').trim().slice(0,600),voiceId:PIPER_VOICE_ID});
    if(id!==requested)return {ok:false,reason:'cancelled'};
    if(!(wav instanceof Blob)||!wav.size)throw Error('Áudio não gerado.');
+   tell('Reproduzindo a voz masculina Faber.');
    await playAudio(wav);
    if(id!==requested)return {ok:false,reason:'cancelled'};
-   tell('Reproduzindo a voz masculina Faber.');
+   tell('Resposta em voz masculina concluída.');
    return {ok:true};
   }catch(error){
    console.warn('SÓCIO Piper geração:',error);
