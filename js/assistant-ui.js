@@ -2,10 +2,12 @@
  * Sem envio a provedores de IA. Voz nativa quando disponível; texto é o fallback. */
 import {resolveAssistantCommand,stripAssistantWakeword} from './assistant-core.js';
 import {createAssistantSpeech} from './assistant-speech.js';
+import {createAssistantNeural,modelConsentMessage} from './assistant-neural.js';
 
 export function createAssistantController(h){
  let activeRecognition=null, lastResponse=null, lastQuery='',lastTaskId='', pending=null;
  let audioStatus='Toque em “Ouvir resposta” para reproduzir o áudio, caso necessário.';
+ let neuralStatus='A voz masculina é opcional, experimental e exige baixar o modelo.';
  const safe=h.escape;
  const icon=h.icon;
  const voiceEngine=createAssistantSpeech(message=>{
@@ -13,13 +15,33 @@ export function createAssistantController(h){
   const el=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
   if(el)el.textContent=message;
  });
+ const neuralEngine=createAssistantNeural({
+  status:message=>{
+   neuralStatus=message;
+   audioStatus=message;
+   const el=typeof document!=='undefined'?document.getElementById('assistant-neural-status'):null;
+   if(el)el.textContent=message;
+   const reply=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
+   if(reply)reply.textContent=message;
+  },
+  playAudio:blob=>voiceEngine.playBlob(blob)
+ });
 
  function getSpeech(){
   return typeof window!=='undefined'&&(window.SpeechRecognition||window.webkitSpeechRecognition);
  }
  function isHome(){return h.page()==='inicio';}
- function stopAudio(){voiceEngine.stop({quiet:true});}
- function speak(message){return voiceEngine.speak(message);}
+ function stopAudio(){neuralEngine.cancel();voiceEngine.stop({quiet:true});}
+ function speak(message){
+  if(neuralEngine.enabled()){
+   // Mantém o fallback no caso de o iOS impedir carregar ou executar o modelo.
+   void neuralEngine.generate(message).then(out=>{
+    if(!out.ok&&out.reason!=='cancelled')voiceEngine.speak(message);
+   });
+   return true;
+  }
+  return voiceEngine.speak(message);
+ }
  function voiceOptions(){
   const info=voiceEngine.voiceInfo();
   return '<option value=""'+(!info.selected?' selected':'')+'>Automática (pt-BR)</option>'+
@@ -31,7 +53,7 @@ export function createAssistantController(h){
   const select=document.getElementById('assistant-voice-select');
   if(select)select.innerHTML=voiceOptions();
   const current=document.getElementById('assistant-voice-name');
-  if(current)current.textContent=voiceEngine.voiceInfo().name;
+  if(current)current.textContent=neuralEngine.enabled()?'Faber (masculina, experimental)':voiceEngine.voiceInfo().name;
  }
  if(typeof window!=='undefined'){
   try{window.speechSynthesis?.addEventListener?.('voiceschanged',syncVoicePicker);}catch{}
@@ -116,6 +138,7 @@ export function createAssistantController(h){
  function startListening(){
   if(activeRecognition){stopListening();return;}
   stopAudio();
+  voiceEngine.primeAudio();
   const Speech=getSpeech();
   if(!Speech){h.toast('Este navegador não oferece reconhecimento de voz para o SÓCIO. Digite a pergunta ou use o microfone do teclado.');return;}
   let recognition;
@@ -210,7 +233,14 @@ export function createAssistantController(h){
    '<div class="assistant-voice-config"><label for="assistant-voice-select">Voz brasileira disponível no aparelho</label>'+
    '<select id="assistant-voice-select" aria-label="Selecionar voz">'+voiceOptions()+'</select>'+
    '<button type="button" class="btn-outline" data-action="assistant-test-voice">Testar voz</button></div>'+
-   '<p>A voz do sistema é gratuita. A naturalidade depende das vozes instaladas no iPhone.</p></details>'+
+   '<p>A voz do sistema é gratuita. A naturalidade depende das vozes instaladas no iPhone.</p>'+
+   '<div class="assistant-neural-config"><strong>Voz masculina Faber · teste experimental</strong>'+
+   '<p>Modelo neural brasileiro, gratuito, com geração no próprio aparelho. Primeiro download de aproximadamente 65 MB, além dos componentes de execução. Pode demorar e não funcionar em todos os iPhones.</p>'+
+   '<div class="assistant-neural-actions">'+
+   (!neuralEngine.enabled()?'<button type="button" class="btn-outline" data-action="assistant-neural-enable">Baixar e experimentar Faber</button>':
+    '<button type="button" class="btn-outline" data-action="assistant-neural-test">Testar voz masculina</button>'+
+    '<button type="button" class="btn-outline" data-action="assistant-neural-disable">Voltar à voz do iPhone</button>')+'</div>'+
+   '<p class="assistant-neural-status" id="assistant-neural-status" role="status" aria-live="polite">'+safe(neuralStatus)+'</p></div></details>'+
    (lastResponse?'<div class="assistant-response" aria-live="polite"><div class="assistant-response-head"><strong>'+icon('spark',15)+' SÓCIO RESPONDE</strong>'+
      '<button type="button" class="btn-primary assistant-replay" data-action="assistant-repeat" aria-label="Ouvir resposta">'+icon('volume-2',14)+' Ouvir resposta</button></div>'+
     '<p class="assistant-audio-status" id="assistant-audio-status" aria-live="polite">'+safe(audioStatus)+'</p>'+
@@ -227,12 +257,33 @@ export function createAssistantController(h){
   const command=target?.dataset?.action||'';
   if(command==='assistant-start-voice'){startListening();return true;}
   if(command==='assistant-stop-voice'){stopListening();return true;}
-  if(command==='assistant-example'){execute(target.dataset.query||'');return true;}
-  if(command==='assistant-repeat'){if(lastResponse&&!speak(lastResponse.message))h.toast('Leitura de voz indisponível. A resposta está escrita na tela.');return true;}
+  if(command==='assistant-example'){voiceEngine.primeAudio();execute(target.dataset.query||'');return true;}
+  if(command==='assistant-repeat'){voiceEngine.primeAudio();if(lastResponse&&!speak(lastResponse.message))h.toast('Leitura de voz indisponível. A resposta está escrita na tela.');return true;}
   if(command==='assistant-test-voice'){
-   if(!speak('Olá! Eu sou o SÓCIO. Estou aqui para ajudar você a organizar suas tarefas e seus negócios.'))
+   voiceEngine.primeAudio();
+   if(!voiceEngine.speak('Olá! Eu sou o SÓCIO. Estou aqui para ajudar você a organizar suas tarefas e seus negócios.'))
     h.toast('O aparelho não oferece síntese de voz neste navegador.');
    return true;
+  }
+  if(command==='assistant-neural-enable'){
+   if(typeof window!=='undefined'&&!window.confirm(modelConsentMessage()))return true;
+   voiceEngine.primeAudio();
+   void neuralEngine.prepare().then(ok=>{
+    syncVoicePicker();
+    if(ok){h.toast('Voz Faber preparada. Toque em Testar voz masculina.');}
+    else h.toast('Voz masculina não disponível no aparelho. A voz padrão permanece ativa.');
+    h.refresh();
+   });
+   return true;
+  }
+  if(command==='assistant-neural-test'){
+   voiceEngine.primeAudio();
+   void neuralEngine.test().then(out=>{
+    if(!out.ok)h.toast('A voz Faber não pôde ser reproduzida. Volte à voz do iPhone se necessário.');
+   });return true;
+  }
+  if(command==='assistant-neural-disable'){
+   stopAudio();neuralEngine.disable();h.refresh();return true;
   }
   if(command==='assistant-cancel-task'){
    pending=null;lastResponse={message:'Tudo certo. A tarefa não foi alterada.',related:'',detail:''};
@@ -259,6 +310,7 @@ export function createAssistantController(h){
  function submit(event){
   if(event.target?.id!=='assistant-command-form')return false;
   event.preventDefault();
+  voiceEngine.primeAudio();
   const input=event.target.querySelector('[name="query"]');
   if(activeRecognition)cancelListening();
   execute(input?.value||'');
@@ -267,6 +319,7 @@ export function createAssistantController(h){
  function change(event){
   if(event.target?.id!=='assistant-voice-select')return false;
   voiceEngine.selectVoice(event.target.value||'');
+  if(neuralEngine.enabled())neuralEngine.disable();
   syncVoicePicker();
   return true;
  }
