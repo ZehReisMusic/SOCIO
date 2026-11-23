@@ -33,7 +33,7 @@ test('V003.28 preserva assinatura Web Push, Agenda, dados, logo e atualizador au
   assert.match(sw,/socio-v00328-20261123/);
   assert.match(sw,/'\.\/css\/push-time-mobile-v00318\.css'/);
   const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(x=>x[1]);
-  assert.equal(links.at(-1),'./css/assistant-v00326.css');
+  assert.equal(links.at(-1),'./css/assistant-v00328.css');
   assert.match(sw,/self\.addEventListener\('push'/);
   assert.match(sw,/self\.addEventListener\('notificationclick'/);
   assert.match(read('js/store.js'),/socio\.v001\.data/);
