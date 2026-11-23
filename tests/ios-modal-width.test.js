@@ -39,7 +39,7 @@ test('PWA V003.30 mantém cache de estilos, aviso branco e conexão Web Push',()
  assert.match(sw,/'\.\/css\/ios-modal-width-v00316\.css'/);
  const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(x=>x[1]);
  assert.ok(links.includes('./css/agenda-native-picker-v00317.css'));
- assert.equal(links.at(-1),'./css/assistant-v00329.css');
+ assert.equal(links.at(-1),'./css/assistant-v00330.css');
  assert.match(sw,/self\.addEventListener\('push'/);
  assert.match(sw,/self\.addEventListener\('notificationclick'/);
  assert.match(read('js/push.js'),/socio\.v003\.push/);
