@@ -1,5 +1,5 @@
 {
-  "version": "V003.29",
+  "version": "V003.30",
   "releasedAt": "2026-11-23",
-  "description": "Assistente: botão Parar áudio acessível durante preparação e reprodução da Faber, com interrupção do WAV e cancelamento de síntese em andamento sem apagar a resposta escrita. Indicadores de tempo de consulta local e preparação de voz no diagnóstico recolhido, para diferenciar as causas da latência no iPhone. Preserva Faber, cache de áudios, reconhecimento, Agenda, Tarefas, SOUNDLINE e Web Push."
+  "description": "Assistente sugere horários para tarefas pelo nome ou contexto, considerando duração, prazo, compromissos e margem de segurança na Agenda local. Escolha de horário abre formulário para revisão e confirmação sem agendamento automático. Mantém Faber, botão Parar áudio, dados locais e Web Push."
 }

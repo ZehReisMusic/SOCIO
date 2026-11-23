@@ -3,6 +3,8 @@
 import {resolveAssistantCommand,stripAssistantWakeword} from './assistant-core.js';
 import {createAssistantSpeech} from './assistant-speech.js';
 import {createAssistantNeural,modelConsentMessage} from './assistant-neural.js';
+import {isTaskSlotAvailable,reservationMinutes} from './assistant-task-planning.js';
+import {dateKey} from './logic.js';
 
 export function createAssistantController(h){
  let activeRecognition=null, lastResponse=null, lastQuery='',lastTaskId='', pending=null;
@@ -156,8 +158,8 @@ export function createAssistantController(h){
   const label=document.getElementById('assistant-listening-status');
   if(label)label.textContent=message;
  }
- function setAnswer(message,{related='',detail='',lastTaskId:taskId=''}={}){
-  lastResponse={message:String(message||''),related,detail};
+ function setAnswer(message,{related='',detail='',lastTaskId:taskId='',slots=[],taskId:scheduledTaskId=''}={}){
+  lastResponse={message:String(message||''),related,detail,slots,scheduledTaskId};
   if(taskId)lastTaskId=taskId;
   h.refresh();
   speak(lastResponse.message);
@@ -343,6 +345,7 @@ export function createAssistantController(h){
     '<p class="assistant-audio-status" id="assistant-audio-status" aria-live="polite">'+safe(audioStatus)+'</p>'+
     '<p>'+safe(lastResponse.message)+'</p>'+
     (lastResponse.detail?'<p class="assistant-response-extra">'+safe(lastResponse.detail)+'</p>':'')+
+    (lastResponse.slots?.length?'<div class="assistant-task-slots" aria-label="Horários sugeridos">'+lastResponse.slots.map((slot,i)=>'<button type="button" class="btn-outline" data-action="assistant-use-task-slot" data-index="'+i+'">Revisar '+safe(slot.date)+' · '+safe(slot.time)+'</button>').join('')+'</div>':'')+
     (pending?'<div class="assistant-confirm"><button class="btn-primary" type="button" data-action="assistant-confirm-task">Confirmar conclusão</button>'+
       '<button class="btn-outline" type="button" data-action="assistant-cancel-task">Cancelar</button></div>':'')+
     (lastResponse.related&&!pending?'<button type="button" class="assistant-related-link" data-action="assistant-open-related" data-target="'+safe(lastResponse.related)+'">Abrir '+safe(lastResponse.related==='soundline'?'SOUNDLINE':lastResponse.related==='tarefas'?'Tarefas':'Agenda')+'</button>':'')+
@@ -357,6 +360,20 @@ export function createAssistantController(h){
    audioStatus='Áudio interrompido. A resposta escrita permanece disponível.';
    const label=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
    if(label)label.textContent=audioStatus;
+   return true;
+  }
+  if(command==='assistant-use-task-slot'){
+   const slot=lastResponse?.slots?.[Number(target.dataset.index)];
+   const task=(h.data()?.tasks||[]).find(t=>t.id===lastResponse?.scheduledTaskId&&t.status!=='done');
+   const now=new Date();
+   if(!task||!slot||!isTaskSlotAvailable(slot,h.data()?.appointments||[],now)||
+     (task.due&&task.due>=dateKey(now)&&slot.date>task.due)||
+     slot.durationMinutes!==reservationMinutes(task)){
+    setAnswer('O horário sugerido mudou ou não está mais disponível. Pergunte novamente para consultar a Agenda atual.',{related:'agenda'});
+    return true;
+   }
+   h.prepareAppointment({title:('Executar: '+task.title).slice(0,250),date:slot.date,time:slot.time,
+    durationMinutes:slot.durationMinutes,taskId:task.id,taskIds:[task.id],notes:'Tempo reservado para executar a tarefa: '+task.title});
    return true;
   }
   if(command==='assistant-start-voice'){startListening();return true;}
@@ -440,5 +457,6 @@ export function createAssistantController(h){
   syncVoicePicker();
   return true;
  }
- return {render,action,submit,change,cancelListening,stopAudio};
+ function rememberTask(id){if(id)lastTaskId=id;}
+ return {render,action,submit,change,cancelListening,stopAudio,rememberTask};
 }

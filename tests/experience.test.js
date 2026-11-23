@@ -40,7 +40,7 @@ test('nova versão mantém todos os arquivos offline e o recebimento do Web Push
   assert.match(html,/href="\.\/css\/experience-v0033\.css"/);
   assert.match(sw,/self\.addEventListener\('push'/);
   assert.match(sw,/self\.addEventListener\('notificationclick'/);
-  assert.match(source('js/updater.js'),/APP_VERSION = 'V003\.29'/);
+  assert.match(source('js/updater.js'),/APP_VERSION = 'V003\.30'/);
 });
 
 test('navegação iPhone não duplica o rótulo Início junto ao nome do aplicativo',()=>{
