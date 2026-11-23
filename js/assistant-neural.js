@@ -13,10 +13,24 @@ export function modelConsentMessage(){
 }
 export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadLibrary=null}={}){
  let lib=null,loading=null,enable=false,prepared=false,busy=false,requested=0;
+ let lastProblem=null,lastWav=null;
  try{enable=localStorage.getItem(KEY)==='enabled';}catch{}
  const tell=text=>{try{status(text);}catch{}};
  const loader=loadLibrary||(()=>import(PIPER_CDN));
  const enabled=()=>enable;
+ const diagnostic=()=>lastProblem?{...lastProblem}:null;
+ const generatedAudio=()=>lastWav;
+ const shortError=error=>String(error?.message||error?.name||error||'Erro desconhecido')
+  .replace(/[\r\n\t]+/g,' ').slice(0,160);
+ function reportFailure(phase,error){
+  const code={biblioteca:'FABER-LIB',modelo:'FABER-MODEL',sintese:'FABER-SYNTH',audio:'FABER-AUDIO'}[phase]||'FABER-ERR';
+  lastProblem={phase,code,detail:shortError(error)};
+  const help=phase==='audio'?'O WAV foi gerado. Teste o reprodutor manual abaixo.':
+   phase==='sintese'?'O modelo está cadastrado, mas o iPhone não conseguiu gerar a fala.':
+   'Não foi possível carregar o motor ou os arquivos necessários.';
+  tell(code+' — '+help+' Detalhe: '+lastProblem.detail);
+  return lastProblem;
+ }
  async function load(){
   if(lib)return lib;
   if(!loading){
@@ -30,9 +44,12 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
  async function prepare(){
   if(busy)return false;
   busy=true;
+  lastProblem=null;
+  let phase='biblioteca';
   tell('Carregando mecanismo de voz masculina…');
   try{
    const engine=await load();
+   phase='modelo';
    if(typeof engine.stored==='function'){
     const existing=await engine.stored();
     if(Array.isArray(existing)&&existing.includes(PIPER_VOICE_ID)){
@@ -55,16 +72,21 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
    prepared=false;enable=false;
    try{localStorage.removeItem(KEY);}catch{}
    console.warn('SÓCIO Piper:',error);
-   tell('A voz masculina não pôde ser carregada neste iPhone. A voz padrão continua funcionando.');
+   reportFailure(phase,error);
    return false;
   }finally{busy=false;}
  }
  async function generate(text){
   if(!enable)return {ok:false,reason:'disabled'};
   const id=++requested;
+  lastProblem=null;
+  lastWav=null;
+  let phase='biblioteca';
   try{
-   tell('Preparando resposta com voz masculina…');
+   tell('Etapa 1/3: carregando motor de voz…');
    const engine=await load();
+   phase='modelo';
+   tell('Etapa 2/3: verificando modelo Faber…');
    if(!prepared){ // Em uma nova sessão o modelo pode estar salvo no armazenamento local.
     const stored=await engine.stored?.();
     if(!Array.isArray(stored)||!stored.includes(PIPER_VOICE_ID)){
@@ -75,18 +97,22 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
     }
     prepared=true;
    }
+   phase='sintese';
+   tell('Etapa 3/3: gerando fala no iPhone… aguarde.');
    const wav=await engine.predict({text:String(text||'').trim().slice(0,600),voiceId:PIPER_VOICE_ID});
    if(id!==requested)return {ok:false,reason:'cancelled'};
-   if(!(wav instanceof Blob)||!wav.size)throw Error('Áudio não gerado.');
-   tell('Reproduzindo a voz masculina Faber.');
+   if(!(wav instanceof Blob)||!wav.size)throw Error('O motor não produziu arquivo WAV.');
+   lastWav=wav;
+   phase='audio';
+   tell('Fala gerada. Tentando reproduzir no alto-falante…');
    await playAudio(wav);
    if(id!==requested)return {ok:false,reason:'cancelled'};
-   tell('Resposta em voz masculina concluída.');
-   return {ok:true};
+   tell('Resposta Faber finalizada. Você pode repetir no reprodutor abaixo.');
+   return {ok:true,phase:'audio',wav};
   }catch(error){
    console.warn('SÓCIO Piper geração:',error);
-   tell('Falha na voz masculina. Você pode ouvir com a voz padrão do iPhone.');
-   return {ok:false,reason:'error'};
+   const detail=reportFailure(phase,error);
+   return {ok:false,reason:'error',phase,diagnostic:detail,wav:lastWav};
   }
  }
  async function test(){
@@ -94,10 +120,10 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
   return generate(SAMPLE);
  }
  function disable(){
-  ++requested;enable=false;prepared=false;
+  ++requested;enable=false;prepared=false;lastWav=null;lastProblem=null;
   try{localStorage.removeItem(KEY);}catch{}
   tell('Voz do iPhone reativada. O modelo baixado pode permanecer no armazenamento deste navegador.');
  }
  function cancel(){++requested;}
- return {enabled,prepare,generate,test,disable,cancel,modelConsentMessage};
+ return {enabled,prepare,generate,test,disable,cancel,diagnostic,generatedAudio,modelConsentMessage};
 }
