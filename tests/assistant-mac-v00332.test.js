@@ -73,7 +73,7 @@ test('consulta por voz apaga somente a pergunta após 15s, mantendo a resposta n
  const input={id:'assistant-command-text',value:''},status={textContent:''},mic={dataset:{},innerHTML:''};
  const elements=new Map([['assistant-command-text',input],['assistant-listening-status',status],['assistant-mic-button',mic]]);
  globalThis.window={SpeechRecognition:Speech};
- globalThis.document={getElementById:id=>elements.get(id)||null,activeElement:null};
+ globalThis.document={getElementById:id=>elements.get(id)||null,activeElement:input};
  globalThis.setTimeout=(fn,ms)=>{const id=++current;timers.set(id,{fn,ms,cleared:false});return id;};
  globalThis.clearTimeout=id=>{if(timers.has(id))timers.get(id).cleared=true;};
  const f=fixture();
@@ -109,6 +109,8 @@ test('correção digitada não some quando usuário está editando nem se o camp
   recognition.onresult({results:[[{transcript:'Que horas posso organizar o VS da HAZOR antes do ensaio?'}]]});
   f.c.action({dataset:{action:'assistant-stop-voice'}});
   assert.ok(timers.some(t=>t.ms===15000&&!t.cancelled));
+  f.c.onCommandFocus({target:input});
+  assert.ok(timers.filter(t=>t.ms===15000).every(t=>t.cancelled));
   input.value='Que horas posso organizar o VS da REIZZOR antes do ensaio?';
   f.c.onCommandInput({target:input});
   assert.ok(timers.filter(t=>t.ms===15000).every(t=>t.cancelled));
@@ -127,6 +129,7 @@ test('integração Mac verifica CSS, updates, microfone, Faber, vocabulário, ag
  const app=source('js/app.js'),ui=source('js/assistant-ui.js'),worker=source('service-worker.js'),html=source('index.html');
  assert.match(app,/assistantUI\.onCommandInput/);
  assert.match(app,/assistantUI\.onCommandBlur/);
+ assert.match(app,/assistantUI\.onCommandFocus/);
  assert.match(ui,/INPUT_IDLE_MS=15000/);
  assert.match(ui,/assistant-mac-voice/);
  assert.match(ui,/assistant-neural-enable/);
