@@ -1,5 +1,5 @@
 {
-  "version": "V003.23",
+  "version": "V003.24",
   "releasedAt": "2026-11-22",
-  "description": "SÓCIO Assistente local: respostas em português faladas e escritas na tela Início; consultas a tarefas, Agenda, janela temporal e SOUNDLINE; sugestões sem IA paga; criação de tarefas e compromissos por revisão; conclusão de tarefa com confirmação; botões de voz especializados preservados. Compatibilidade iPhone com entrada por teclado."
+  "description": "SÓCIO ASSISTENTE: boas-vindas do painel primeiro, assistente logo abaixo; reconhecimento com fim automático por silêncio e conclusão da fala; retorno falado com reprodução por toque para iOS; escolha e teste de voz brasileira local; funcionalidades, dados, backup e Web Push preservados."
 }
