@@ -30,17 +30,32 @@ export function createAssistantSpeech(onStatus=()=>{}){
   const voices=getVoices();
   return voices.find(v=>v.voiceURI===selected)||voices[0]||null;
  };
+ function getAudioContext(){
+  const Ctor=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
+  if(!Ctor)return null;
+  // iOS pode mudar o estado para "interrupted" ao ativar o microfone.
+  // Um contexto interrompido pode não voltar a emitir áudio quando retestado.
+  if(!audioContext||audioContext.state==='closed'||audioContext.state==='interrupted'){
+   const previous=audioContext;
+   audioContext=new Ctor();
+   if(previous&&previous!==audioContext){
+    try{const closing=previous.close?.();if(closing?.catch)void closing.catch(()=>{});}catch{}
+   }
+  }
+  return audioContext;
+ }
  function primeAudio(){
   // Chamado diretamente no toque de Falar/Consultar/Testar: desbloqueia Web Audio
   // para arquivos WAV gerados depois. Não garante liberar speechSynthesis nativo.
   try{
-   const Ctor=window.AudioContext||window.webkitAudioContext;
-   if(!Ctor)return false;
-   if(!audioContext)audioContext=new Ctor();
-   if(audioContext.state==='suspended')void audioContext.resume().catch(()=>{});
-   const silence=audioContext.createBuffer(1,1,audioContext.sampleRate||22050);
-   const silent=audioContext.createBufferSource();
-   silent.buffer=silence;silent.connect(audioContext.destination);silent.start(0);
+   const ctx=getAudioContext();
+   if(!ctx)return false;
+   if(ctx.state!=='running'){
+    try{const resuming=ctx.resume?.();if(resuming?.catch)void resuming.catch(()=>{});}catch{}
+   }
+   const silence=ctx.createBuffer(1,1,ctx.sampleRate||22050);
+   const silent=ctx.createBufferSource();
+   silent.buffer=silence;silent.connect(ctx.destination);silent.start(0);
    return true;
   }catch{return false;}
  }
@@ -55,7 +70,7 @@ export function createAssistantSpeech(onStatus=()=>{}){
    oscillator.connect(gain);gain.connect(audioContext.destination);
    oscillator.onended=()=>{try{oscillator.disconnect();gain.disconnect();}catch{}};
    oscillator.start();oscillator.stop(audioContext.currentTime+0.30);
-   notify('Tom de teste solicitado. Se não ouviu, confira o volume, o modo silencioso e a saída de som.');
+   notify('Tom de teste solicitado ('+String(audioContext?.state||'desconhecido')+'). Se não ouviu, verifique o volume ou tente novamente.');
    return true;
   }catch(error){
    notify('Não foi possível testar o áudio pelo Web Audio neste aparelho.');
@@ -63,20 +78,20 @@ export function createAssistantSpeech(onStatus=()=>{}){
   }
  }
  async function playBlob(wav){
-  const Ctor=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
-  if(!Ctor)throw Error('O iPhone não oferece Web Audio.');
-  if(!audioContext)audioContext=new Ctor();
-  if(audioContext.state!=='running')await audioContext.resume();
+  const ctx=getAudioContext();
+  if(!ctx)throw Error('O iPhone não oferece Web Audio.');
+  if(ctx.state!=='running')await ctx.resume?.();
+  if(ctx.state==='interrupted')throw Error('Web Audio interrompido; toque em Play no reprodutor WAV.');
   const data=await wav.arrayBuffer();
-  const decoded=await audioContext.decodeAudioData(data);
+  const decoded=await ctx.decodeAudioData(data);
   if(!decoded||!decoded.length)throw Error('Não foi possível decodificar áudio.');
   stopSource();
   return new Promise((resolve,reject)=>{
    try{
-    const node=audioContext.createBufferSource();
+    const node=ctx.createBufferSource();
     sourceNode=node;playbackResolver=resolve;
     node.buffer=decoded;
-    node.connect(audioContext.destination);
+    node.connect(ctx.destination);
     node.onended=()=>{if(sourceNode===node){sourceNode=null;playbackResolver=null;}resolve();};
     node.start(0);
    }catch(error){sourceNode=null;playbackResolver=null;reject(error);}
