@@ -10,6 +10,8 @@ import {applyVocabulary,proposeVoiceCorrection} from './assistant-vocabulary.js'
 export function createAssistantController(h){
  let activeRecognition=null, lastResponse=null, lastQuery='',lastTaskId='', pending=null;
  let lastVoiceShown='',pendingLearning=null;
+ const INPUT_IDLE_MS=15000;
+ let inputClearTimer=null,inputRevision=0;
  let audioStatus='Toque em “Ouvir resposta” para reproduzir o áudio, caso necessário.';
  let neuralStatus=neuralEngineStatusDefault();
  let neuralTechnical='';
@@ -82,6 +84,39 @@ export function createAssistantController(h){
   return typeof window!=='undefined'&&(window.SpeechRecognition||window.webkitSpeechRecognition);
  }
  function isHome(){return h.page()==='inicio';}
+ function isMacBrowser(){
+  const agent=typeof navigator==='undefined'?'':String(navigator.userAgent||'');
+  return /Macintosh|Mac OS X/i.test(agent)&&!/iPhone|iPad|iPod/i.test(agent);
+ }
+ // A configuração Faber e o modelo são locais de cada navegador; nenhum download sem aceite.
+ function cancelInputClear(){
+  inputRevision++;
+  if(inputClearTimer!==null){clearTimeout(inputClearTimer);inputClearTimer=null;}
+ }
+ function queueInputClear(){
+  cancelInputClear();
+  if(typeof document==='undefined')return;
+  const revision=inputRevision;
+  inputClearTimer=setTimeout(()=>{
+   inputClearTimer=null;
+   if(revision!==inputRevision||!isHome()||activeRecognition||pendingLearning)return;
+   const field=document.getElementById('assistant-command-text');
+   // Não descartar texto corrigido, digitado e ainda não enviado.
+   if(field&&(document.activeElement===field||field.value!==lastQuery))return;
+   lastQuery='';lastVoiceShown='';
+   if(field)field.value='';
+  },INPUT_IDLE_MS);
+  inputClearTimer?.unref?.();
+ }
+ function onCommandInput(event){
+  if(event.target?.id!=='assistant-command-text')return false;
+  cancelInputClear();return true;
+ }
+ function onCommandBlur(event){
+  if(event.target?.id!=='assistant-command-text')return false;
+  if(lastQuery&&!pendingLearning&&event.target.value===lastQuery)queueInputClear();
+  return true;
+ }
  function stopAudio(){
   ++playbackSerial;
   neuralEngine.cancel();voiceEngine.stop({quiet:true});nativeFallbackPlaying=false;
@@ -167,6 +202,7 @@ export function createAssistantController(h){
   speak(lastResponse.message);
  }
  function execute(raw,{fromVoice=false}={}){
+  cancelInputClear();
   const query=applyVocabulary(stripAssistantWakeword(raw).trim().slice(0,350),h.data()?.vocabulary);
   if(fromVoice){lastVoiceShown=query;pendingLearning=null;}
   if(!query){h.toast('Digite ou fale sua pergunta para o SÓCIO.');return;}
@@ -175,6 +211,7 @@ export function createAssistantController(h){
   const started=clock();
   const result=resolveAssistantCommand(query,h.data(),new Date(),{lastTaskId});
   localQueryMs=Math.max(0,Math.round(clock()-started));
+  queueInputClear();
   if(result.kind==='confirm-complete'){
    pending={type:'complete-task',taskId:result.taskId};
    lastResponse={message:result.message,related:'tarefas',detail:''};
@@ -224,6 +261,7 @@ export function createAssistantController(h){
  }
  function startListening(){
   if(activeRecognition){stopListening();return;}
+  cancelInputClear();
   stopAudio();
   voiceEngine.primeAudio();
   if(neuralEngine.enabled())void neuralEngine.warmup();
@@ -297,6 +335,7 @@ export function createAssistantController(h){
  function render(){
   const listening=Boolean(activeRecognition);
   const voiceInfo=voiceEngine.voiceInfo();
+  const mac=isMacBrowser();
   const shortcuts=[
    ['Qual minha prioridade hoje?','Prioridade'],
    ['Quais tarefas estão atrasadas?','Atrasadas'],
@@ -305,7 +344,9 @@ export function createAssistantController(h){
   const markup='<section class="assistant-card" aria-label="SÓCIO Assistente">'+
    '<div class="assistant-head"><div class="assistant-emblem" aria-hidden="true">'+icon('mic',24)+'</div>'+
    '<div class="assistant-head-copy"><div class="assistant-eyebrow">SÓCIO ASSISTENTE</div>'+
-   '<h2>Fale com o SÓCIO</h2><p>Suas tarefas, sua agenda e seus negócios em uma só voz.</p></div></div>'+
+   '<h2>Fale com o SÓCIO</h2><p>Suas tarefas, sua agenda e seus negócios em uma só voz.</p></div></div>'+ 
+   (mac?'<div class="assistant-mac-voice">'+(neuralEngine.enabled()?'<p><strong>Faber ativa neste Mac.</strong> Voz masculina selecionada para as respostas.</p>':
+    '<p><strong>Voz neste Mac:</strong> padrão do navegador. A Faber do iPhone não é transferida automaticamente.</p><button type="button" class="btn-outline" data-action="assistant-neural-enable">Ativar Faber neste Mac</button>')+'</div>':'')+
    '<form id="assistant-command-form" class="assistant-command-form">'+
    '<label class="assistant-label" for="assistant-command-text">Pergunte ou peça uma ação</label>'+
    '<div class="assistant-input-row"><input id="assistant-command-text" name="query" type="text" '+
@@ -328,8 +369,8 @@ export function createAssistantController(h){
       '<button type="button" class="btn-outline" data-action="assistant-neural-test">'+icon('volume-2',15)+' Ouvir exemplo</button>'+
       '<button type="button" class="btn-outline" data-action="assistant-neural-disable">Trocar voz</button></div>'+
     '<p class="assistant-voice-info">O modelo já está no aparelho. A primeira resposta pode demorar enquanto a voz é preparada.</p>':
-    '<label for="assistant-voice-select">Voz do iPhone</label>'+
-    '<select id="assistant-voice-select" aria-label="Voz brasileira do iPhone">'+voiceOptions()+'</select>'+
+    '<label for="assistant-voice-select">Voz do dispositivo</label>'+ 
+    '<select id="assistant-voice-select" aria-label="Voz brasileira do dispositivo">'+ voiceOptions()+'</select>'+
     '<div class="assistant-voice-actions">'+
       '<button type="button" class="btn-outline" data-action="assistant-test-voice">'+icon('volume-2',15)+' Ouvir exemplo</button>'+
       '<button type="button" class="btn-outline" data-action="assistant-neural-enable">Usar voz masculina Faber</button></div>'+
@@ -362,9 +403,9 @@ export function createAssistantController(h){
   if(command==='assistant-learn-confirm'){
    const choice=pendingLearning;pendingLearning=null;
    if(choice&&h.learnVocabulary?.(choice.heard,choice.correct))h.toast('Correção aprendida. Ela será aplicada aos próximos ditados.');
-   h.refresh();return true;
+   h.refresh();queueInputClear();return true;
   }
-  if(command==='assistant-learn-ignore'){pendingLearning=null;h.refresh();return true;}
+  if(command==='assistant-learn-ignore'){pendingLearning=null;h.refresh();queueInputClear();return true;}
   if(command==='assistant-stop-audio'){
    stopAudio();
    audioStatus='Áudio interrompido. A resposta escrita permanece disponível.';
@@ -453,6 +494,7 @@ export function createAssistantController(h){
  }
  function submit(event){
   if(event.target?.id!=='assistant-command-form')return false;
+  cancelInputClear();
   event.preventDefault();
   voiceEngine.primeAudio();
   const input=event.target.querySelector('[name="query"]');
@@ -464,7 +506,7 @@ export function createAssistantController(h){
   if(proposed){
    const known=applyVocabulary(proposed.heard,h.data()?.vocabulary);
    if(known.toLocaleLowerCase('pt-BR')===proposed.heard.toLocaleLowerCase('pt-BR')){
-    pendingLearning=proposed;h.refresh();
+    pendingLearning=proposed;cancelInputClear();h.refresh();
    }
   }
   return true;
@@ -477,5 +519,5 @@ export function createAssistantController(h){
   return true;
  }
  function rememberTask(id){if(id)lastTaskId=id;}
- return {render,action,submit,change,cancelListening,stopAudio,rememberTask};
+ return {render,action,submit,change,cancelListening,stopAudio,rememberTask,onCommandInput,onCommandBlur};
 }
