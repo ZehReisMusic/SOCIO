@@ -1,0 +1,19 @@
+/* V003.29 — controle imediato da resposta falada, sem ampliar o cartão no iPhone. */
+.assistant-response-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;min-width:0}
+.assistant-response-actions .assistant-stop-audio{
+ min-height:39px;padding:8px 11px;border-radius:9px;
+ border:1px solid #d6a66e;background:#453328;color:#f9e3ce;
+ font-size:12px;font-weight:650
+}
+.assistant-response-actions .assistant-stop-audio[hidden]{display:none!important}
+.assistant-response-actions .assistant-stop-audio:focus-visible{outline:2px solid #f4bd7c;outline-offset:2px}
+.assistant-voice-timing{color:#a7bec8;font-size:11px;line-height:1.55;overflow-wrap:anywhere;margin:8px 0}
+@media(max-width:740px){
+ .assistant-response-head{gap:9px}
+ .assistant-response-actions{justify-content:flex-start;width:100%}
+ .assistant-response-actions button{min-height:42px;max-width:100%;white-space:normal}
+}
+@media(max-width:380px){
+ .assistant-response-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .assistant-response-actions button{min-width:0;padding:8px 7px}
+}
