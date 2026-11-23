@@ -241,7 +241,7 @@ export function createAssistantController(h){
     '<button type="button" class="assistant-suggestion" data-action="assistant-example" data-query="'+safe(q)+'">'+safe(label)+'</button>').join('')+'</div>'+
    '<p class="assistant-status" id="assistant-listening-status" role="status" aria-live="polite">'+
     (listening?'Ouvindo... a escuta termina quando você parar de falar.':'Toque em Falar ou digite. Os comandos são processados pelas regras do aplicativo.')+'</p>'+
-   '<details class="assistant-voice-settings"><summary>Voz do SÓCIO · <span id="assistant-voice-name">'+safe(voiceInfo.name)+'</span></summary>'+
+   '<details class="assistant-voice-settings"><summary>Voz do SÓCIO · <span id="assistant-voice-name">'+safe(neuralEngine.enabled()?'Faber (experimental)':voiceInfo.name)+'</span></summary>'+
    '<div class="assistant-voice-config"><label for="assistant-voice-select">Voz brasileira disponível no aparelho</label>'+
    '<select id="assistant-voice-select" aria-label="Selecionar voz">'+voiceOptions()+'</select>'+
    '<button type="button" class="btn-outline" data-action="assistant-test-voice">Testar voz</button></div>'+
