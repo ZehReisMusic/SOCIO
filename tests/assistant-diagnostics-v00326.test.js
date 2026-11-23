@@ -50,7 +50,7 @@ test('Interface apresenta teste de áudio, WAV independente e identificação co
  assert.match(ui,/assistant-audio-check/);
  assert.match(ui,/assistant-neural-preview/);
  assert.match(ui,/FABER-SYNTH/);
- assert.match(ui,/Faber \(experimental\)/);
+ assert.match(ui,/Faber · masculina/);
  assert.match(ui,/voiceEngine\.testOutput/);
  assert.match(css,/audio\[hidden\]/);
  assert.doesNotMatch(css,/user-scalable|maximum-scale|position:fixed|touch-action/);
