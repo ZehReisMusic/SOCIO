@@ -42,7 +42,7 @@ export function createAssistantSpeech(onStatus=()=>{}){
    notify('Voz de leitura indisponível neste navegador. A resposta permanece escrita.');
    return false;
   }
-  const message=String(value||'').trim().slice(0,1000);
+  const message=String(value||'').trim().replace(/;\s*/g,'. ').slice(0,1000);
   if(!message)return false;
   stop({quiet:true});
   let started=false;
@@ -88,7 +88,7 @@ export function createAssistantSpeech(onStatus=()=>{}){
  }
  function voiceInfo(){
   const voices=getVoices(),voice=chosenVoice();
-  return {voices,selected:voice?.voiceURI||'',available:!!engine(),name:voice?.name||'Voz padrão do iPhone'};
+  return {voices,selected:voices.some(v=>v.voiceURI===selected)?selected:'',available:!!engine(),name:voice?.name||'Voz padrão do iPhone'};
  }
  return {speak,stop,selectVoice,voiceInfo,getVoices};
 }
