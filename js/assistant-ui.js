@@ -7,10 +7,12 @@ import {createAssistantNeural,modelConsentMessage} from './assistant-neural.js';
 export function createAssistantController(h){
  let activeRecognition=null, lastResponse=null, lastQuery='',lastTaskId='', pending=null;
  let audioStatus='Toque em “Ouvir resposta” para reproduzir o áudio, caso necessário.';
- let neuralStatus='A voz masculina é opcional, experimental e exige baixar o modelo.';
+ let neuralStatus=neuralEngineStatusDefault();
+ let neuralTechnical='';
  let neuralPreviewUrl='';
  const safe=h.escape;
  const icon=h.icon;
+ function neuralEngineStatusDefault(){return 'Faber pronta para responder.';}
  const voiceEngine=createAssistantSpeech(message=>{
   audioStatus=message;
   const el=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
@@ -18,24 +20,40 @@ export function createAssistantController(h){
  });
  const neuralEngine=createAssistantNeural({
   status:message=>{
-   neuralStatus=message;
-   audioStatus=message;
+   const failed=/^FABER-(?:LIB|MODEL|SYNTH|AUDIO|ERR)/.test(message);
+   neuralTechnical=failed?message:'';
+   neuralStatus=failed?'A Faber apresentou um problema. Veja os detalhes em Diagnóstico de áudio.':message;
+   audioStatus=neuralStatus;
    const el=typeof document!=='undefined'?document.getElementById('assistant-neural-status'):null;
-   if(el)el.textContent=message;
+   if(el)el.textContent=neuralStatus;
    const reply=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
-   if(reply)reply.textContent=message;
-  },
-  playAudio:blob=>{
-   if(typeof document!=='undefined'&&typeof URL.createObjectURL==='function'){
-    const player=document.getElementById('assistant-neural-preview');
-    if(player){
-     if(neuralPreviewUrl)URL.revokeObjectURL(neuralPreviewUrl);
-     neuralPreviewUrl=URL.createObjectURL(blob);
-     player.src=neuralPreviewUrl;
-     player.hidden=false;
-    }
+   if(reply)reply.textContent=neuralStatus;
+   const detail=typeof document!=='undefined'?document.getElementById('assistant-voice-diagnostic'):null;
+   if(detail){detail.textContent=neuralTechnical;detail.hidden=!failed;}
+   if(failed){
+    const panel=typeof document!=='undefined'?document.getElementById('assistant-voice-tech'):null;
+    if(panel)panel.open=true;
    }
-   return voiceEngine.playBlob(blob);
+  },
+  playAudio:async blob=>{
+   try{
+    // A saída WebAudio é prioritária; não ocupar espaço com player se funcionou.
+    await voiceEngine.playBlob(blob);
+   }catch(error){
+    // Só exibir o player HTML nativo quando a saída automática falhar.
+    if(typeof document!=='undefined'&&typeof URL.createObjectURL==='function'){
+     const panel=document.getElementById('assistant-voice-tech');
+     if(panel)panel.open=true;
+     const player=document.getElementById('assistant-neural-preview');
+     if(player){
+      if(neuralPreviewUrl)URL.revokeObjectURL(neuralPreviewUrl);
+      neuralPreviewUrl=URL.createObjectURL(blob);
+      player.src=neuralPreviewUrl;
+      player.hidden=false;
+     }
+    }
+    throw error;
+   }
   }
  });
 
@@ -69,6 +87,18 @@ export function createAssistantController(h){
  }
  if(typeof window!=='undefined'){
   try{window.speechSynthesis?.addEventListener?.('voiceschanged',syncVoicePicker);}catch{}
+ }
+ // Pré-carregar a sessão neural só após o consentimento anterior, em segundo plano.
+ // Isso evita inicializar o ONNX na hora em que a primeira resposta é necessária.
+ if(typeof window!=='undefined'&&typeof document!=='undefined'&&neuralEngine.enabled()){
+  const prewarm=()=>{
+   if(isHome()&&neuralEngine.enabled())void neuralEngine.warmup();
+  };
+  try{
+   if(typeof window.requestIdleCallback==='function')
+    window.requestIdleCallback(prewarm,{timeout:3500});
+   else setTimeout(prewarm,1800);
+  }catch{}
  }
  function clearSessionTimers(session){
   if(!session)return;
@@ -151,6 +181,7 @@ export function createAssistantController(h){
   if(activeRecognition){stopListening();return;}
   stopAudio();
   voiceEngine.primeAudio();
+  if(neuralEngine.enabled())void neuralEngine.warmup();
   const Speech=getSpeech();
   if(!Speech){h.toast('Este navegador não oferece reconhecimento de voz para o SÓCIO. Digite a pergunta ou use o microfone do teclado.');return;}
   let recognition;
@@ -241,23 +272,30 @@ export function createAssistantController(h){
     '<button type="button" class="assistant-suggestion" data-action="assistant-example" data-query="'+safe(q)+'">'+safe(label)+'</button>').join('')+'</div>'+
    '<p class="assistant-status" id="assistant-listening-status" role="status" aria-live="polite">'+
     (listening?'Ouvindo... a escuta termina quando você parar de falar.':'Toque em Falar ou digite. Os comandos são processados pelas regras do aplicativo.')+'</p>'+
-   '<details class="assistant-voice-settings"><summary>Voz do SÓCIO · <span id="assistant-voice-name">'+safe(neuralEngine.enabled()?'Faber (experimental)':voiceInfo.name)+'</span></summary>'+
-   '<div class="assistant-voice-config"><label for="assistant-voice-select">Voz brasileira disponível no aparelho</label>'+
-   '<select id="assistant-voice-select" aria-label="Selecionar voz">'+voiceOptions()+'</select>'+
-   '<button type="button" class="btn-outline" data-action="assistant-test-voice">Testar voz</button></div>'+
-   '<p>A voz do sistema é gratuita. A naturalidade depende das vozes instaladas no iPhone.</p>'+
-   '<div class="assistant-neural-config"><strong>Voz masculina Faber · teste experimental</strong>'+
-   '<p>Modelo neural brasileiro, gratuito, com geração no próprio aparelho. Primeiro download de aproximadamente 65 MB, além dos componentes de execução. Pode demorar ou falhar no iPhone. Antes de adotar em uso comercial, precisamos conferir a licença do modelo.</p>'+
-   '<div class="assistant-neural-actions">'+
-   (!neuralEngine.enabled()?'<button type="button" class="btn-outline" data-action="assistant-neural-enable">Baixar e experimentar Faber</button>':
-    '<button type="button" class="btn-outline" data-action="assistant-neural-test">Testar voz masculina</button>'+
-    '<button type="button" class="btn-outline" data-action="assistant-neural-disable">Voltar à voz do iPhone</button>')+'</div>'+
-   '<div class="assistant-neural-actions">'+
-    '<button type="button" class="btn-outline" data-action="assistant-audio-check">Testar saída de áudio</button></div>'+
+   '<details class="assistant-voice-settings"><summary>Voz do SÓCIO · <span id="assistant-voice-name">'+
+     safe(neuralEngine.enabled()?'Faber · masculina':voiceInfo.name)+'</span></summary>'+
+   '<div class="assistant-voice-compact">'+
+   (neuralEngine.enabled()?
+    '<div class="assistant-voice-active"><span><strong>Faber</strong><small>Voz masculina brasileira</small></span>'+
+      '<span class="assistant-voice-selected">Selecionada</span></div>'+
+    '<div class="assistant-voice-actions">'+
+      '<button type="button" class="btn-outline" data-action="assistant-neural-test">'+icon('volume-2',15)+' Ouvir exemplo</button>'+
+      '<button type="button" class="btn-outline" data-action="assistant-neural-disable">Trocar voz</button></div>'+
+    '<p class="assistant-voice-info">O modelo já está no aparelho. A primeira resposta pode demorar enquanto a voz é preparada.</p>':
+    '<label for="assistant-voice-select">Voz do iPhone</label>'+
+    '<select id="assistant-voice-select" aria-label="Voz brasileira do iPhone">'+voiceOptions()+'</select>'+
+    '<div class="assistant-voice-actions">'+
+      '<button type="button" class="btn-outline" data-action="assistant-test-voice">'+icon('volume-2',15)+' Ouvir exemplo</button>'+
+      '<button type="button" class="btn-outline" data-action="assistant-neural-enable">Usar voz masculina Faber</button></div>'+
+    '<p class="assistant-voice-info">A Faber funciona sem API paga. Se ainda não tiver o modelo, o primeiro uso pedirá autorização para o download.</p>')+
    '<p class="assistant-neural-status" id="assistant-neural-status" role="status" aria-live="polite">'+safe(neuralStatus)+'</p>'+
-   '<audio id="assistant-neural-preview" controls preload="none" hidden aria-label="Reproduzir áudio Faber gerado"></audio>'+
-   '<p class="assistant-neural-help">Se aparecer o reprodutor acima, a Faber gerou o áudio; use o botão Play para testar o som. Se aparecer FABER-SYNTH, a geração falhou antes da reprodução.</p>'+
-   '</div></details>'+
+   '<details class="assistant-voice-advanced" id="assistant-voice-tech"><summary>Diagnóstico de áudio</summary>'+
+    '<p>Utilize estes testes apenas se a reprodução apresentar algum problema.</p>'+
+    '<p class="assistant-voice-diagnostic" id="assistant-voice-diagnostic"'+(neuralTechnical?'':' hidden')+'>'+safe(neuralTechnical)+'</p>'+
+    '<button type="button" class="btn-outline" data-action="assistant-audio-check">Testar saída de áudio</button>'+
+    '<audio id="assistant-neural-preview" controls preload="none" hidden aria-label="Reproduzir WAV gerado"></audio>'+
+    '<p class="assistant-neural-help">Se aparecer FABER-SYNTH, a geração falhou. Se aparecer FABER-AUDIO, teste o arquivo WAV que será disponibilizado aqui.</p>'+
+   '</details></div></details>'+ 
    (lastResponse?'<div class="assistant-response" aria-live="polite"><div class="assistant-response-head"><strong>'+icon('spark',15)+' SÓCIO RESPONDE</strong>'+
      '<button type="button" class="btn-primary assistant-replay" data-action="assistant-repeat" aria-label="Ouvir resposta">'+icon('volume-2',14)+' Ouvir resposta</button></div>'+
     '<p class="assistant-audio-status" id="assistant-audio-status" aria-live="polite">'+safe(audioStatus)+'</p>'+
@@ -286,9 +324,8 @@ export function createAssistantController(h){
    if(typeof window!=='undefined'&&!window.confirm(modelConsentMessage()))return true;
    voiceEngine.primeAudio();
    void neuralEngine.prepare().then(ok=>{
-    syncVoicePicker();
-    if(ok){h.toast('Voz Faber preparada. Toque em Testar voz masculina.');}
-    else h.toast('Voz masculina não disponível no aparelho. A voz padrão permanece ativa.');
+    if(ok)h.toast('Faber ativada. Já pode usar o SÓCIO.');
+    else h.toast('Faber indisponível neste aparelho. A voz padrão continua ativa.');
     h.refresh();
    });
    return true;

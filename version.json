@@ -1,5 +1,5 @@
 {
-  "version": "V003.27",
+  "version": "V003.28",
   "releasedAt": "2026-11-23",
-  "description": "SÓCIO Assistente: alinhar a versão de onnxruntime-web 1.18.0 do Piper Faber aos arquivos WASM exigidos (erro no available backend found); recuperar Web Audio criando um novo AudioContext ao detectar estado interrupted/closed no iPhone. Sem baixar novamente o modelo; manter diagnóstico, fallback de voz nativa e todas as funções do app. Compatibilidade e síntese Faber dependem de reteste no iPhone."
+  "description": "SÓCIO Assistente: voz Faber masculina aprovada, central de voz simplificada; escolha ativa, exemplo e troca de voz. Diagnóstico técnico e testes de saída ficam recolhidos. Pré-carregamento local da sessão ONNX após ativação anterior e cache de até três áudios recentes na memória para reduzir demora de respostas repetidas. Preserva síntese que funciona no iPhone, fallback de voz, demais microfones, dados locais, Agenda, Tarefas, SOUNDLINE e Web Push. Ganho real de velocidade depende de teste no iPhone."
 }
