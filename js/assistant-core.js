@@ -53,7 +53,7 @@ export function resolveAssistantCommand(input,data,now=new Date(),context={}){
 
  // As intenções de escrita são conservadoras: abrir formulário de revisão ou pedir confirmação.
  if(/^(?:marque|marcar|conclua|concluir|conclui|finalize|finalizar|finalizei|terminei)\b/.test(q) &&
-    /\b(tarefa|concluid|finaliz|terminei|finalizei|feita|feito)\b/.test(q)){
+    (/\b(tarefa|concluid|finaliz|terminei|finalizei|feita|feito)\b/.test(q)||/^(?:concluir|conclua|finalizar|finalize)\s+/.test(q))){
   const result=taskReference(raw,data,context);
   if(!result.task)return reply(result.ambiguous?
    'Encontrei mais de uma tarefa parecida. Diga o nome completo para eu identificar a correta.':
