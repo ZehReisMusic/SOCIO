@@ -18,7 +18,11 @@ permissions:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Baixar o código
         uses: actions/checkout@v4
@@ -31,6 +35,10 @@ jobs:
       - name: Verificar sintaxe da interface e do PWA
         run: |
           node --check js/app.js
+          node --check js/assistant-ui.js
+          node --check js/assistant-neural.js
+          node --check js/assistant-speech.js
+          node --check js/assistant-vocabulary.js
           node --check js/reizzor-station.js
           node --check js/store.js
           node --check js/logic.js
