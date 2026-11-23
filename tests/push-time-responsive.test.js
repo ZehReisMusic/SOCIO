@@ -26,11 +26,11 @@ test('no iPhone, a moldura do horário cabe dentro do cartão, com picker WebKit
   assert.match(html,/width=device-width,initial-scale=1,viewport-fit=cover/);
   assert.doesNotMatch(html,/user-scalable=no|maximum-scale=1/);
 });
-test('V003.27 preserva assinatura Web Push, Agenda, dados, logo e atualizador automático',()=>{
+test('V003.28 preserva assinatura Web Push, Agenda, dados, logo e atualizador automático',()=>{
   const html=read('index.html'),sw=read('service-worker.js');
-  assert.equal(JSON.parse(read('version.json')).version,'V003.27');
-  assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.27'/);
-  assert.match(sw,/socio-v00327-20261123/);
+  assert.equal(JSON.parse(read('version.json')).version,'V003.28');
+  assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.28'/);
+  assert.match(sw,/socio-v00328-20261123/);
   assert.match(sw,/'\.\/css\/push-time-mobile-v00318\.css'/);
   const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(x=>x[1]);
   assert.equal(links.at(-1),'./css/assistant-v00326.css');
