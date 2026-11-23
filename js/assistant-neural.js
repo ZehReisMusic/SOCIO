@@ -28,7 +28,7 @@ export function createAssistantNeural({status=()=>{},playAudio=async()=>{},loadL
   const help=phase==='audio'?'O WAV foi gerado. Teste o reprodutor manual abaixo.':
    phase==='sintese'?'O modelo está cadastrado, mas o iPhone não conseguiu gerar a fala.':
    'Não foi possível carregar o motor ou os arquivos necessários.';
-  tell(code+' — '+help+' Detalhe: '+lastProblem.detail);
+  tell(code+' — '+help+' A voz padrão do iPhone segue disponível. Detalhe: '+lastProblem.detail);
   return lastProblem;
  }
  async function load(){
