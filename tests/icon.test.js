@@ -32,5 +32,5 @@ test('atalho iPhone e manifestos usam versão cache-busted do ícone oficial',()
   assert.equal(manifest.icons.length,2);
   assert.ok(manifest.icons.every(x=>x.src.includes('?v=0035')&&x.purpose==='any'));
   for(const icon of ['icon-192.png','icon-512.png','apple-touch-icon.png'])assert.ok(sw.includes("'./icons/"+icon+"'"));
-  assert.match(sw,/socio-v00331-20261123/);
+  assert.match(sw,/socio-v00332-20261123/);
 });
