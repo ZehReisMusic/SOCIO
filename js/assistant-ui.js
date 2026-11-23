@@ -1,35 +1,54 @@
 /** MEU SÓCIO V003.23 — comando geral na tela Início.
  * Sem envio a provedores de IA. Voz nativa quando disponível; texto é o fallback. */
 import {resolveAssistantCommand,stripAssistantWakeword} from './assistant-core.js';
+import {createAssistantSpeech} from './assistant-speech.js';
 
 export function createAssistantController(h){
  let activeRecognition=null, lastResponse=null, lastQuery='',lastTaskId='', pending=null;
- let lastSpeechError='';
+ let audioStatus='Toque em “Ouvir resposta” para reproduzir o áudio, caso necessário.';
  const safe=h.escape;
  const icon=h.icon;
+ const voiceEngine=createAssistantSpeech(message=>{
+  audioStatus=message;
+  const el=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
+  if(el)el.textContent=message;
+ });
 
  function getSpeech(){
   return typeof window!=='undefined'&&(window.SpeechRecognition||window.webkitSpeechRecognition);
  }
  function isHome(){return h.page()==='inicio';}
- function stopAudio(){
-  try{if(typeof window!=='undefined'&&window.speechSynthesis)window.speechSynthesis.cancel();}catch{}
+ function stopAudio(){voiceEngine.stop({quiet:true});}
+ function speak(message){return voiceEngine.speak(message);}
+ function voiceOptions(){
+  const info=voiceEngine.voiceInfo();
+  return '<option value=""'+(!info.selected?' selected':'')+'>Automática (pt-BR)</option>'+
+   info.voices.map(v=>'<option value="'+safe(v.voiceURI)+'"'+(info.selected===v.voiceURI?' selected':'')+'>'+
+    safe(v.name+' · '+v.lang)+(v.localService?' · aparelho':'')+'</option>').join('');
  }
- function speak(message){
-  if(typeof window==='undefined'||!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=='function')return false;
-  try{
-   stopAudio();
-   const msg=String(message||'').trim().slice(0,650);
-   if(!msg)return false;
-   const utterance=new window.SpeechSynthesisUtterance(msg);
-   utterance.lang='pt-BR';
-   utterance.rate=0.98;utterance.pitch=1;utterance.volume=1;
-   const voices=window.speechSynthesis.getVoices?.()||[];
-   const voice=voices.find(v=>v.lang?.toLowerCase()==='pt-br')||voices.find(v=>v.lang?.toLowerCase().startsWith('pt'));
-   if(voice)utterance.voice=voice;
-   window.speechSynthesis.speak(utterance);
-   return true;
-  }catch(error){console.warn('SÓCIO voz:',error);return false;}
+ function syncVoicePicker(){
+  if(typeof document==='undefined')return;
+  const select=document.getElementById('assistant-voice-select');
+  if(select)select.innerHTML=voiceOptions();
+  const current=document.getElementById('assistant-voice-name');
+  if(current)current.textContent=voiceEngine.voiceInfo().name;
+ }
+ if(typeof window!=='undefined'){
+  try{window.speechSynthesis?.addEventListener?.('voiceschanged',syncVoicePicker);}catch{}
+ }
+ function clearSessionTimers(session){
+  if(!session)return;
+  for(const key of ['silenceTimer','endFallback','noSpeechTimer']){
+   if(session[key]){clearTimeout(session[key]);session[key]=null;}
+  }
+ }
+ function planSilenceStop(session,delay){
+  if(activeRecognition!==session||session.stopping)return;
+  if(session.silenceTimer)clearTimeout(session.silenceTimer);
+  session.silenceTimer=setTimeout(()=>{
+   session.silenceTimer=null;
+   if(activeRecognition===session&&session.transcript)stopListening();
+  },delay);
  }
  function updateListening(message){
   const label=document.getElementById('assistant-listening-status');
@@ -76,11 +95,12 @@ export function createAssistantController(h){
  }
  function cancelListening({stopPlayback=false}={}){
   const old=activeRecognition;activeRecognition=null;
-  if(old){old.cancelled=true;try{old.recognition.abort();}catch{}}
+  if(old){old.cancelled=true;clearSessionTimers(old);try{old.recognition.abort();}catch{}}
   if(stopPlayback)stopAudio();
  }
  function finishListening(session){
   if(activeRecognition!==session)return;
+  clearSessionTimers(session);
   activeRecognition=null;
   if(!isHome()||session.cancelled)return;
   if(session.transcript){
@@ -100,7 +120,8 @@ export function createAssistantController(h){
   if(!Speech){h.toast('Este navegador não oferece reconhecimento de voz para o SÓCIO. Digite a pergunta ou use o microfone do teclado.');return;}
   let recognition;
   try{recognition=new Speech();}catch{h.toast('Não foi possível preparar o microfone. Use o teclado.');return;}
-  const session={recognition,transcript:'',cancelled:false,error:''};
+  const session={recognition,transcript:'',cancelled:false,error:'',stopping:false,
+    silenceTimer:null,endFallback:null,noSpeechTimer:null};
   activeRecognition=session;
   recognition.lang='pt-BR';
   recognition.continuous=false;
@@ -112,6 +133,14 @@ export function createAssistantController(h){
    const input=document.getElementById('assistant-command-text');
    if(input)input.value=session.transcript;
    updateListening(session.transcript?'Ouvindo: '+session.transcript:'Ouvindo...');
+   if(session.transcript){
+    if(session.noSpeechTimer){clearTimeout(session.noSpeechTimer);session.noSpeechTimer=null;}
+    const final=Array.from(event.results||[]).some(r=>r.isFinal===true);
+    planSilenceStop(session,final?450:1500);
+   }
+  };
+  recognition.onspeechend=()=>{
+   if(activeRecognition===session&&session.transcript)planSilenceStop(session,450);
   };
   recognition.onerror=event=>{
    if(activeRecognition!==session)return;
@@ -119,26 +148,44 @@ export function createAssistantController(h){
     'Microfone não autorizado. Você ainda pode digitar o comando.':
     'A transcrição não ficou disponível. Confira a conexão e tente novamente.';
    // Não executar fala parcial em caso de erro de acesso.
-   if(event?.error==='not-allowed'||event?.error==='service-not-allowed')session.transcript='';
+   if(event?.error==='not-allowed'||event?.error==='service-not-allowed'||event?.error==='no-speech')session.transcript='';
   };
   recognition.onend=()=>finishListening(session);
   try{
    recognition.start();
    const button=document.getElementById('assistant-mic-button');
    if(button){button.dataset.action='assistant-stop-voice';button.innerHTML=icon('stop',16)+' Parar e revisar';}
-   updateListening('Ouvindo… toque em Parar e revisar ao terminar.');
+   updateListening('Ouvindo... a escuta termina automaticamente após sua fala.'); 
+   session.noSpeechTimer=setTimeout(()=>{
+    if(activeRecognition===session&&!session.transcript)stopListening();
+   },20000);
   }catch(error){
    activeRecognition=null;
    h.toast('Não foi possível ativar o reconhecimento. Use o campo de texto.');
   }
  }
  function stopListening(){
-  const session=activeRecognition;if(!session)return;
-  updateListening('Preparando sua resposta...');
-  try{session.recognition.stop();}catch{finishListening(session);}
+  const session=activeRecognition;if(!session||session.stopping)return;
+  session.stopping=true;
+  if(session.silenceTimer){clearTimeout(session.silenceTimer);session.silenceTimer=null;}
+  if(session.noSpeechTimer){clearTimeout(session.noSpeechTimer);session.noSpeechTimer=null;}
+  updateListening('Escuta encerrada. Preparando sua resposta...');
+  try{
+   session.recognition.stop();
+   // Algumas versões do WebKit não enviam onend após stop(): desbloqueio seguro.
+   if(activeRecognition!==session)return;
+   session.endFallback=setTimeout(()=>{
+    session.endFallback=null;
+    if(activeRecognition===session){
+     try{session.recognition.abort();}catch{}
+     finishListening(session);
+    }
+   },1800);
+  }catch{finishListening(session);}
  }
  function render(){
   const listening=Boolean(activeRecognition);
+  const voiceInfo=voiceEngine.voiceInfo();
   const shortcuts=[
    ['Qual minha prioridade hoje?','Prioridade'],
    ['Quais tarefas estão atrasadas?','Atrasadas'],
@@ -153,14 +200,20 @@ export function createAssistantController(h){
    '<div class="assistant-input-row"><input id="assistant-command-text" name="query" type="text" '+
    'maxlength="350" autocomplete="off" enterkeyhint="send" placeholder="Ex.: Qual minha prioridade hoje?" value="'+safe(lastQuery)+'" />'+
    '<button id="assistant-mic-button" type="button" class="btn-outline assistant-mic" data-action="'+(listening?'assistant-stop-voice':'assistant-start-voice')+'">'+
-    icon(listening?'stop':'mic',17)+(listening?' Parar e revisar':' Falar')+'</button>'+
+    icon(listening?'stop':'mic',17)+(listening?' Parar agora':' Falar')+'</button>'+
    '<button type="submit" class="btn-primary assistant-send">Consultar</button></div></form>'+
    '<div class="assistant-suggestions" aria-label="Sugestões rápidas">'+shortcuts.map(([q,label])=>
     '<button type="button" class="assistant-suggestion" data-action="assistant-example" data-query="'+safe(q)+'">'+safe(label)+'</button>').join('')+'</div>'+
    '<p class="assistant-status" id="assistant-listening-status" role="status" aria-live="polite">'+
-    (listening?'Ouvindo… toque em Parar e revisar.':'Toque em Falar ou digite. Os comandos são processados pelas regras do aplicativo.')+'</p>'+
+    (listening?'Ouvindo... a escuta termina quando você parar de falar.':'Toque em Falar ou digite. Os comandos são processados pelas regras do aplicativo.')+'</p>'+
+   '<details class="assistant-voice-settings"><summary>Voz do SÓCIO · <span id="assistant-voice-name">'+safe(voiceInfo.name)+'</span></summary>'+
+   '<div class="assistant-voice-config"><label for="assistant-voice-select">Voz brasileira disponível no aparelho</label>'+
+   '<select id="assistant-voice-select" aria-label="Selecionar voz">'+voiceOptions()+'</select>'+
+   '<button type="button" class="btn-outline" data-action="assistant-test-voice">Testar voz</button></div>'+
+   '<p>A voz do sistema é gratuita. A naturalidade depende das vozes instaladas no iPhone.</p></details>'+
    (lastResponse?'<div class="assistant-response" aria-live="polite"><div class="assistant-response-head"><strong>'+icon('spark',15)+' SÓCIO RESPONDE</strong>'+
-     '<button type="button" class="btn-quiet assistant-replay" data-action="assistant-repeat" aria-label="Ouvir resposta novamente">'+icon('mic',14)+' Ouvir novamente</button></div>'+
+     '<button type="button" class="btn-primary assistant-replay" data-action="assistant-repeat" aria-label="Ouvir resposta">'+icon('volume-2',14)+' Ouvir resposta</button></div>'+
+    '<p class="assistant-audio-status" id="assistant-audio-status" aria-live="polite">'+safe(audioStatus)+'</p>'+
     '<p>'+safe(lastResponse.message)+'</p>'+
     (lastResponse.detail?'<p class="assistant-response-extra">'+safe(lastResponse.detail)+'</p>':'')+
     (pending?'<div class="assistant-confirm"><button class="btn-primary" type="button" data-action="assistant-confirm-task">Confirmar conclusão</button>'+
@@ -176,6 +229,11 @@ export function createAssistantController(h){
   if(command==='assistant-stop-voice'){stopListening();return true;}
   if(command==='assistant-example'){execute(target.dataset.query||'');return true;}
   if(command==='assistant-repeat'){if(lastResponse&&!speak(lastResponse.message))h.toast('Leitura de voz indisponível. A resposta está escrita na tela.');return true;}
+  if(command==='assistant-test-voice'){
+   if(!speak('Olá! Eu sou o SÓCIO. Estou aqui para ajudar você a organizar suas tarefas e seus negócios.'))
+    h.toast('O aparelho não oferece síntese de voz neste navegador.');
+   return true;
+  }
   if(command==='assistant-cancel-task'){
    pending=null;lastResponse={message:'Tudo certo. A tarefa não foi alterada.',related:'',detail:''};
    h.refresh();return true;
@@ -206,5 +264,11 @@ export function createAssistantController(h){
   execute(input?.value||'');
   return true;
  }
- return {render,action,submit,cancelListening,stopAudio};
+ function change(event){
+  if(event.target?.id!=='assistant-voice-select')return false;
+  voiceEngine.selectVoice(event.target.value||'');
+  syncVoicePicker();
+  return true;
+ }
+ return {render,action,submit,change,cancelListening,stopAudio};
 }

@@ -35,10 +35,10 @@ test('visualização na aba Tarefas preserva inputs de data e seletores',()=>{
  assert.match(css,/#task-transcript/);
  assert.doesNotMatch(css,/user-scalable|touch-action|maximum-scale/);
 });
-test('versão V003.23 mantém o motor da Etapa 05, ícone, Web Push e backup',()=>{
+test('versão V003.24 mantém o motor da Etapa 05, ícone, Web Push e backup',()=>{
  const html=read('index.html'),worker=read('service-worker.js'),app=read('js/app.js');
- assert.match(html,/MEU SÓCIO · V003\.23/);
- assert.match(worker,/socio-v00323-20261122/);
+ assert.match(html,/MEU SÓCIO · V003\.24/);
+ assert.match(worker,/socio-v00324-20261122/);
  for(const item of ['./js/task-voice.js','./css/task-voice-v00321.css','./js/time-aware.js','./js/agenda-task-links.js','./js/push.js'])assert.ok(worker.includes(item));
  assert.match(worker,/self\.addEventListener\('push'/);
  assert.match(worker,/self\.addEventListener\('notificationclick'/);

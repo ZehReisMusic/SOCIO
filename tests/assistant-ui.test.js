@@ -25,10 +25,11 @@ function harness(){
  });
  return {c,calls,data};
 }
-test('cartão aparece antes do banner da Home e não muda a navegação',()=>{
+test('banner da saudação aparece antes do assistente e indicadores',()=>{
  const app=read('js/app.js'),top=app.indexOf('function dashboard()');
  assert.ok(app.indexOf('\${assistantUI.render()}',top)>top);
- assert.ok(app.indexOf('\${assistantUI.render()}',top)<app.indexOf('class="home-hero"',top));
+ assert.ok(app.indexOf('class="home-hero"',top)<app.indexOf('\${assistantUI.render()}',top));
+ assert.ok(app.indexOf('\${assistantUI.render()}',top)<app.indexOf('class="metrics home-metrics"',top));
  assert.match(app,/createAssistantController/);
  assert.match(app,/assistantUI\.submit\(event\)/);
  assert.match(app,/assistantUI\.action\(target\)/);
@@ -42,6 +43,8 @@ test('cartão oferece microfone, texto, acesso rápido e replay',()=>{
  assert.match(html,/Qual minha prioridade hoje/);
  assert.match(html,/SOUNDLINE/);
  assert.match(html,/Fale com o SÓCIO/);
+ assert.match(html,/assistant-voice-select/);
+ assert.match(html,/assistant-test-voice/);
 });
 test('resposta aparece escrita depois de consulta sem alterar tarefas',()=>{
  const {c,data}=harness(),before=JSON.stringify(data);

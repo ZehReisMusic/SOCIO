@@ -1,0 +1,28 @@
+/* V003.24 — herói antes do assistente, áudio com seleção da voz local.
+   Layout estreito não causa rolagem horizontal nem zoom involuntário no iPhone. */
+.home-dashboard>.home-hero{grid-column:1/-1}
+.home-dashboard>.assistant-card{grid-column:1/-1}
+.assistant-voice-settings{border-top:1px solid #3c5b6c;margin-top:10px;padding-top:8px;color:#afc6d0;font-size:11px}
+.assistant-voice-settings summary{cursor:pointer;list-style-position:inside;color:#cbdfe3;font-size:11px;line-height:1.5}
+.assistant-voice-settings summary:focus-visible{outline:2px solid #e7bd7f;outline-offset:2px}
+.assistant-voice-settings[open] summary{color:#ecc28b}
+.assistant-voice-config{display:flex;align-items:end;gap:8px;flex-wrap:wrap;margin:11px 0}
+.assistant-voice-config label{flex:1 1 100%;font-size:11px;color:#aec7d0}
+.assistant-voice-config select{box-sizing:border-box;flex:1 1 180px;min-width:0;max-width:100%;border:1px solid #547481;
+ background:#0e202a;color:#eff4f6;border-radius:9px;min-height:42px;font-size:16px!important;padding:9px 11px}
+.assistant-voice-config button{flex:0 0 auto;min-height:42px;padding:9px 13px;font-size:12px}
+.assistant-voice-settings>p{margin:7px 0 0;font-size:11px;line-height:1.5;color:#a7bbc5}
+.assistant-response-head button.assistant-replay{border-radius:9px;min-height:39px;padding:9px 12px;font-size:12px;font-weight:700}
+.assistant-response p.assistant-audio-status{border-radius:7px;background:#1a3540;margin:10px 0 0;
+ padding:9px 11px;font-size:11px;color:#bdd4db;line-height:1.55}
+.assistant-input-row .assistant-mic:focus-visible,.assistant-replay:focus-visible,.assistant-voice-config button:focus-visible{
+ outline:2px solid #efc487;outline-offset:2px
+}
+@media(max-width:740px){
+ .assistant-voice-config{display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
+ .assistant-voice-config label,.assistant-voice-config select{width:100%;min-width:0}
+ .assistant-voice-config button{justify-self:start}
+ .assistant-response-head button.assistant-replay{min-height:42px}
+ .assistant-response p.assistant-audio-status{font-size:11px}
+ .home-dashboard>.home-hero{margin:0}
+}
