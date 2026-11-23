@@ -103,7 +103,6 @@ function dashboard(){
    <span class="home-task-name">${esc(t.title)}</span>
  </div>`).join('');
  return `<div class="home-dashboard">
-   ${assistantUI.render()}
    <section class="home-hero" aria-label="Painel de produtividade">
     <div class="home-hero-art" aria-hidden="true"></div>
     <div class="home-hero-content">
@@ -113,6 +112,7 @@ function dashboard(){
     </div>
     <div class="home-hero-date">${esc(todayFull(now))}</div>
    </section>
+   ${assistantUI.render()}
    <div class="metrics home-metrics">
     ${metric('Negócios','Em acompanhamento',s.businesses,'negocios')}
     ${metric('Ações abertas','Para avançar',s.open,'tarefas')}
@@ -429,7 +429,7 @@ window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY){data=readD
 document.addEventListener('click',handleClick);
 document.addEventListener('socio:push-synced',()=>{if(page==='agenda'&&$('modal-backdrop')?.hidden)render();});
 document.addEventListener('submit',handleSubmit);
-document.addEventListener('change',event=>{if(event.target?.id==='import-file')importFile(event);});
+document.addEventListener('change',event=>{if(assistantUI.change(event))return;if(event.target?.id==='import-file')importFile(event);});
 $('modal-backdrop').addEventListener('click',event=>{if(event.target===$('modal-backdrop'))closeModal();});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('modal-backdrop').hidden)closeModal();});
 page=routes.some(([id])=>id===location.hash.slice(1))||location.hash.slice(1)==='estacao'||location.hash.slice(1)==='soundline'?location.hash.slice(1):'inicio';render();
