@@ -17,9 +17,10 @@ export function rankPortugueseVoices(voices=[]){
   .filter(v=>norm(v?.lang).startsWith('pt'))
   .sort((a,b)=>voiceScore(b)-voiceScore(a)||String(a.name).localeCompare(String(b.name),'pt-BR'));
 }
-export function createAssistantSpeech(onStatus=()=>{}){
+export function createAssistantSpeech(onStatus=()=>{},onActivity=()=>{}){
  let utterance=null,pendingTimer=null,selected='';
- let audioContext=null,sourceNode=null,playbackResolver=null;
+ let audioContext=null,sourceNode=null,playbackResolver=null,playbackToken=0;
+ const activity=playing=>{try{onActivity(Boolean(playing));}catch{}};
  try{selected=localStorage.getItem(KEY)||'';}catch{}
  const notify=(message)=>{
   try{onStatus(message);}catch{}
@@ -78,12 +79,16 @@ export function createAssistantSpeech(onStatus=()=>{}){
   }
  }
  async function playBlob(wav){
+  const token=playbackToken;
+  const cancelled=()=>{if(token!==playbackToken)throw Object.assign(new Error('Reprodução cancelada.'),{name:'AbortError'});};
   const ctx=getAudioContext();
   if(!ctx)throw Error('O iPhone não oferece Web Audio.');
   if(ctx.state!=='running')await ctx.resume?.();
+  cancelled();
   if(ctx.state==='interrupted')throw Error('Web Audio interrompido; toque em Play no reprodutor WAV.');
   const data=await wav.arrayBuffer();
   const decoded=await ctx.decodeAudioData(data);
+  cancelled();
   if(!decoded||!decoded.length)throw Error('Não foi possível decodificar áudio.');
   stopSource();
   return new Promise((resolve,reject)=>{
@@ -92,20 +97,24 @@ export function createAssistantSpeech(onStatus=()=>{}){
     sourceNode=node;playbackResolver=resolve;
     node.buffer=decoded;
     node.connect(ctx.destination);
-    node.onended=()=>{if(sourceNode===node){sourceNode=null;playbackResolver=null;}resolve();};
+    node.onended=()=>{if(sourceNode===node){sourceNode=null;playbackResolver=null;activity(false);}resolve();};
     node.start(0);
+    activity(true);
    }catch(error){sourceNode=null;playbackResolver=null;reject(error);}
   });
  }
  function stopSource(){
   if(sourceNode){
+   activity(false);
    const old=sourceNode;sourceNode=null;
    try{old.onended=null;old.stop(0);old.disconnect();}catch{}
   }
   if(playbackResolver){const done=playbackResolver;playbackResolver=null;done();}
  }
  function stop({quiet=false}={}){
+  playbackToken++;
   stopSource();
+  activity(false);
   if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
   if(utterance){utterance.onstart=null;utterance.onend=null;utterance.onerror=null;utterance=null;}
   try{engine()?.cancel?.();}catch{}
@@ -129,20 +138,24 @@ export function createAssistantSpeech(onStatus=()=>{}){
    item.onstart=()=>{
     if(utterance!==item)return;
     started=true;
+    activity(true);
     if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
     notify('Reproduzindo a resposta. Se não ouvir, confira o volume e o modo silencioso do iPhone.');
    };
    item.onend=()=>{
     if(utterance!==item)return;utterance=null;
+    activity(false);
     if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
     notify('Resposta finalizada. Toque em “Ouvir resposta” para repetir.');
    };
    item.onerror=()=>{
     if(utterance!==item)return;utterance=null;
+    activity(false);
     if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
     notify('O iPhone não conseguiu reproduzir automaticamente. Toque em “Ouvir resposta”.');
    };
    synth.speak(item);
+   activity(true);
    // WebKit pode bloquear saída automática sem emitir error/onstart.
    pendingTimer=setTimeout(()=>{
     pendingTimer=null;
