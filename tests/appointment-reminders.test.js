@@ -80,15 +80,15 @@ test('formulário por áudio e manual, detalhes e indicadores usam a mesma escol
  assert.match(push,/lastSync:\{at:Date\.now\(\),reminders/);
  assert.match(push,/Compromissos da agenda \(avisos individuais:/);
 });
-test('V003.30 preserva Web Push, a identidade visual, a chave local e o ícone original',()=>{
+test('V003.31 preserva Web Push, a identidade visual, a chave local e o ícone original',()=>{
  const worker=read('service-worker.js'),html=read('index.html'),updater=read('js/updater.js');
- assert.match(worker,/socio-v00330-20261123/);
+ assert.match(worker,/socio-v00331-20261123/);
  assert.match(worker,/appointment-reminders\.js/);
  assert.match(worker,/self\.addEventListener\('push'/);
  assert.match(worker,/self\.addEventListener\('notificationclick'/);
  assert.match(html,/reminders-v0039\.css/);
  assert.match(html,/apple-touch-icon\.png\?v=0035/);
- assert.match(updater,/APP_VERSION = 'V003\.30'/);
+ assert.match(updater,/APP_VERSION = 'V003\.31'/);
  assert.match(read('js/store.js'),/socio\.v001\.data/);
 });
 

@@ -1,5 +1,5 @@
 {
-  "version": "V003.30",
+  "version": "V003.31",
   "releasedAt": "2026-11-23",
-  "description": "Assistente sugere horários para tarefas pelo nome ou contexto, considerando duração, prazo, compromissos e margem de segurança na Agenda local. Escolha de horário abre formulário para revisão e confirmação sem agendamento automático. Mantém Faber, botão Parar áudio, dados locais e Web Push."
+  "description": "Vocabulário inteligente: correção manual com confirmação, palavras aprendidas para assistente, tarefas, Agenda e SOUNDLINE, gestão em Ajustes e backup local. Preserva Faber, sugestão de horários e Web Push."
 }

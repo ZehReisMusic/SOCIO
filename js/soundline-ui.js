@@ -2,6 +2,7 @@
 import {SUPPLY_CATEGORIES,QUOTE_STATUSES,DELIVERY_MODES,DEFAULT_SETTINGS,createSoundlineState,
  normalizeSoundline,fromMoney,money,buildCableLine,calculateQuote,quotePricingSnapshot,nextQuoteNumber} from './soundline-core.js';
 import {parseSoundlineVoice} from './soundline-voice.js';
+import {applyVocabulary} from './assistant-vocabulary.js';
 import {renderQuotePdf,quoteFileName} from './soundline-pdf.js';
 
 export function createSoundlineController(h){
@@ -249,7 +250,7 @@ export function createSoundlineController(h){
   }catch(err){h.toast(err.message);}
  }
  function interpretVoice(text){
-  voiceText=String(text||'').slice(0,1200);
+  voiceText=applyVocabulary(String(text||'').slice(0,1200),h.getData()?.vocabulary);
   const result=parseSoundlineVoice(voiceText,state().supplies);
   if(!draft)editQuote();
   draft.clientName=result.clientName||draft.clientName;

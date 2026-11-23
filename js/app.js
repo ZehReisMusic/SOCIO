@@ -5,6 +5,7 @@ import {buildAgendaOverview} from './agenda-overview.js';
 import {linkedTaskIds,linkedTasks,preparationContext} from './agenda-task-links.js';
 import {selectTaskForTime} from './time-aware.js';
 import {parseVoiceTask} from './task-voice.js';
+import {addVocabulary,removeVocabulary,normalizeVocabulary,applyVocabulary} from './assistant-vocabulary.js';
 import {createSoundlineController} from './soundline-ui.js';
 import {createAssistantController} from './assistant-ui.js';
 import {normalizeReminderMinutes,reminderLabel} from './appointment-reminders.js';
@@ -44,6 +45,11 @@ const assistantUI=createAssistantController({
   refresh:render,navigate,toast,
   prepareTask:transcript=>taskForm('','',true,transcript),
   prepareAppointment:prefill=>agendaForm('',false,'','',prefill),
+  learnVocabulary:(heard,correct)=>{
+   const result=addVocabulary(data.vocabulary,heard,correct);
+   if(!result.ok){toast(result.reason);return false;}
+   data.vocabulary=result.entries;save();return true;
+  },
   completeTask
 });
 
@@ -178,7 +184,7 @@ function startTaskSpeech(){
  recognition.lang='pt-BR';recognition.continuous=true;recognition.interimResults=true;
  recognition.onresult=event=>{
    if(taskSpeechSession!==session)return;
-   session.transcript=Array.from(event.results||[]).map(r=>r[0]?.transcript||'').join(' ').trim();
+   session.transcript=applyVocabulary(Array.from(event.results||[]).map(r=>r[0]?.transcript||'').join(' ').trim(),data.vocabulary);
    taskSpeechStatus(session.transcript?'Ouvindo: '+session.transcript:'Ouvindo...');
  };
  recognition.onerror=event=>{
@@ -300,7 +306,7 @@ function setVoiceStatus(text){const label=$('agenda-voice-status');if(label)labe
 async function startAgendaVoice(){if(voiceSession?.recording){stopAgendaVoice();return;}if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){toast('Gravação não disponível neste navegador. Use Novo compromisso.');agendaForm();return;}
  try {const stream=await navigator.mediaDevices.getUserMedia({audio:true});if(page!=='agenda'){stream.getTracks().forEach(t=>t.stop());return;}let recorder;try{recorder=new MediaRecorder(stream);}catch(error){stream.getTracks().forEach(t=>t.stop());throw error;}
   const session={stream,recorder,recognition:null,chunks:[],transcript:'',recording:true,audioUrl:''};voiceSession=session;recorder.ondataavailable=event=>{if(event.data.size)session.chunks.push(event.data);};recorder.onstop=()=>{session.recording=false;session.stream.getTracks().forEach(t=>t.stop());if(voiceSession!==session)return;const blob=new Blob(session.chunks,{type:recorder.mimeType||'audio/webm'});if(blob.size)session.audioUrl=URL.createObjectURL(blob);setTimeout(()=>{if(voiceSession===session)agendaForm('',true,session.transcript,session.audioUrl);},350);};recorder.start();
-  const Recognizer=window.SpeechRecognition||window.webkitSpeechRecognition;if(Recognizer){try{const recognition=new Recognizer();session.recognition=recognition;recognition.lang='pt-BR';recognition.continuous=true;recognition.interimResults=true;recognition.onresult=event=>{session.transcript=Array.from(event.results).map(r=>r[0].transcript).join(' ').trim();setVoiceStatus(session.transcript?`Ouvindo: ${session.transcript}`:'Gravando...');};recognition.onerror=()=>setVoiceStatus('Áudio gravado. A transcrição automática não está disponível; preencha os campos na revisão.');recognition.start();}catch(e){console.warn('Reconhecimento indisponível:',e);}}
+  const Recognizer=window.SpeechRecognition||window.webkitSpeechRecognition;if(Recognizer){try{const recognition=new Recognizer();session.recognition=recognition;recognition.lang='pt-BR';recognition.continuous=true;recognition.interimResults=true;recognition.onresult=event=>{session.transcript=applyVocabulary(Array.from(event.results).map(r=>r[0].transcript).join(' ').trim(),data.vocabulary);setVoiceStatus(session.transcript?`Ouvindo: ${session.transcript}`:'Gravando...');};recognition.onerror=()=>setVoiceStatus('Áudio gravado. A transcrição automática não está disponível; preencha os campos na revisão.');recognition.start();}catch(e){console.warn('Reconhecimento indisponível:',e);}}
   const button=$('agenda-mic-button');if(button){button.dataset.action='voice-stop';button.innerHTML=`${svg('stop',17)} Parar e revisar`;}setVoiceStatus(Recognizer?'Gravando... fale seu compromisso e depois toque em “Parar e revisar”.':'Gravando áudio. Neste navegador, a transcrição poderá precisar ser digitada.');
  }catch(e){toast(e?.name==='NotAllowedError'?'Autorize o microfone para gravar.':'Não foi possível iniciar o microfone.');setVoiceStatus('Você pode cadastrar o compromisso manualmente.');}}
 function stopAgendaVoice(){const session=voiceSession;if(!session?.recording)return;const button=$('agenda-mic-button');if(button){button.disabled=true;button.textContent='Preparando áudio...';}setVoiceStatus('Preparando gravação para revisão...');try{session.recognition?.stop();}catch{}try{session.recorder.stop();}catch{session.stream.getTracks().forEach(t=>t.stop());toast('Não foi possível finalizar a gravação.');}}
@@ -324,7 +330,22 @@ function stationGuideForm(id){
     +'<div class="tipline">O arquivo continua no serviço original. Este aplicativo salva apenas o link, não faz upload ou sincronização.</div>';
   openModal(formWrap('REIZZOR STATION','Adicionar áudio-guia',html,'Salvar referência'),'create-guide',id);
 }
-function settings(){return `${sectionHeader('SEUS DADOS','Dados e ajustes','Controle simples, sem conta, assinatura ou servidor.')}<div class="settings-grid">${renderPushSettings()}<div class="setting-card">${svg('clock',22)}<h2>Atualização do aplicativo</h2><p>Versão instalada: <strong>${APP_VERSION}</strong>. O SÓCIO procura novas versões ao abrir ou retornar ao app com internet. Você também pode verificar e recarregar agora, sem excluir seus dados.</p>${btn(`${svg('clock',15)} Verificar e atualizar`,'update-app','primary')}</div><div class="setting-card">${svg('download',22)}<h2>Exportar backup</h2><p>Salve seus negócios, compromissos, músicas, letras, tarefas e histórico em um arquivo JSON. Recomendado especialmente antes de trocar de aparelho.</p>${btn(`${svg('download',15)} Baixar meus dados`,'export','primary')}</div><div class="setting-card">${svg('upload',22)}<h2>Importar backup</h2><p>Recupere os dados de um arquivo salvo anteriormente. A importação substitui os dados atuais deste dispositivo.</p>${btn(`${svg('upload',15)} Selecionar arquivo`,'import','outline')}<input type="file" accept=".json,application/json" id="import-file" hidden></div><div class="setting-card">${svg('shield',22)}<h2>Privacidade</h2><p>Na versão atual, todos os registros ficam no armazenamento local do navegador ou PWA. Não existe conta nem sincronização automática.</p><span class="soft-pill">Local · ${APP_VERSION}</span></div><div class="setting-card">${svg('layers',22)}<h2>Reiniciar demonstração</h2><p>Volte aos cinco negócios iniciais e às duas tarefas de exemplo. Esta ação apagará os dados locais atuais.</p>${btn(`${svg('delete',15)} Reiniciar dados`,'reset','outline')}</div></div><div class="settings-warning"><strong>Importante:</strong> apagar dados do site ou remover o aplicativo pode eliminar os registros locais. Mac e iPhone ainda não compartilham a mesma base. Use “Exportar backup” periodicamente. A versão publicada do site pode ser visitada por outras pessoas, mas os dados locais de um usuário não aparecem para outro.</div>`;}
+function vocabularySettings(){
+ const entries=normalizeVocabulary(data.vocabulary);
+ const rows=entries.map(item=>'<div class="socio-vocabulary-item"><div><strong>'+esc(item.heard)+'</strong><span aria-hidden="true"> → </span><strong>'+esc(item.correct)+'</strong></div>'+
+  '<button type="button" class="btn-outline" data-action="vocab-delete" data-heard="'+esc(item.heard)+'" aria-label="Excluir correção de '+esc(item.heard)+'">Excluir</button></div>').join('');
+ return '<section class="setting-card socio-vocabulary-card" aria-label="Vocabulário do SÓCIO">'+
+   svg('mic',22)+'<h2>Vocabulário do SÓCIO</h2>'+
+   '<p>Ensine palavras que o iPhone confunde. O SÓCIO corrige a transcrição antes de interpretar a tarefa, a Agenda ou o orçamento. Nada é aprendido sem sua confirmação.</p>'+
+   '<form id="vocab-add-form" class="socio-vocabulary-form">'+
+   '<label for="vocab-heard">O iPhone escreve</label><input name="heard" id="vocab-heard" type="text" maxlength="40" required placeholder="Ex.: Hazor" autocomplete="off">'+
+   '<label for="vocab-correct">O SÓCIO deve entender</label><input name="correct" id="vocab-correct" type="text" maxlength="40" required placeholder="Ex.: REIZZOR" autocomplete="off">'+
+   '<button type="submit" class="btn-primary">Adicionar correção</button></form>'+
+   '<div class="socio-vocabulary-list"><strong>Correções aprendidas ('+entries.length+'/100)</strong>'+
+   (rows||'<p class="socio-vocabulary-empty">Nenhuma ainda. Corrija uma transcrição do assistente ou adicione uma expressão acima.</p>')+'</div>'+
+   '<p class="muted small">As correções ficam neste dispositivo e entram no backup JSON. O reconhecimento de voz do iPhone não é modificado.</p></section>';
+}
+function settings(){return `${sectionHeader('SEUS DADOS','Dados e ajustes','Controle simples, sem conta, assinatura ou servidor.')}<div class="settings-grid">${renderPushSettings()}${vocabularySettings()}<div class="setting-card">${svg('clock',22)}<h2>Atualização do aplicativo</h2><p>Versão instalada: <strong>${APP_VERSION}</strong>. O SÓCIO procura novas versões ao abrir ou retornar ao app com internet. Você também pode verificar e recarregar agora, sem excluir seus dados.</p>${btn(`${svg('clock',15)} Verificar e atualizar`,'update-app','primary')}</div><div class="setting-card">${svg('download',22)}<h2>Exportar backup</h2><p>Salve seus negócios, compromissos, músicas, letras, tarefas, vocabulário aprendido e histórico em um arquivo JSON. Recomendado especialmente antes de trocar de aparelho.</p>${btn(`${svg('download',15)} Baixar meus dados`,'export','primary')}</div><div class="setting-card">${svg('upload',22)}<h2>Importar backup</h2><p>Recupere os dados de um arquivo salvo anteriormente. A importação substitui os dados atuais deste dispositivo.</p>${btn(`${svg('upload',15)} Selecionar arquivo`,'import','outline')}<input type="file" accept=".json,application/json" id="import-file" hidden></div><div class="setting-card">${svg('shield',22)}<h2>Privacidade</h2><p>Na versão atual, todos os registros ficam no armazenamento local do navegador ou PWA. Não existe conta nem sincronização automática.</p><span class="soft-pill">Local · ${APP_VERSION}</span></div><div class="setting-card">${svg('layers',22)}<h2>Reiniciar demonstração</h2><p>Volte aos cinco negócios iniciais e às duas tarefas de exemplo. Esta ação apagará os dados locais atuais.</p>${btn(`${svg('delete',15)} Reiniciar dados`,'reset','outline')}</div></div><div class="settings-warning"><strong>Importante:</strong> apagar dados do site ou remover o aplicativo pode eliminar os registros locais. Mac e iPhone ainda não compartilham a mesma base. Use “Exportar backup” periodicamente. A versão publicada do site pode ser visitada por outras pessoas, mas os dados locais de um usuário não aparecem para outro.</div>`;}
 function formWrap(kicker,title,content,submit='Salvar'){return `<div class="modal-top"><div><div class="caps">${kicker}</div><h2 id="modal-title">${title}</h2></div><button type="button" class="modal-close" data-action="close-modal" aria-label="Fechar">×</button></div><form id="entry-form"><div class="form-stack">${content}</div><div class="modal-footer"><button type="button" class="btn-quiet" data-action="close-modal">Cancelar</button><button type="submit" class="btn-primary">${svg('check',15)} ${submit}</button></div></form>`;}
 function field(label,name,value='',type='text',extra=''){return `<div class="form-field"><label for="f-${name}">${label}</label><input id="f-${name}" name="${name}" type="${type}" value="${esc(value)}" ${extra}></div>`;}
 // O picker nativo permanece funcional; a moldura independente delimita a largura visual no iPhone.
@@ -342,6 +363,12 @@ function addEvent(type,title,businessId=null,taskId=null,note=''){data.events.un
 function completeTask(id){const t=data.tasks.find(x=>x.id===id);if(!t)return;if(t.status==='done'){t.status='open';t.completedAt=null;addEvent('reaberta',`Tarefa retomada: ${t.title}`,t.businessId,t.id);save();toast('Tarefa reaberta.');return;}t.status='done';t.completedAt=new Date().toISOString();addEvent('conclusao',`Tarefa concluída: ${t.title}`,t.businessId,t.id);save();toast('Avanço registrado. Muito bem!');}
 function skipTask(id){const t=data.tasks.find(x=>x.id===id);if(!t||t.status==='done')return;if(data.skipped?.date!==dateKey())data.skipped={date:dateKey(),taskIds:[]};if(!data.skipped.taskIds.includes(id)){data.skipped.taskIds.push(id);addEvent('adiamento',`Ação adiada: ${t.title}`,t.businessId,t.id,'Retorna às recomendações amanhã.');}save();toast('Tudo bem. Essa ação volta amanhã.');}
 function handleClick(event){const target=event.target.closest('[data-action],[data-nav]');if(!target)return;event.preventDefault();if(target.dataset.nav){navigate(target.dataset.nav);return;}if(target.dataset.action?.startsWith('assistant-')&&assistantUI.action(target))return;if(target.dataset.action?.startsWith('sl-')&&soundlineUI.action(target))return;const act=target.dataset.action,id=target.dataset.id||'';switch(act){
+ case 'vocab-delete':{
+  const heard=String(target.dataset.heard||'');
+  if(normalizeVocabulary(data.vocabulary).some(v=>v.heard===heard)&&confirm('Excluir a correção de “'+heard+'”?')){
+   data.vocabulary=removeVocabulary(data.vocabulary,heard);save();toast('Correção excluída.');
+  }break;
+ }
  case 'open-station':navigate('estacao');break;
  case 'open-soundline':navigate('soundline');break;
  case 'back-to-business':navigate('negocios');break;
@@ -398,7 +425,15 @@ function handleClick(event){const target=event.target.closest('[data-action],[da
  case 'import':$('import-file')?.click();break;
  case 'reset':if(confirm('Isso APAGARÁ seus dados locais e restaurará os exemplos iniciais. Faça um backup antes. Deseja continuar?')){data=seedData();writeData(data);render();toast('Exemplos restaurados.');}break;
  }}
-function handleSubmit(event){if(assistantUI.submit(event))return;if(soundlineUI.submit(event))return;if(event.target?.id!=='entry-form')return;event.preventDefault();const f=new FormData(event.target),mode=$('modal-content').dataset.mode,id=$('modal-content').dataset.recordId,now=new Date().toISOString();let message='Salvo.';
+function handleSubmit(event){
+ if(event.target?.id==='vocab-add-form'){
+  event.preventDefault();
+  const form=new FormData(event.target);
+  const result=addVocabulary(data.vocabulary,form.get('heard'),form.get('correct'));
+  if(!result.ok){toast(result.reason);return;}
+  data.vocabulary=result.entries;save();toast('Correção adicionada ao vocabulário.');return;
+ }
+ if(assistantUI.submit(event))return;if(soundlineUI.submit(event))return;if(event.target?.id!=='entry-form')return;event.preventDefault();const f=new FormData(event.target),mode=$('modal-content').dataset.mode,id=$('modal-content').dataset.recordId,now=new Date().toISOString();let message='Salvo.';
  if(mode==='create-business'||mode==='edit-business'){const payload={name:String(f.get('name')||'').trim(),objective:String(f.get('objective')||'').trim(),situation:String(f.get('situation')||'').trim(),status:String(f.get('status')),focus:Number(f.get('focus')),color:String(f.get('color'))};if(!payload.name){toast('Informe o nome do negócio.');return;}if(mode==='create-business'){data.businesses.push({id:newId('b'),...payload,createdAt:now});message='Negócio adicionado.';}else{const b=business(id);if(!b)return;Object.assign(b,payload);message='Negócio atualizado.';}}
  else if(mode==='create-task'||mode==='edit-task'){const payload={title:String(f.get('title')||'').trim(),businessId:String(f.get('businessId')||''),notes:String(f.get('notes')||'').trim(),impact:Number(f.get('impact')),urgency:Number(f.get('urgency')),effort:Number(f.get('effort')),minutes:Number(f.get('minutes')),due:String(f.get('due')||'')};if(!payload.title||!business(payload.businessId)){toast('Informe a ação e o negócio.');return;}if(mode==='create-task'){const created={id:newId('t'),...payload,status:'open',createdAt:now,completedAt:null};data.tasks.push(created);assistantUI.rememberTask(created.id);message='Nova ação registrada.';}else{const t=data.tasks.find(x=>x.id===id);if(!t)return;Object.assign(t,payload);message='Ação atualizada.';}}
  else if(mode==='create-song'||mode==='edit-song'){
