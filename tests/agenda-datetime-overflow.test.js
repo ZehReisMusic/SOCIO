@@ -36,9 +36,9 @@ test('desktop mantém grade original: nenhuma regra de colunas fora do media que
 
 test('versão, cache e tema preservam todas as funções validadas do MEU SÓCIO',()=>{
  const html=read('index.html'),sw=read('service-worker.js');
- assert.equal(JSON.parse(read('version.json')).version,'V003.26');
- assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.26'/);
- assert.match(sw,/socio-v00326-20261123/);
+ assert.equal(JSON.parse(read('version.json')).version,'V003.27');
+ assert.match(read('js/updater.js'),/APP_VERSION = 'V003\.27'/);
+ assert.match(sw,/socio-v00327-20261123/);
  assert.match(sw,/'\.\/css\/agenda-datetime-v00315\.css'/);
  const links=[...html.matchAll(/href="(\.\/css\/[^"]+\.css)"/g)].map(x=>x[1]);
  assert.ok(links.indexOf('./css/agenda-datetime-v00315.css')>links.indexOf('./css/ios-input-focus-v00313.css'));
