@@ -10,7 +10,7 @@ export function createAssistantController(h){
  let neuralStatus=neuralEngineStatusDefault();
  let neuralTechnical='';
  let neuralPreviewUrl='';
- let speechBusy=false,playbackSerial=0,localQueryMs=null,voiceTiming='';
+ let speechBusy=false,playbackSerial=0,localQueryMs=null,voiceTiming='',nativeFallbackPlaying=false;
  const clock=()=>typeof performance!=='undefined'&&typeof performance.now==='function'?performance.now():Date.now();
  function setSpeechBusy(active){
   speechBusy=Boolean(active);
@@ -25,7 +25,7 @@ export function createAssistantController(h){
   const el=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
   if(el)el.textContent=message;
  },playing=>{
-  if(!neuralEngine.enabled())setSpeechBusy(playing);
+  if(!neuralEngine.enabled()||nativeFallbackPlaying)setSpeechBusy(playing);
  });
  const neuralEngine=createAssistantNeural({
   onTiming:({readyMs,fromCache,characters})=>{
@@ -56,6 +56,7 @@ export function createAssistantController(h){
     // A saída WebAudio é prioritária; não ocupar espaço com player se funcionou.
     await voiceEngine.playBlob(blob);
    }catch(error){
+    if(error?.name==='AbortError')throw error;
     // Só exibir o player HTML nativo quando a saída automática falhar.
     if(typeof document!=='undefined'&&typeof URL.createObjectURL==='function'){
      const panel=document.getElementById('assistant-voice-tech');
@@ -79,7 +80,7 @@ export function createAssistantController(h){
  function isHome(){return h.page()==='inicio';}
  function stopAudio(){
   ++playbackSerial;
-  neuralEngine.cancel();voiceEngine.stop({quiet:true});
+  neuralEngine.cancel();voiceEngine.stop({quiet:true});nativeFallbackPlaying=false;
   const player=typeof document!=='undefined'?document.getElementById('assistant-neural-preview'):null;
   if(player){try{player.pause();player.currentTime=0;}catch{}}
   setSpeechBusy(false);
@@ -93,15 +94,18 @@ export function createAssistantController(h){
    void neuralEngine.generate(message).then(out=>{
     if(serial!==playbackSerial)return;
     if(!out.ok&&out.reason!=='cancelled'){
+     nativeFallbackPlaying=true;
      if(!voiceEngine.speak(message))setSpeechBusy(false);
     }else setSpeechBusy(false);
    }).catch(error=>{
     if(serial!==playbackSerial)return;
     console.warn('SÓCIO: falha ao gerar a voz.',error);
+    nativeFallbackPlaying=true;
     if(!voiceEngine.speak(message))setSpeechBusy(false);
    });
    return true;
   }
+  nativeFallbackPlaying=true;
   const ok=voiceEngine.speak(message);
   if(!ok)setSpeechBusy(false);
   return ok;
