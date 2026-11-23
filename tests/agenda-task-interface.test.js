@@ -40,7 +40,7 @@ test('checkboxes e textos cabem no iPhone sem alterar pickers, menu ou zoom',()=
 
 test('cache da PWA inclui ambos novos arquivos e mantém Web Push e design anteriores',()=>{
  const sw=read('service-worker.js');
- assert.match(sw,/socio-v00325-20261123/);
+ assert.match(sw,/socio-v00326-20261123/);
  assert.ok(sw.includes('./js/agenda-task-links.js'));
  assert.ok(sw.includes('./css/agenda-task-links-v00319.css'));
  for(const previous of ['./css/push-time-mobile-v00318.css','./css/agenda-native-picker-v00317.css','./js/push.js'])
