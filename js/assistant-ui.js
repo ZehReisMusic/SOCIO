@@ -235,7 +235,7 @@ export function createAssistantController(h){
    '<button type="button" class="btn-outline" data-action="assistant-test-voice">Testar voz</button></div>'+
    '<p>A voz do sistema é gratuita. A naturalidade depende das vozes instaladas no iPhone.</p>'+
    '<div class="assistant-neural-config"><strong>Voz masculina Faber · teste experimental</strong>'+
-   '<p>Modelo neural brasileiro, gratuito, com geração no próprio aparelho. Primeiro download de aproximadamente 65 MB, além dos componentes de execução. Pode demorar e não funcionar em todos os iPhones.</p>'+
+   '<p>Modelo neural brasileiro, gratuito, com geração no próprio aparelho. Primeiro download de aproximadamente 65 MB, além dos componentes de execução. Pode demorar ou falhar no iPhone. Antes de adotar em uso comercial, precisamos conferir a licença do modelo.</p>'+
    '<div class="assistant-neural-actions">'+
    (!neuralEngine.enabled()?'<button type="button" class="btn-outline" data-action="assistant-neural-enable">Baixar e experimentar Faber</button>':
     '<button type="button" class="btn-outline" data-action="assistant-neural-test">Testar voz masculina</button>'+
