@@ -8,6 +8,7 @@ export function createAssistantController(h){
  let activeRecognition=null, lastResponse=null, lastQuery='',lastTaskId='', pending=null;
  let audioStatus='Toque em “Ouvir resposta” para reproduzir o áudio, caso necessário.';
  let neuralStatus=neuralEngineStatusDefault();
+ let neuralTechnical='';
  let neuralPreviewUrl='';
  const safe=h.escape;
  const icon=h.icon;
@@ -19,12 +20,20 @@ export function createAssistantController(h){
  });
  const neuralEngine=createAssistantNeural({
   status:message=>{
-   neuralStatus=message;
-   audioStatus=message;
+   const failed=/^FABER-(?:LIB|MODEL|SYNTH|AUDIO|ERR)/.test(message);
+   neuralTechnical=failed?message:'';
+   neuralStatus=failed?'A Faber apresentou um problema. Veja os detalhes em Diagnóstico de áudio.':message;
+   audioStatus=neuralStatus;
    const el=typeof document!=='undefined'?document.getElementById('assistant-neural-status'):null;
-   if(el)el.textContent=message;
+   if(el)el.textContent=neuralStatus;
    const reply=typeof document!=='undefined'?document.getElementById('assistant-audio-status'):null;
-   if(reply)reply.textContent=message;
+   if(reply)reply.textContent=neuralStatus;
+   const detail=typeof document!=='undefined'?document.getElementById('assistant-voice-diagnostic'):null;
+   if(detail){detail.textContent=neuralTechnical;detail.hidden=!failed;}
+   if(failed){
+    const panel=typeof document!=='undefined'?document.getElementById('assistant-voice-tech'):null;
+    if(panel)panel.open=true;
+   }
   },
   playAudio:async blob=>{
    try{
@@ -282,9 +291,10 @@ export function createAssistantController(h){
    '<p class="assistant-neural-status" id="assistant-neural-status" role="status" aria-live="polite">'+safe(neuralStatus)+'</p>'+
    '<details class="assistant-voice-advanced" id="assistant-voice-tech"><summary>Diagnóstico de áudio</summary>'+
     '<p>Utilize estes testes apenas se a reprodução apresentar algum problema.</p>'+
+    '<p class="assistant-voice-diagnostic" id="assistant-voice-diagnostic"'+(neuralTechnical?'':' hidden')+'>'+safe(neuralTechnical)+'</p>'+
     '<button type="button" class="btn-outline" data-action="assistant-audio-check">Testar saída de áudio</button>'+
     '<audio id="assistant-neural-preview" controls preload="none" hidden aria-label="Reproduzir WAV gerado"></audio>'+
-    '<p class="assistant-neural-help">Se a Faber gerar o arquivo, mas não conseguir reproduzi-lo, o áudio aparecerá aqui.</p>'+
+    '<p class="assistant-neural-help">Se aparecer FABER-SYNTH, a geração falhou. Se aparecer FABER-AUDIO, teste o arquivo WAV que será disponibilizado aqui.</p>'+
    '</details></div></details>'+ 
    (lastResponse?'<div class="assistant-response" aria-live="polite"><div class="assistant-response-head"><strong>'+icon('spark',15)+' SÓCIO RESPONDE</strong>'+
      '<button type="button" class="btn-primary assistant-replay" data-action="assistant-repeat" aria-label="Ouvir resposta">'+icon('volume-2',14)+' Ouvir resposta</button></div>'+
