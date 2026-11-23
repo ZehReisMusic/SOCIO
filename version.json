@@ -1,5 +1,5 @@
 {
-  "version": "V003.28",
+  "version": "V003.29",
   "releasedAt": "2026-11-23",
-  "description": "SÓCIO Assistente: voz Faber masculina aprovada, central de voz simplificada; escolha ativa, exemplo e troca de voz. Diagnóstico técnico e testes de saída ficam recolhidos. Pré-carregamento local da sessão ONNX após ativação anterior e cache de até três áudios recentes na memória para reduzir demora de respostas repetidas. Preserva síntese que funciona no iPhone, fallback de voz, demais microfones, dados locais, Agenda, Tarefas, SOUNDLINE e Web Push. Ganho real de velocidade depende de teste no iPhone."
+  "description": "Assistente: botão Parar áudio acessível durante preparação e reprodução da Faber, com interrupção do WAV e cancelamento de síntese em andamento sem apagar a resposta escrita. Indicadores de tempo de consulta local e preparação de voz no diagnóstico recolhido, para diferenciar as causas da latência no iPhone. Preserva Faber, cache de áudios, reconhecimento, Agenda, Tarefas, SOUNDLINE e Web Push."
 }
