@@ -24,6 +24,8 @@
 .assistant-voice-advanced[open]>summary {margin-bottom:10px;color:#ecd1a8}
 .assistant-voice-advanced>p {color:#aabfc6;font-size:11px;line-height:1.55;margin:8px 0}
 .assistant-voice-advanced button {padding:9px 12px;min-height:40px;font-size:12px;margin-top:4px}
+.assistant-voice-diagnostic {font-size:11px;color:#f0d0a4;line-height:1.55;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}
+.assistant-voice-diagnostic[hidden]{display:none}
 .assistant-voice-advanced audio {display:block;max-width:100%;width:100%;min-height:48px;box-sizing:border-box;margin:11px 0 0}
 .assistant-voice-advanced audio[hidden] {display:none}
 @media(max-width:740px){
