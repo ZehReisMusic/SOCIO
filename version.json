@@ -1,5 +1,5 @@
 {
-  "version": "V003.25",
+  "version": "V003.26",
   "releasedAt": "2026-11-23",
-  "description": "SÓCIO Assistente: desbloqueio antecipado de Web Audio no toque; teste opcional de voz masculina brasileira Faber via Piper local (~65MB + dependências), sem API paga, modelo baixado somente com confirmação; fallback de voz nativa e status de reprodução preservados. Suporte do iPhone sujeito a teste real, mantendo dados, microfones especializados e Web Push."
+  "description": "SÓCIO Assistente Faber: diagnóstico separado de carregamento, modelo, síntese e reprodução de áudio no iPhone; WAV gerado disponível em reprodutor manual para testar voz mesmo se WebAudio falhar; teste independente da saída Web Audio; nome da voz Faber corrigido quando selecionada; mantém modelo local opt-in, voz padrão fallback, Agenda, Tarefas, SOUNDLINE e Web Push."
 }
