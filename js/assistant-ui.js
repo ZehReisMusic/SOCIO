@@ -173,6 +173,7 @@ export function createAssistantController(h){
   try{
    session.recognition.stop();
    // Algumas versões do WebKit não enviam onend após stop(): desbloqueio seguro.
+   if(activeRecognition!==session)return;
    session.endFallback=setTimeout(()=>{
     session.endFallback=null;
     if(activeRecognition===session){
