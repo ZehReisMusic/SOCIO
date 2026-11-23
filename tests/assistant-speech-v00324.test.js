@@ -111,7 +111,8 @@ test('layout e arquivos do iPhone mantêm os três microfones especializados e n
  assert.ok(app.indexOf('class="home-hero"',start)<app.indexOf('\${assistantUI.render()}',start));
  assert.ok(app.indexOf('\${assistantUI.render()}',start)<app.indexOf('class="metrics home-metrics"',start));
  assert.match(app,/assistantUI\.change\(event\)/);
- for(const action of ['task-voice-start','voice-start','sl-start-voice'])assert.match(app,new RegExp(action));
+ for(const action of ['task-voice-start','voice-start'])assert.match(app,new RegExp(action));
+ assert.match(read('js/soundline-ui.js'),/sl-start-voice/);
  assert.match(sw,/assistant-speech\.js/);
  assert.match(sw,/assistant-v00324\.css/);
  assert.match(css,/font-size:16px!important/);
