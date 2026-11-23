@@ -1,0 +1,4 @@
+/* V003.30: escolhas de horário compactas, adaptadas ao iPhone. */
+.assistant-task-slots{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;max-width:100%;min-width:0}
+.assistant-task-slots button{max-width:100%;white-space:normal;overflow-wrap:anywhere;text-align:left}
+@media(max-width:480px){.assistant-task-slots{display:grid;grid-template-columns:minmax(0,1fr)}.assistant-task-slots button{width:100%;min-width:0}}
