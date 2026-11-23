@@ -1,5 +1,5 @@
 {
-  "version": "V003.24",
-  "releasedAt": "2026-11-22",
-  "description": "SÓCIO ASSISTENTE: boas-vindas do painel primeiro, assistente logo abaixo; reconhecimento com fim automático por silêncio e conclusão da fala; retorno falado com reprodução por toque para iOS; escolha e teste de voz brasileira local; funcionalidades, dados, backup e Web Push preservados."
+  "version": "V003.25",
+  "releasedAt": "2026-11-23",
+  "description": "SÓCIO Assistente: desbloqueio antecipado de Web Audio no toque; teste opcional de voz masculina brasileira Faber via Piper local (~65MB + dependências), sem API paga, modelo baixado somente com confirmação; fallback de voz nativa e status de reprodução preservados. Suporte do iPhone sujeito a teste real, mantendo dados, microfones especializados e Web Push."
 }
