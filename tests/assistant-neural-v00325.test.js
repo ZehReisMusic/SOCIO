@@ -82,7 +82,7 @@ test('sistema de áudio do iPhone é liberado no toque; geração usa Web Audio'
   assert.equal(resumed,1);
   assert.equal(started,1);
   const playing=engine.playBlob(new Blob(['audio']));
-  await Promise.resolve();await Promise.resolve();
+  await new Promise(resolve=>setImmediate(resolve));
   assert.ok(started>=2);
   engine.stop();
   await playing;
