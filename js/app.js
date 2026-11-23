@@ -466,6 +466,7 @@ document.addEventListener('socio:push-synced',()=>{if(page==='agenda'&&$('modal-
 document.addEventListener('submit',handleSubmit);
 document.addEventListener('change',event=>{if(assistantUI.change(event))return;if(event.target?.id==='import-file')importFile(event);});
 document.addEventListener('input',event=>{assistantUI.onCommandInput(event);});
+document.addEventListener('focusin',event=>{assistantUI.onCommandFocus(event);});
 document.addEventListener('focusout',event=>{assistantUI.onCommandBlur(event);});
 $('modal-backdrop').addEventListener('click',event=>{if(event.target===$('modal-backdrop'))closeModal();});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('modal-backdrop').hidden)closeModal();});
