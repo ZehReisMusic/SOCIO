@@ -2,6 +2,7 @@ import {normalizeAgendaDuration} from './agenda-scheduling.js';
 import {linkedTaskIds} from './agenda-task-links.js';
 import {normalizeSoundline} from './soundline-core.js';
 import {normalizeReminderMinutes} from './appointment-reminders.js';
+import {normalizeVocabulary} from './assistant-vocabulary.js';
 import {seedData, BUSINESS_STATES, BUSINESS_COLORS, clamp, safeDate} from './logic.js';
 export const STORAGE_KEY = 'socio.v001.data';
 export function readData(){
@@ -36,6 +37,6 @@ export function validateData(value){
   }).filter(v=>v.title):[];
   const date=/^\d{4}-\d{2}-\d{2}$/.test(value.skipped?.date||'')?value.skipped.date:'';
   const taskIds=new Set(t.map(x=>x.id));
-  return {version:1,businesses:b,tasks:t,events:e,appointments,station,soundline:normalizeSoundline(value.soundline),skipped:{date,taskIds:Array.isArray(value.skipped?.taskIds)?value.skipped.taskIds.filter(v=>taskIds.has(v)).slice(0,10000):[]}};
+  return {version:1,businesses:b,tasks:t,events:e,appointments,station,soundline:normalizeSoundline(value.soundline),vocabulary:normalizeVocabulary(value.vocabulary),skipped:{date,taskIds:Array.isArray(value.skipped?.taskIds)?value.skipped.taskIds.filter(v=>taskIds.has(v)).slice(0,10000):[]}};
 }
 export function downloadJson(data){const str=JSON.stringify(data,null,2);const blob=new Blob([str],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`socio-backup-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);}
